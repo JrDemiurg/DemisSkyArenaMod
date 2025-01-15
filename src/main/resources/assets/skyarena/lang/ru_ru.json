@@ -1,0 +1,25 @@
+{
+  "block.skyarena.altar_battle": "§5Вызов",
+  "block.skyarena.altar_battle_top": "§5Вызов",
+  "block.skyarena.netherite_trophy": "§6Незеритовый трофей",
+  "block.skyarena.oak_trophy": "§6Деревянный трофей",
+  "block.skyarena.stone_trophy": "§6Каменный трофей",
+  "block.skyarena.iron_trophy": "§6Железный трофей",
+  "block.skyarena.gold_trophy": "§6Золотой трофей",
+  "block.skyarena.diamond_trophy": "§6Алмазный трофей",
+
+  "item.skyarena.forest_key": "§bЛесной ключ",
+  "item.skyarena.crimson_key": "§bБагряный ключ",
+  "item.skyarena.desert_key": "§bПустынный Ключ",
+  "item.skyarena.ice_key": "§bЛедяной Ключ",
+  "item.skyarena.ender_key": "§bКлюч Эндера",
+
+  "creativetab.skyarena_tab": "Вкладка Sky Arena",
+
+  "tooltip.skyarena.reward_key": "§8Shift + ПКМ по пустому сундуку, чтобы получить награду",
+  "tooltip.skyarena.trophy": "§8ПКМ по блоку чтобы получить бафф!",
+
+  "message.skyarena.difficult_level": "Уровень сложности: ",
+  "message.skyarena.current_points": "Текущие очки: ",
+  "message.skyarena.peaceful_disabled": "Смените уровень сложности"
+}

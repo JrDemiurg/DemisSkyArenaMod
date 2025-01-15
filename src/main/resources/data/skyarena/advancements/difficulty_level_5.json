@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:difficulty_level_1",
+  "display": {
+    "icon": {
+      "item": "skyarena:stone_trophy"
+    },
+    "title": {
+      "translate": "Not My First Rodeo"
+    },
+    "description": {
+      "translate": "Complete the difficulty level 5"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_5": {
+      "trigger": "skyarena:difficulty_level_5",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_5"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:stone_trophy"
+    ]
+  }
+}

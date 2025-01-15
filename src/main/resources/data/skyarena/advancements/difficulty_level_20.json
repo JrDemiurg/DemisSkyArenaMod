@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:difficulty_level_10",
+  "display": {
+    "icon": {
+      "item": "skyarena:gold_trophy"
+    },
+    "title": {
+      "translate": "I Fear No Death"
+    },
+    "description": {
+      "translate": "Complete the difficulty level 20"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_20": {
+      "trigger": "skyarena:difficulty_level_20",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_20"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:gold_trophy"
+    ]
+  }
+}

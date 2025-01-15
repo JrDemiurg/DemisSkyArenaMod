@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:difficulty_level_5",
+  "display": {
+    "icon": {
+      "item": "skyarena:iron_trophy"
+    },
+    "title": {
+      "translate": "Not for the Faint of Heart"
+    },
+    "description": {
+      "translate": "Let it be ten!"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_10": {
+      "trigger": "skyarena:difficulty_level_10",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_10"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:iron_trophy"
+    ]
+  }
+}

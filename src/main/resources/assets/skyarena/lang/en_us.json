@@ -1,0 +1,25 @@
+{
+  "block.skyarena.altar_battle": "§5Сhallenge",
+  "block.skyarena.altar_battle_top": "§5Сhallenge",
+  "block.skyarena.netherite_trophy": "§6Netherite Trophy",
+  "block.skyarena.oak_trophy": "§6Oak Trophy",
+  "block.skyarena.stone_trophy": "§6Stone Trophy",
+  "block.skyarena.iron_trophy": "§6Iron Trophy",
+  "block.skyarena.gold_trophy": "§6Gold Trophy",
+  "block.skyarena.diamond_trophy": "§6Diamond Trophy",
+
+  "item.skyarena.forest_key": "§bForest Key",
+  "item.skyarena.crimson_key": "§bCrimson Key",
+  "item.skyarena.desert_key": "§bDesert Key",
+  "item.skyarena.ice_key": "§bIce Key",
+  "item.skyarena.ender_key": "§bEnder Key",
+
+  "creativetab.skyarena_tab": "Sky Arena Tab",
+
+  "tooltip.skyarena.reward_key": "§8Shift + Right-Click on an empty chest to claim your reward.",
+  "tooltip.skyarena.trophy": "§8Right-Click on the block to receive a buff!",
+
+  "message.skyarena.difficult_level": "Difficulty Level: ",
+  "message.skyarena.current_points": "Current Points: ",
+  "message.skyarena.peaceful_disabled": "Change the difficulty level"
+}

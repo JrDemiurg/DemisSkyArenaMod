@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "skyarena:block/oak_trophy"
+		},
+		"facing=south": {
+			"model": "skyarena:block/oak_trophy",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "skyarena:block/oak_trophy",
+			"y": 270
+		},
+		"facing=east": {
+			"model": "skyarena:block/oak_trophy",
+			"y": 90
+		}
+	}
+}

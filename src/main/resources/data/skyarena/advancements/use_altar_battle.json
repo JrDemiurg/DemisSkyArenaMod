@@ -1,0 +1,30 @@
+{
+  "parent": "skyarena:common_arena",
+  "display": {
+    "icon": {
+      "item": "skyarena:altar_battle"
+    },
+    "title": {
+      "translate": "Dangerous Acquaintance"
+    },
+    "description": {
+      "translate": "Touch the sword"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "use_altar_battle": {
+      "trigger": "skyarena:use_altar_battle",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "use_altar_battle"
+    ]
+  ]
+}

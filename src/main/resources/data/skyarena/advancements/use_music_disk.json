@@ -1,0 +1,30 @@
+{
+  "parent": "skyarena:use_altar_battle",
+  "display": {
+    "icon": {
+      "item": "minecraft:music_disc_pigstep"
+    },
+    "title": {
+      "translate": "Killer Rhythm"
+    },
+    "description": {
+      "translate": "Use the music disk on the sword"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "use_music_disk": {
+      "trigger": "skyarena:use_music_disk",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "use_music_disk"
+    ]
+  ]
+}

@@ -1,0 +1,19 @@
+{
+	"variants": {
+		"facing=north": {
+			"model": "skyarena:block/altar_battle_top"
+		},
+		"facing=south": {
+			"model": "skyarena:block/altar_battle_top",
+			"y": 180
+		},
+		"facing=west": {
+			"model": "skyarena:block/altar_battle_top",
+			"y": 270
+		},
+		"facing=east": {
+			"model": "skyarena:block/altar_battle_top",
+			"y": 90
+		}
+	}
+}

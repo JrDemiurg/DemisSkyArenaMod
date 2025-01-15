@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:difficulty_level_50",
+  "display": {
+    "icon": {
+      "item": "skyarena:netherite_trophy"
+    },
+    "title": {
+      "translate": "The One Who Conquered Chaos"
+    },
+    "description": {
+      "translate": "Complete the difficulty level 100"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_100": {
+      "trigger": "skyarena:difficulty_level_100",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_100"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:netherite_trophy"
+    ]
+  }
+}

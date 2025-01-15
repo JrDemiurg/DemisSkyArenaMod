@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:difficulty_level_20",
+  "display": {
+    "icon": {
+      "item": "skyarena:diamond_trophy"
+    },
+    "title": {
+      "translate": "Float Like A Butterfly, Sting Like a Bee"
+    },
+    "description": {
+      "translate": "Complete the difficulty level 50"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_50": {
+      "trigger": "skyarena:difficulty_level_50",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_50"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:diamond_trophy"
+    ]
+  }
+}

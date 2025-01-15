@@ -1,0 +1,35 @@
+{
+  "parent": "skyarena:use_altar_battle",
+  "display": {
+    "icon": {
+      "item": "skyarena:oak_trophy"
+    },
+    "title": {
+      "translate": "Taste of Victory"
+    },
+    "description": {
+      "translate": "Win the first victory"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "difficulty_level_1": {
+      "trigger": "skyarena:difficulty_level_1",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "difficulty_level_1"
+    ]
+  ],
+  "rewards": {
+    "loot": [
+      "skyarena:oak_trophy"
+    ]
+  }
+}
