@@ -4,6 +4,7 @@ import net.jrdemiurge.skyarena.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -294,10 +295,10 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public void applyGlowEffectToSummonedMobs() {
+    public void applyGlowEffectToSummonedMobs(Player pPlayer) {
         glowingCounter++;
 
-        if (glowingCounter > 9) {
+        if (glowingCounter > 4) {
             int duration = 12000; // Длительность эффекта в тиках (10 минут)
             int amplifier = 0; // Усиление эффекта (0 — базовый уровень)
             glowingCounter = 0;
@@ -308,6 +309,7 @@ public class AltarBlockEntity extends BlockEntity {
                     livingMob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, amplifier));
                 }
             }
+            pPlayer.displayClientMessage(Component.literal("§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs that need to be defeated have been given the Glowing effect. If you can't find them, you can re-enter the world or die and start the battle again."), false);
         }
     }
 }

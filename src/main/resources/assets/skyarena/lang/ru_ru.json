@@ -1,6 +1,6 @@
 {
-  "block.skyarena.altar_battle": "§5Вызов",
-  "block.skyarena.altar_battle_top": "§5Вызов",
+  "block.skyarena.altar_battle": "§5Алтарь Битвы",
+  "block.skyarena.altar_battle_top": "§5Алтарь Битвы",
   "block.skyarena.netherite_trophy": "§6Незеритовый трофей",
   "block.skyarena.oak_trophy": "§6Деревянный трофей",
   "block.skyarena.stone_trophy": "§6Каменный трофей",
@@ -14,7 +14,7 @@
   "item.skyarena.ice_key": "§bЛедяной Ключ",
   "item.skyarena.ender_key": "§bКлюч Эндера",
 
-  "creativetab.skyarena_tab": "Вкладка Sky Arena",
+  "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + ПКМ по пустому сундуку, чтобы получить награду",
   "tooltip.skyarena.trophy": "§8ПКМ по блоку чтобы получить бафф!",

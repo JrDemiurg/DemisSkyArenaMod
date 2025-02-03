@@ -281,7 +281,7 @@ public class AltarBlock extends BaseEntityBlock {
                 if (!(altarBlockEntity.canSummonMobs())) altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
             }
 
-            altarBlockEntity.applyGlowEffectToSummonedMobs();
+            altarBlockEntity.applyGlowEffectToSummonedMobs(pPlayer);
         }
         return InteractionResult.SUCCESS;
     }

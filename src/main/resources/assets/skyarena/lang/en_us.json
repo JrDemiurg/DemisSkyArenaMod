@@ -1,6 +1,6 @@
 {
-  "block.skyarena.altar_battle": "§5Сhallenge",
-  "block.skyarena.altar_battle_top": "§5Сhallenge",
+  "block.skyarena.altar_battle": "§5Altar of Battle",
+  "block.skyarena.altar_battle_top": "§5Altar of Battle",
   "block.skyarena.netherite_trophy": "§6Netherite Trophy",
   "block.skyarena.oak_trophy": "§6Oak Trophy",
   "block.skyarena.stone_trophy": "§6Stone Trophy",
@@ -14,7 +14,7 @@
   "item.skyarena.ice_key": "§bIce Key",
   "item.skyarena.ender_key": "§bEnder Key",
 
-  "creativetab.skyarena_tab": "Sky Arena Tab",
+  "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Right-Click on an empty chest to claim your reward.",
   "tooltip.skyarena.trophy": "§8Right-Click on the block to receive a buff!",
