@@ -272,6 +272,18 @@ public class AltarBlockEntity extends BlockEntity {
         this.BattleDelay = battleDelay;
     }
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if (activatingPlayer != null && battlePhaseActive) {
+            double distance = activatingPlayer.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
+
+            if (distance > 100 * 100) { // Проверяем расстояние (100 блоков в квадрате)
+                removeSummonedMobs(); // Удаляем все призванные мобы
+                toggleBattlePhase();
+                removeAltarActivationForPlayer(/*player*/);
+                PlayerDeath = false;
+                DeathDelay = 0;
+            }
+        }
+
         if (PlayerDeath){
             DeathDelay++;
 

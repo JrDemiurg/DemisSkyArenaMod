@@ -261,6 +261,8 @@ public class AltarBlock extends BaseEntityBlock {
                                         mobEntity.load(entityData);
                                     }
 
+                                    mobEntity.setPersistenceRequired();
+
                                     mobEntity.finalizeSpawn(
                                             (ServerLevel) pLevel,
                                             pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
