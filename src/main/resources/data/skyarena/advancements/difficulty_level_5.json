@@ -5,10 +5,10 @@
       "item": "skyarena:stone_trophy"
     },
     "title": {
-      "translate": "Not My First Rodeo"
+      "translate": "advancement.skyarena.difficulty_level_5.title"
     },
     "description": {
-      "translate": "Complete the difficulty level 5"
+      "translate": "advancement.skyarena.difficulty_level_5.description"
     },
     "frame": "task",
     "show_toast": true,

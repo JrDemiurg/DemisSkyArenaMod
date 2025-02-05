@@ -5,10 +5,10 @@
       "item": "skyarena:altar_battle"
     },
     "title": {
-      "translate": "Dangerous Acquaintance"
+      "translate": "advancement.skyarena.use_altar_battle.title"
     },
     "description": {
-      "translate": "Touch the sword"
+      "translate": "advancement.skyarena.use_altar_battle.description"
     },
     "frame": "task",
     "show_toast": true,

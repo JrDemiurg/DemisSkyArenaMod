@@ -61,7 +61,6 @@ public class Config {
             mobMap.put("born_in_chaos_v1:mother_spider", 170);
             mobMap.put("born_in_chaos_v1:mrs_pumpkin", 30);
             mobMap.put("born_in_chaos_v1:nightmare_stalker", 120);
-            mobMap.put("born_in_chaos_v1:scarlet_persecutor", 45);
             mobMap.put("born_in_chaos_v1:seared_spirit", 65);
             mobMap.put("born_in_chaos_v1:siamese_skeletons", 25);
             mobMap.put("born_in_chaos_v1:skeleton_thrasher", 90);

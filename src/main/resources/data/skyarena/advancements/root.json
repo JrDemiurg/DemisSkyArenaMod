@@ -7,7 +7,7 @@
       "translate": "Sky Arena"
     },
     "description": {
-      "translate": "Endless battles await you"
+      "translate": "advancement.skyarena.root.description"
     },
     "show_toast": false,
     "announce_to_chat": false,

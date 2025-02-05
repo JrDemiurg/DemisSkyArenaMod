@@ -5,10 +5,10 @@
       "item": "skyarena:oak_trophy"
     },
     "title": {
-      "translate": "Taste of Victory"
+      "translate": "advancement.skyarena.difficulty_level_1.title"
     },
     "description": {
-      "translate": "Win the first victory"
+      "translate": "advancement.skyarena.difficulty_level_1.description"
     },
     "frame": "task",
     "show_toast": true,

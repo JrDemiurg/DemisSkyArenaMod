@@ -21,5 +21,29 @@
 
   "message.skyarena.difficult_level": "Уровень сложности: ",
   "message.skyarena.current_points": "Текущие очки: ",
-  "message.skyarena.peaceful_disabled": "Смените уровень сложности"
+  "message.skyarena.peaceful_disabled": "Смените уровень сложности",
+  "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, попробуйте перезайти в мир или умереть и начать битву заново.",
+
+  "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",
+  "advancement.skyarena.common_arena.title": "К вершинам славы",
+  "advancement.skyarena.common_arena.description": "Найди Небесную Арену",
+  "advancement.skyarena.ice_arena.title": "Ледяная корона",
+  "advancement.skyarena.ice_arena.description": "Найди Ледяную Арену",
+  "advancement.skyarena.use_altar_battle.title": "Опасное знакомство",
+  "advancement.skyarena.use_altar_battle.description": "Коснись меча",
+  "advancement.skyarena.use_music_disk.title": "Убийственный ритм",
+  "advancement.skyarena.use_music_disk.description": "Используй музыкальную пластинку на мече",
+  "advancement.skyarena.difficulty_level_1.title": "Вкус победы",
+  "advancement.skyarena.difficulty_level_1.description": "Одержи первую победу",
+  "advancement.skyarena.difficulty_level_5.title": "Мне не привыкать",
+  "advancement.skyarena.difficulty_level_5.description": "Пройди уровень сложности 5",
+  "advancement.skyarena.difficulty_level_10.title": "Не для слабонервных",
+  "advancement.skyarena.difficulty_level_10.description": "Пусть будет десять!",
+  "advancement.skyarena.difficulty_level_20.title": "Я не боюсь смерти",
+  "advancement.skyarena.difficulty_level_20.description": "Пройди уровень сложности 20",
+  "advancement.skyarena.difficulty_level_50.title": "Порхай как бабочка, жаль как пчела",
+  "advancement.skyarena.difficulty_level_50.description": "Пройди уровень сложности 50",
+  "advancement.skyarena.difficulty_level_100.title": "Покоривший хаос",
+  "advancement.skyarena.difficulty_level_100.description": "Пройди уровень сложности 100"
+
 }

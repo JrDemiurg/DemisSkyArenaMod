@@ -5,10 +5,10 @@
       "item": "minecraft:packed_ice"
     },
     "title": {
-      "translate": "Icy Crown"
+      "translate": "advancement.skyarena.ice_arena.title"
     },
     "description": {
-      "translate": "Find an Ice Arena"
+      "translate": "advancement.skyarena.ice_arena.description"
     },
     "frame": "task",
     "show_toast": true,

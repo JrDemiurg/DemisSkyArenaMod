@@ -299,6 +299,8 @@ public class AltarBlock extends BaseEntityBlock {
                         level.isEmptyBlock(currentPos) &&
                         level.isEmptyBlock(currentPos.above()) &&
                         level.isEmptyBlock(currentPos.above(2)) &&
+                        level.isEmptyBlock(currentPos.north()) && level.isEmptyBlock(currentPos.south()) &&
+                        level.isEmptyBlock(currentPos.east()) && level.isEmptyBlock(currentPos.west()) &&
                         !level.isEmptyBlock(currentPos.below()) &&
                         player.blockPosition().distSqr(currentPos) > 9 * 9) {
                     validPositions.add(currentPos);
@@ -426,8 +428,17 @@ public class AltarBlock extends BaseEntityBlock {
     }
 
     private void setNightTime(Level pLevel) {
-        ServerLevel serverLevel = (ServerLevel) pLevel;
-        serverLevel.setDayTime(18000); // Устанавливаем ночь
+        if (!(pLevel instanceof ServerLevel serverLevel)) return;
+
+        long currentTime = serverLevel.getDayTime();
+        long dayProgress = currentTime % 24000; // Время внутри текущего дня
+
+        long newTime = currentTime - dayProgress + 18000; // Переносим время на 18000 в пределах текущего дня
+        if (dayProgress <= 18000 && currentTime > 24000) {
+            newTime -= 24000; // Если уже ночь, переносим на предыдущую
+        }
+
+        serverLevel.setDayTime(newTime);
     }
 
     private void setRain(Level pLevel) {

@@ -5,10 +5,10 @@
       "item": "skyarena:gold_trophy"
     },
     "title": {
-      "translate": "I Fear No Death"
+      "translate": "advancement.skyarena.difficulty_level_20.title"
     },
     "description": {
-      "translate": "Complete the difficulty level 20"
+      "translate": "advancement.skyarena.difficulty_level_20.description"
     },
     "frame": "goal",
     "show_toast": true,

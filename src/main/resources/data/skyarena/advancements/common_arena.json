@@ -5,10 +5,10 @@
       "item": "minecraft:chiseled_polished_blackstone"
     },
     "title": {
-      "translate": "To the Heights of Glory"
+      "translate": "advancement.skyarena.common_arena.title"
     },
     "description": {
-      "translate": "Find a Sky Arena"
+      "translate": "advancement.skyarena.common_arena.description"
     },
     "frame": "task",
     "show_toast": true,

@@ -5,10 +5,10 @@
       "item": "skyarena:iron_trophy"
     },
     "title": {
-      "translate": "Not for the Faint of Heart"
+      "translate": "advancement.skyarena.difficulty_level_10.title"
     },
     "description": {
-      "translate": "Let it be ten!"
+      "translate": "advancement.skyarena.difficulty_level_10.description"
     },
     "frame": "task",
     "show_toast": true,

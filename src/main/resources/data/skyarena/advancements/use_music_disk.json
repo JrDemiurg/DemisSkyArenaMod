@@ -5,10 +5,10 @@
       "item": "minecraft:music_disc_pigstep"
     },
     "title": {
-      "translate": "Killer Rhythm"
+      "translate": "advancement.skyarena.use_music_disk.title"
     },
     "description": {
-      "translate": "Use the music disk on the sword"
+      "translate": "advancement.skyarena.use_music_disk.description"
     },
     "frame": "task",
     "show_toast": true,

@@ -321,7 +321,7 @@ public class AltarBlockEntity extends BlockEntity {
                     livingMob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, amplifier));
                 }
             }
-            pPlayer.displayClientMessage(Component.literal("§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs that need to be defeated have been given the Glowing effect. If you can't find them, you can re-enter the world or die and start the battle again."), false);
+            pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
         }
     }
 }

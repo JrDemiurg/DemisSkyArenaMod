@@ -5,10 +5,10 @@
       "item": "skyarena:diamond_trophy"
     },
     "title": {
-      "translate": "Float Like A Butterfly, Sting Like a Bee"
+      "translate": "advancement.skyarena.difficulty_level_50.title"
     },
     "description": {
-      "translate": "Complete the difficulty level 50"
+      "translate": "advancement.skyarena.difficulty_level_50.description"
     },
     "frame": "challenge",
     "show_toast": true,

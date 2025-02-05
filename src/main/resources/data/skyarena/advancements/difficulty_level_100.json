@@ -5,10 +5,10 @@
       "item": "skyarena:netherite_trophy"
     },
     "title": {
-      "translate": "The One Who Conquered Chaos"
+      "translate": "advancement.skyarena.difficulty_level_100.title"
     },
     "description": {
-      "translate": "Complete the difficulty level 100"
+      "translate": "advancement.skyarena.difficulty_level_100.description"
     },
     "frame": "challenge",
     "show_toast": true,
