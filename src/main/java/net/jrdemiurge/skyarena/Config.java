@@ -138,6 +138,36 @@ public class Config {
             mobMap.put("netherexp:vessel", 30);
         }
 
+        if (ModList.get().isLoaded("savage_and_ravage")) {
+            mobMap.put("savage_and_ravage:trickster", 40);
+            mobMap.put("savage_and_ravage:skeleton_villager", 30);
+            mobMap.put("savage_and_ravage:iceologer", 50);
+            mobMap.put("savage_and_ravage:griefer", 50);
+            mobMap.put("savage_and_ravage:executioner", 60);
+        }
+
+        if (ModList.get().isLoaded("illagerinvasion")) {
+            mobMap.put("illagerinvasion:provoker", 35);
+            mobMap.put("illagerinvasion:basher", 50);
+            mobMap.put("illagerinvasion:sorcerer", 50);
+            mobMap.put("illagerinvasion:archivist", 35);
+            mobMap.put("illagerinvasion:inquisitor", 130);
+            mobMap.put("illagerinvasion:alchemist", 40);
+            mobMap.put("illagerinvasion:necromancer", 80);
+        }
+
+        if (ModList.get().isLoaded("mowziesmobs")) {
+            mobMap.put("mowziesmobs:naga", 60);
+            mobMap.put("mowziesmobs:bluff", 85);
+        }
+
+        if (ModList.get().isLoaded("irons_spellbooks")) {
+            mobMap.put("irons_spellbooks:citadel_keeper", 130);
+            mobMap.put("irons_spellbooks:archevoker", 130);
+            mobMap.put("irons_spellbooks:necromancer", 80);
+            mobMap.put("irons_spellbooks:cryomancer", 130);
+        }
+
         mobMap.forEach((mobId, value) -> {
             List<Object> mobEntry = new ArrayList<>();
             mobEntry.add(mobId);  // ID моба

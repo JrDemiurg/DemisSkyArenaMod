@@ -302,7 +302,7 @@ public class AltarBlock extends BaseEntityBlock {
                         level.isEmptyBlock(currentPos.north()) && level.isEmptyBlock(currentPos.south()) &&
                         level.isEmptyBlock(currentPos.east()) && level.isEmptyBlock(currentPos.west()) &&
                         !level.isEmptyBlock(currentPos.below()) &&
-                        player.blockPosition().distSqr(currentPos) > 9 * 9) {
+                        player.blockPosition().distSqr(currentPos) > 10 * 10) {
                     validPositions.add(currentPos);
                 }
             }
