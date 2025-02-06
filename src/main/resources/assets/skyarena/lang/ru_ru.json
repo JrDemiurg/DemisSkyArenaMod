@@ -22,6 +22,10 @@
   "message.skyarena.difficult_level": "Уровень сложности: ",
   "message.skyarena.current_points": "Текущие очки: ",
   "message.skyarena.peaceful_disabled": "Смените уровень сложности",
+  "message.skyarena.battle_failed": "БИТВА ПРОВАЛЕНА",
+  "message.skyarena.wasted": "ПОТРАЧЕНО",
+  "message.skyarena.cooldown_remaining": "Перезарядка: %d секунд",
+
   "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, попробуйте перезайти в мир или умереть и начать битву заново.",
 
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",

@@ -3,6 +3,8 @@ package net.jrdemiurge.skyarena.block.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -40,6 +42,7 @@ public class NetheriteTrophy extends Block {
         if (!pLevel.isClientSide) {
             pPlayer.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1800 * 20, 0));
             pPlayer.addEffect(new MobEffectInstance(MobEffects.LUCK, 1800 * 20, 0));
+            pLevel.playSound(null, pPos, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
         }
 
         return InteractionResult.SUCCESS;

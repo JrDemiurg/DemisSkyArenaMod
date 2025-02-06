@@ -22,6 +22,9 @@
   "message.skyarena.difficult_level": "Difficulty Level: ",
   "message.skyarena.current_points": "Current Points: ",
   "message.skyarena.peaceful_disabled": "Change the difficulty level",
+  "message.skyarena.battle_failed": "BATTLE FAILED",
+  "message.skyarena.wasted": "Wasted",
+  "message.skyarena.cooldown_remaining": "Cooldown: %d seconds",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs that need to be defeated have been given the Glowing effect. If you can't find them, you can re-enter the world or die and start the battle again.",
 
   "advancement.skyarena.root.description": "Endless battles await you",

@@ -166,6 +166,13 @@ public class Config {
             mobMap.put("irons_spellbooks:archevoker", 130);
             mobMap.put("irons_spellbooks:necromancer", 80);
             mobMap.put("irons_spellbooks:cryomancer", 130);
+            mobMap.put("irons_spellbooks:pyromancer", 130);
+            mobMap.put("irons_spellbooks:apothecarist", 130);
+        }
+
+        if (ModList.get().isLoaded("aquamirae")) {
+            mobMap.put("aquamirae:tortured_soul", 40);
+            mobMap.put("aquamirae:eel", 180);
         }
 
         mobMap.forEach((mobId, value) -> {
@@ -306,6 +313,18 @@ public class Config {
                     "If true, the key cannot be applied to a chest that contains items.")
             .define("requireEmptyChest", true);
 
+    private static final ForgeConfigSpec.BooleanValue ENABLE_LOSS_MESSAGE_LEAVE = BUILDER
+            .comment("Should the defeat message be shown when the player leaves the arena?")
+            .define("enableLossMessageLeave", true);
+
+    private static final ForgeConfigSpec.BooleanValue ENABLE_LOSS_MESSAGE_DEATH = BUILDER
+            .comment("Should the defeat message be shown when the player dies in battle?")
+            .define("enableLossMessageDeath", true);
+
+    private static final ForgeConfigSpec.BooleanValue ENABLE_UNCLAIMED_REWARD_MESSAGE = BUILDER
+            .comment("Show an unclaimed reward message when any summoned mob has the Glowing effect.")
+            .define("enableUnclaimedRewardMessage", true);
+
     private static final ForgeConfigSpec.ConfigValue<List<List<Object>>> MOB_VALUES = BUILDER
             .comment("List of mobs with their values (e.g., [[\"minecraft:zombie\", 10]])")
             .define("mobValues", defaultMobValues);
@@ -328,6 +347,10 @@ public class Config {
     public static double SquadSpawnChance;
     public static int SquadSpawnSize;
     public static boolean requireEmptyChest;
+    public static boolean enableLossMessageLeave;
+    public static boolean enableLossMessageDeath;
+    public static boolean enableUnclaimedRewardMessage;
+
 
     private static boolean validateLootTable(final Object obj)
     {
@@ -346,6 +369,9 @@ public class Config {
         SquadSpawnChance = SQUAD_SPAWN_CHANCE.get();
         SquadSpawnSize = SQUAD_SPAWN_SIZE.get();
         requireEmptyChest = REQUIRE_EMPTY_CHEST.get();
+        enableLossMessageLeave = ENABLE_LOSS_MESSAGE_LEAVE.get();
+        enableLossMessageDeath = ENABLE_LOSS_MESSAGE_DEATH.get();
+        enableUnclaimedRewardMessage = ENABLE_UNCLAIMED_REWARD_MESSAGE.get();
 
 
         lootTables = LOOT_TABLES.get().stream()

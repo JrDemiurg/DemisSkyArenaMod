@@ -4,6 +4,8 @@ import net.jrdemiurge.skyarena.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -41,11 +43,18 @@ public class GoldTrophy extends Block {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
             if (pPlayer.getCooldowns().isOnCooldown(ModBlocks.GOLD_TROPHY.get().asItem())) {
+                float cooldownPercent = pPlayer.getCooldowns().getCooldownPercent(ModBlocks.GOLD_TROPHY.get().asItem(), 0.0F);
+                int remainingCooldownTicks = (int) (cooldownPercent * 600); // Преобразуем в количество тиков
+
+                int secondsLeft = remainingCooldownTicks / 20; // Переводим тики в секунды
+
+                pPlayer.displayClientMessage(Component.translatable("message.skyarena.cooldown_remaining", secondsLeft), true);
                 return InteractionResult.FAIL;
             }
             pPlayer.getCooldowns().addCooldown(ModBlocks.GOLD_TROPHY.get().asItem(), 600);
 
             pPlayer.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 1800 * 20, 2));
+            pLevel.playSound(null, pPos, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
         }
         return InteractionResult.SUCCESS;
     }

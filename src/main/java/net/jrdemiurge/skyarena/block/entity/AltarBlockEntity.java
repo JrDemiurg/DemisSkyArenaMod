@@ -1,11 +1,16 @@
 package net.jrdemiurge.skyarena.block.entity;
 
 import net.jrdemiurge.skyarena.Config;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -281,6 +286,14 @@ public class AltarBlockEntity extends BlockEntity {
                 removeAltarActivationForPlayer(/*player*/);
                 PlayerDeath = false;
                 DeathDelay = 0;
+
+                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
+                    if (Config.enableLossMessageLeave) {
+                        Component title = Component.translatable("message.skyarena.battle_failed").withStyle(ChatFormatting.DARK_RED);
+                        serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+                        serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10)); // Время появления и исчезновения
+                    }
+                }
             }
         }
 
@@ -300,6 +313,16 @@ public class AltarBlockEntity extends BlockEntity {
                 removeAltarActivationForPlayer(/*player*/);
                 PlayerDeath = false;
                 DeathDelay = 0;
+
+                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
+                    if (Config.enableLossMessageDeath) {
+                        Component title = Component.translatable("message.skyarena.wasted").withStyle(ChatFormatting.WHITE);
+                        Component subtitle = Component.translatable("message.skyarena.battle_failed").withStyle(ChatFormatting.DARK_RED);
+                        serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title)); // Верхняя строка
+                        serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle)); // Нижняя строка
+                        serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10)); // Время появления и исчезновения
+                    }
+                }
             }
         }
         if (BattleDelay > 0) {
@@ -318,10 +341,12 @@ public class AltarBlockEntity extends BlockEntity {
             for (Entity mob : summonedMobs) {
                 if (mob instanceof LivingEntity) {
                     LivingEntity livingMob = (LivingEntity) mob;
-                    livingMob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, amplifier));
+                    livingMob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, amplifier, false, false));
                 }
             }
-            pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
+            if (Config.enableUnclaimedRewardMessage) {
+                pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
+            }
         }
     }
 }
