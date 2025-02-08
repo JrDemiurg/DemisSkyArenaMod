@@ -50,6 +50,7 @@ public class RewardKeyItem extends Item {
 
                 player.getItemInHand(hand).shrink(1);
 
+                player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), 20);
                 level.playSound(null, positionClicked, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
 
                 return InteractionResult.SUCCESS;

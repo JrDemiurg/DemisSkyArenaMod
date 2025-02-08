@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "CBC",
+    "BAB",
+    "CBC"
+  ],
+  "key":
+  {
+    "A":
+    {
+      "item": "minecraft:ender_eye"
+    },
+    "B":
+    {
+      "item": "minecraft:blaze_powder"
+    },
+    "C":
+    {
+      "item": "minecraft:polished_blackstone"
+    }
+  },
+  "result":
+  {
+    "item": "skyarena:crimson_eye",
+    "count": 1
+  }
+}

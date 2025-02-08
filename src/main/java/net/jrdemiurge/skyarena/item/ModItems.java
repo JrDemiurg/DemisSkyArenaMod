@@ -1,6 +1,8 @@
 package net.jrdemiurge.skyarena.item;
 
 import net.jrdemiurge.skyarena.SkyArena;
+import net.jrdemiurge.skyarena.item.custom.IceEyeItem;
+import net.jrdemiurge.skyarena.item.custom.SkyEyeItem;
 import net.jrdemiurge.skyarena.item.custom.RewardKeyItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,6 +28,12 @@ public class ModItems {
 
     public static final RegistryObject<Item> ENDER_KEY = ITEMS.register("ender_key",
             () -> new RewardKeyItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> CRIMSON_EYE = ITEMS.register("crimson_eye",
+            () -> new SkyEyeItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> ICE_EYE = ITEMS.register("ice_eye",
+            () -> new IceEyeItem(new Item.Properties()));
 
 
     public static void register(IEventBus eventBus) {

@@ -45,6 +45,7 @@ public class AltarBlockEntity extends BlockEntity {
     private int difficultyLevel = 1;
     private String arenaType = "sky_arena";
     private int spawnRadius = 21;
+    private boolean firstMessageSent = false;
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntity.ALTAR_BLOCK_ENTITY.get(), pPos, pBlockState);
@@ -345,7 +346,12 @@ public class AltarBlockEntity extends BlockEntity {
                 }
             }
             if (Config.enableUnclaimedRewardMessage) {
-                pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
+                if (!firstMessageSent) {
+                    pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
+                    firstMessageSent = true;
+                } else {
+                    pPlayer.displayClientMessage(Component.translatable("message.skyarena.mobs_glowing"), true);
+                }
             }
         }
     }

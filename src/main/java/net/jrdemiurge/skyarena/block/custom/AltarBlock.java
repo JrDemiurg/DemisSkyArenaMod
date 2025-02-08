@@ -157,6 +157,7 @@ public class AltarBlock extends BaseEntityBlock {
                 if (altarBlockEntity.getBattleDelay() != 0){
                     return InteractionResult.SUCCESS;
                 }
+                altarBlockEntity.setBattleDelay(60);
                 // Отслеживаем активацию алтаря
                 altarBlockEntity.recordAltarActivation(pPlayer, altarPos);
 
@@ -183,10 +184,14 @@ public class AltarBlock extends BaseEntityBlock {
 
                 int remainingPoints = altarBlockEntity.getRemainingPoints(); // Начальное количество очков
 
+                double costCoefficient = calculateCostCoefficient(remainingPoints);
+
                 int minMobValue = Config.mobValues.stream()
                         .map(mob -> (Integer) mob.get(1)) // Получаем стоимость каждого моба
                         .min(Integer::compareTo) // Находим минимальную стоимость
                         .orElse(100000); // Если список пуст, стоимость = 0
+
+                minMobValue = (int) (minMobValue * costCoefficient);
 
                 PlayerTeam summonedMobsTeam = (PlayerTeam) pLevel.getScoreboard().getPlayerTeam("summonedMobs");
                 if (summonedMobsTeam == null) {
@@ -220,6 +225,8 @@ public class AltarBlock extends BaseEntityBlock {
                     List<Object> selectedMob = Config.mobValues.get(randomIndex);
                     String mobTypeString = (String) selectedMob.get(0); // ID моба как строка
                     int mobValue = (Integer) selectedMob.get(1); // Значение для моба
+
+                    mobValue = (int) (mobValue * costCoefficient);
 
                     // пропускаем дешёвых мобов до 5 раз
                     if (mobValue <= remainingPoints / mobCostRatio && skipCount < 6) {
@@ -263,6 +270,13 @@ public class AltarBlock extends BaseEntityBlock {
 
                                     mobEntity.setPersistenceRequired();
 
+                                    double baseHealth = mobEntity.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
+                                    mobEntity.getAttribute(Attributes.MAX_HEALTH).setBaseValue(baseHealth * costCoefficient);
+                                    mobEntity.setHealth((float) (baseHealth * costCoefficient));
+
+                                    double baseDamage = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
+                                    mobEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(baseDamage * costCoefficient);
+
                                     mobEntity.finalizeSpawn(
                                             (ServerLevel) pLevel,
                                             pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
@@ -273,6 +287,7 @@ public class AltarBlock extends BaseEntityBlock {
 
                                     pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
                                 }
+                                /*pPlayer.displayClientMessage(Component.literal(mobTypeString + mobValue), false);*/
                                 pLevel.addFreshEntity(mob);
                                 altarBlockEntity.addSummonedMob(mob); // записываем призванного моба
                                 remainingPoints -= mobValue;
@@ -286,6 +301,22 @@ public class AltarBlock extends BaseEntityBlock {
             altarBlockEntity.applyGlowEffectToSummonedMobs(pPlayer);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    public double calculateCostCoefficient(int remainingPoints) {
+        double costCoefficient = 1.0;
+        double startcost = Config.baseScalingThreshold;
+
+        while (true) {
+            double cost = startcost * costCoefficient;
+            if (cost < remainingPoints / Config.mobCostRatio) {
+                costCoefficient += 0.1;
+                continue;
+            }
+            break;
+        }
+
+        return costCoefficient; // Возвращаем новый коэффициент
     }
 
     private List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, int radius, Player player) {

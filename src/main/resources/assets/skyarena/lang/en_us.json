@@ -13,10 +13,12 @@
   "item.skyarena.desert_key": "§bDesert Key",
   "item.skyarena.ice_key": "§bIce Key",
   "item.skyarena.ender_key": "§bEnder Key",
+  "item.skyarena.crimson_eye": "Crimson Eye",
+  "item.skyarena.ice_eye": "Eye of Ice",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
-  "tooltip.skyarena.reward_key": "§8Shift + Right-Click on an empty chest to claim your reward.",
+  "tooltip.skyarena.reward_key": "§8Shift + Right-Click on the chest to fill it with loot",
   "tooltip.skyarena.trophy": "§8Right-Click on the block to receive a buff!",
 
   "message.skyarena.difficult_level": "Difficulty Level: ",
@@ -25,6 +27,7 @@
   "message.skyarena.battle_failed": "BATTLE FAILED",
   "message.skyarena.wasted": "Wasted",
   "message.skyarena.cooldown_remaining": "Cooldown: %d seconds",
+  "message.skyarena.mobs_glowing": "The mobs have received a glowing effect!",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs that need to be defeated have been given the Glowing effect. If you can't find them, you can re-enter the world or die and start the battle again.",
 
   "advancement.skyarena.root.description": "Endless battles await you",

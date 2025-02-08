@@ -42,12 +42,9 @@ public class Config {
         mobMap.put("minecraft:zoglin", 55);
         mobMap.put("minecraft:witch", 30);
         mobMap.put("minecraft:wither_skeleton", 45);
-        mobMap.put("minecraft:cave_spider", 30);
-        mobMap.put("minecraft:spider", 20);
 
         if (ModList.get().isLoaded("born_in_chaos_v1")) {
             mobMap.put("born_in_chaos_v1:barrel_zombie", 35);
-            mobMap.put("born_in_chaos_v1:bloody_gadfly", 25);
             mobMap.put("born_in_chaos_v1:bonescaller", 40);
             mobMap.put("born_in_chaos_v1:dark_vortex", 55);
             mobMap.put("born_in_chaos_v1:decaying_zombie", 25);
@@ -57,7 +54,6 @@ public class Config {
             mobMap.put("born_in_chaos_v1:fallen_chaos_knight", 80);
             mobMap.put("born_in_chaos_v1:felsteed", 80);
             mobMap.put("born_in_chaos_v1:lifestealer_true_form", 220);
-            mobMap.put("born_in_chaos_v1:lords_felsteed", 270);
             mobMap.put("born_in_chaos_v1:mother_spider", 170);
             mobMap.put("born_in_chaos_v1:mrs_pumpkin", 30);
             mobMap.put("born_in_chaos_v1:nightmare_stalker", 120);
@@ -75,15 +71,7 @@ public class Config {
         }
 
         if (ModList.get().isLoaded("iceandfire")) {
-            mobMap.put("iceandfire:cockatrice", 100);
-            mobMap.put("iceandfire:cyclops", 200);
-            mobMap.put("iceandfire:dread_beast", 40);
-            mobMap.put("iceandfire:dread_ghoul", 40);
-            mobMap.put("iceandfire:dread_knight", 80);
-            mobMap.put("iceandfire:dread_scuttler", 55);
-            mobMap.put("iceandfire:dread_thrall", 40);
-            mobMap.put("iceandfire:ghost", 45);
-            mobMap.put("iceandfire:hydra", 500);
+            mobMap.put("iceandfire:cyclops", 250);
             mobMap.put("iceandfire:stymphalian_bird", 40);
             mobMap.put("iceandfire:troll", 80);
         }
@@ -96,7 +84,7 @@ public class Config {
         if (ModList.get().isLoaded("alexsmobs")) {
             mobMap.put("alexsmobs:mimicube", 40);
             mobMap.put("alexsmobs:murmur", 40);
-            mobMap.put("alexsmobs:warped_mosco", 150);
+            mobMap.put("alexsmobs:warped_mosco", 170);
             mobMap.put("alexsmobs:guster", 25);
             mobMap.put("alexsmobs:rocky_roller", 25);
         }
@@ -128,7 +116,6 @@ public class Config {
         }
         // 1.0.6
         if (ModList.get().isLoaded("call_of_yucutan")) {
-            mobMap.put("call_of_yucutan:blowgun_huracan", 30);
             mobMap.put("call_of_yucutan:undead_warrior", 25);
         }
 
@@ -149,8 +136,6 @@ public class Config {
         if (ModList.get().isLoaded("illagerinvasion")) {
             mobMap.put("illagerinvasion:provoker", 35);
             mobMap.put("illagerinvasion:basher", 50);
-            mobMap.put("illagerinvasion:sorcerer", 50);
-            mobMap.put("illagerinvasion:archivist", 35);
             mobMap.put("illagerinvasion:inquisitor", 130);
             mobMap.put("illagerinvasion:alchemist", 40);
             mobMap.put("illagerinvasion:necromancer", 80);
@@ -172,7 +157,6 @@ public class Config {
 
         if (ModList.get().isLoaded("aquamirae")) {
             mobMap.put("aquamirae:tortured_soul", 40);
-            mobMap.put("aquamirae:eel", 180);
         }
 
         mobMap.forEach((mobId, value) -> {
@@ -201,13 +185,13 @@ public class Config {
         defaultLootTables.add("minecraft:chests/shipwreck_supply");
         defaultLootTables.add("minecraft:chests/shipwreck_treasure");
         defaultLootTables.add("minecraft:chests/simple_dungeon");
-        defaultLootTables.add("minecraft:chests/spawn_bonus_chest");
+        // defaultLootTables.add("minecraft:chests/spawn_bonus_chest");
         defaultLootTables.add("minecraft:chests/stronghold_corridor");
         defaultLootTables.add("minecraft:chests/stronghold_crossing");
         defaultLootTables.add("minecraft:chests/stronghold_library");
         defaultLootTables.add("minecraft:chests/underwater_ruin_big");
         defaultLootTables.add("minecraft:chests/underwater_ruin_small");
-        defaultLootTables.add("minecraft:chests/village/village_armorer"); // норм
+        // defaultLootTables.add("minecraft:chests/village/village_armorer"); // норм
         // defaultLootTables.add("minecraft:chests/village/village_butcher");
         // defaultLootTables.add("minecraft:chests/village/village_cartographer");
         // defaultLootTables.add("minecraft:chests/village/village_desert_house");
@@ -217,16 +201,16 @@ public class Config {
         // defaultLootTables.add("minecraft:chests/village/village_plains_house");
         // defaultLootTables.add("minecraft:chests/village/village_savanna_house");
         // defaultLootTables.add("minecraft:chests/village/village_shepherd");
-        defaultLootTables.add("minecraft:chests/village/village_snowy_house"); // прикольно что там снежки, но так хрень
+        // defaultLootTables.add("minecraft:chests/village/village_snowy_house"); // прикольно что там снежки, но так хрень
         // defaultLootTables.add("minecraft:chests/village/village_taiga_house");
         // defaultLootTables.add("minecraft:chests/village/village_tannery");
         defaultLootTables.add("minecraft:chests/village/village_temple"); // храм, там бывает благославление
-        defaultLootTables.add("minecraft:chests/village/village_toolsmith"); // тут железо только, но сойдёт
-        defaultLootTables.add("minecraft:chests/village/village_weaponsmith"); // норм
+        // defaultLootTables.add("minecraft:chests/village/village_toolsmith"); // тут железо только, но сойдёт
+        // defaultLootTables.add("minecraft:chests/village/village_weaponsmith"); // норм
         defaultLootTables.add("minecraft:chests/woodland_mansion");
 
         if (ModList.get().isLoaded("born_in_chaos_v1")) {
-            defaultLootTables.add("minecraft:chests/basic_chest");
+            // defaultLootTables.add("minecraft:chests/basic_chest");
             defaultLootTables.add("minecraft:chests/chest_level_1");
             defaultLootTables.add("minecraft:chests/chest_level_2");
             defaultLootTables.add("minecraft:chests/chest_level_3");
@@ -236,24 +220,24 @@ public class Config {
         }
 
         if (ModList.get().isLoaded("iceandfire")) {
-            defaultLootTables.add("iceandfire:chest/cyclops_cave");
+            // defaultLootTables.add("iceandfire:chest/cyclops_cave");
             defaultLootTables.add("iceandfire:chest/fire_dragon_female_cave");
             defaultLootTables.add("iceandfire:chest/fire_dragon_male_cave");
-            defaultLootTables.add("iceandfire:chest/fire_dragon_roost");
+            // defaultLootTables.add("iceandfire:chest/fire_dragon_roost");
             defaultLootTables.add("iceandfire:chest/graveyard");
-            defaultLootTables.add("iceandfire:chest/hydra_cave");
+            // defaultLootTables.add("iceandfire:chest/hydra_cave");
             defaultLootTables.add("iceandfire:chest/ice_dragon_female_cave");
             defaultLootTables.add("iceandfire:chest/ice_dragon_male_cave");
-            defaultLootTables.add("iceandfire:chest/ice_dragon_roost");
+            // defaultLootTables.add("iceandfire:chest/ice_dragon_roost");
             defaultLootTables.add("iceandfire:chest/lightning_dragon_female_cave");
             defaultLootTables.add("iceandfire:chest/lightning_dragon_male_cave");
-            defaultLootTables.add("iceandfire:chest/lightning_dragon_roost");
+            // defaultLootTables.add("iceandfire:chest/lightning_dragon_roost");
             defaultLootTables.add("iceandfire:chest/mausoleum_chest");
-            defaultLootTables.add("iceandfire:chest/myrmex_desert_food_chest");
-            defaultLootTables.add("iceandfire:chest/myrmex_jungle_food_chest");
-            defaultLootTables.add("iceandfire:chest/myrmex_loot_chest");
-            defaultLootTables.add("iceandfire:chest/myrmex_trash_chest");
-            defaultLootTables.add("iceandfire:chest/village_scribe");
+            // defaultLootTables.add("iceandfire:chest/myrmex_desert_food_chest");
+            // defaultLootTables.add("iceandfire:chest/myrmex_jungle_food_chest");
+            // defaultLootTables.add("iceandfire:chest/myrmex_loot_chest");
+            // defaultLootTables.add("iceandfire:chest/myrmex_trash_chest");
+            // defaultLootTables.add("iceandfire:chest/village_scribe");
         }
 
         if (ModList.get().isLoaded("call_of_yucutan")) {
@@ -272,9 +256,17 @@ public class Config {
 
     private static final ForgeConfigSpec.ConfigValue<Integer> MOB_COST_RATIO = BUILDER
             .comment("Maximum ratio of remaining points to mob cost for summoning.\n" +
-                    "For example, with a value of 8 and remaining points of 400, mobs with a cost of 50 or less will not be summoned.\n" +
+                    "For example, with a value of 10 and remaining points of 500, mobs with a cost of 50 or less will not be summoned.\n" +
                     "If no mob can be summoned within 5 attempts, a random mob will be summoned regardless of its cost.")
-            .define("mobCostRatio", 8);
+            .define("mobCostRatio", 20);
+
+    private static final ForgeConfigSpec.ConfigValue<Integer> BASE_SCALING_THRESHOLD = BUILDER
+            .comment("Base cost threshold for scaling summoned mobs.\n" +
+                    "If a mob has this cost or higher, it will always be included in the first summon wave.\n" +
+                    "When remaining points exceed this value multiplied by mobCostRatio, mob stats and costs will start increasing.\n" +
+                    "This ensures that difficulty increases by making mobs stronger rather than just summoning more of them.")
+            .define("baseScalingThreshold", 130);
+
 
     private static final ForgeConfigSpec.ConfigValue<Double> SQUAD_SPAWN_CHANCE = BUILDER
             .comment("Chance for spawning a squad of mobs instead of a single mob.\n" +
@@ -311,7 +303,7 @@ public class Config {
     private static final ForgeConfigSpec.BooleanValue REQUIRE_EMPTY_CHEST = BUILDER
             .comment("Determines whether the reward key can only be used on empty chests.\n" +
                     "If true, the key cannot be applied to a chest that contains items.")
-            .define("requireEmptyChest", true);
+            .define("requireEmptyChest", false);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_LOSS_MESSAGE_LEAVE = BUILDER
             .comment("Should the defeat message be shown when the player leaves the arena?")
@@ -350,6 +342,7 @@ public class Config {
     public static boolean enableLossMessageLeave;
     public static boolean enableLossMessageDeath;
     public static boolean enableUnclaimedRewardMessage;
+    public static int baseScalingThreshold;
 
 
     private static boolean validateLootTable(final Object obj)
@@ -372,6 +365,7 @@ public class Config {
         enableLossMessageLeave = ENABLE_LOSS_MESSAGE_LEAVE.get();
         enableLossMessageDeath = ENABLE_LOSS_MESSAGE_DEATH.get();
         enableUnclaimedRewardMessage = ENABLE_UNCLAIMED_REWARD_MESSAGE.get();
+        baseScalingThreshold = BASE_SCALING_THRESHOLD.get();
 
 
         lootTables = LOOT_TABLES.get().stream()

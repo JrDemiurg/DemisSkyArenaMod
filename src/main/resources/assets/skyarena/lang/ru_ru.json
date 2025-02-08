@@ -13,10 +13,12 @@
   "item.skyarena.desert_key": "§bПустынный Ключ",
   "item.skyarena.ice_key": "§bЛедяной Ключ",
   "item.skyarena.ender_key": "§bКлюч Эндера",
+  "item.skyarena.crimson_eye": "Багряное око",
+  "item.skyarena.ice_eye": "Ледяное око",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
-  "tooltip.skyarena.reward_key": "§8Shift + ПКМ по пустому сундуку, чтобы получить награду",
+  "tooltip.skyarena.reward_key": "§8Shift + ПКМ по сундуку, чтобы наполнить его добычей",
   "tooltip.skyarena.trophy": "§8ПКМ по блоку чтобы получить бафф!",
 
   "message.skyarena.difficult_level": "Уровень сложности: ",
@@ -25,7 +27,7 @@
   "message.skyarena.battle_failed": "БИТВА ПРОВАЛЕНА",
   "message.skyarena.wasted": "ПОТРАЧЕНО",
   "message.skyarena.cooldown_remaining": "Перезарядка: %d секунд",
-
+  "message.skyarena.mobs_glowing": "Мобы получили эффект свечения",
   "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, попробуйте перезайти в мир или умереть и начать битву заново.",
 
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",
@@ -49,5 +51,4 @@
   "advancement.skyarena.difficulty_level_50.description": "Пройди уровень сложности 50",
   "advancement.skyarena.difficulty_level_100.title": "Покоривший хаос",
   "advancement.skyarena.difficulty_level_100.description": "Пройди уровень сложности 100"
-
 }
