@@ -25,10 +25,11 @@
   "message.skyarena.current_points": "Текущие очки: ",
   "message.skyarena.peaceful_disabled": "Смените уровень сложности",
   "message.skyarena.battle_failed": "БИТВА ПРОВАЛЕНА",
+  "message.skyarena.left_arena": "Вы покинули арену",
   "message.skyarena.wasted": "ПОТРАЧЕНО",
   "message.skyarena.cooldown_remaining": "Перезарядка: %d секунд",
   "message.skyarena.mobs_glowing": "Мобы получили эффект свечения",
-  "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, попробуйте перезайти в мир или умереть и начать битву заново.",
+  "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, покиньте арену, чтобы начать битву заново.",
 
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",
   "advancement.skyarena.common_arena.title": "К вершинам славы",

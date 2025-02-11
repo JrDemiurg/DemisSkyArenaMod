@@ -25,10 +25,11 @@
   "message.skyarena.current_points": "Aktuelle Punkte: ",
   "message.skyarena.peaceful_disabled": "Schwierigkeitsgrad ändern",
   "message.skyarena.battle_failed": "KAMPF VERLOREN",
+  "message.skyarena.left_arena": "Du hast die Arena verlassen",
   "message.skyarena.wasted": "Verloren",
   "message.skyarena.cooldown_remaining": "Abklingzeit: %d Sekunden",
   "message.skyarena.mobs_glowing": "Die Mobs haben einen Leuchteffekt erhalten!",
-  "message.skyarena.unclaimed_reward": "§4Falls du die Belohnung nicht beanspruchen kannst, bedeutet das, dass du noch nicht alle Gegner besiegt hast. Die verbleibenden Gegner wurden mit dem Leuchteffekt markiert. Falls du sie nicht finden kannst, betrete die Welt erneut oder stirb und starte den Kampf von vorne.",
+  "message.skyarena.unclaimed_reward": "§4Wenn du die Belohnung nicht erhalten kannst, bedeutet das, dass du nicht alle Monster besiegt hast. Die verbleibenden Monster haben den Leuchteffekt erhalten. Wenn du sie nicht finden kannst, verlasse die Arena, um den Kampf neu zu starten.",
 
   "advancement.skyarena.root.description": "Endlose Kämpfe erwarten dich",
   "advancement.skyarena.common_arena.title": "Zu den Höhen des Ruhms",

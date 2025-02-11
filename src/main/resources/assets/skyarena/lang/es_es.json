@@ -25,10 +25,11 @@
   "message.skyarena.current_points": "Puntos Actuales: ",
   "message.skyarena.peaceful_disabled": "Cambia el nivel de dificultad",
   "message.skyarena.battle_failed": "BATALLA FALLIDA",
+  "message.skyarena.left_arena": "Has salido de la arena",
   "message.skyarena.wasted": "Derrotado",
   "message.skyarena.cooldown_remaining": "Tiempo de espera: %d segundos",
   "message.skyarena.mobs_glowing": "¡Los mobs han recibido un efecto de brillo!",
-  "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los mobs. Los mobs restantes han recibido el efecto de Resplandor. Si no puedes encontrarlos, puedes volver a entrar al mundo o morir y comenzar la batalla nuevamente.",
+  "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
 
   "advancement.skyarena.root.description": "Batallas interminables te esperan",
   "advancement.skyarena.common_arena.title": "A las Alturas de la Gloria",

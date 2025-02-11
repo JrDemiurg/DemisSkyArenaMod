@@ -281,7 +281,7 @@ public class AltarBlockEntity extends BlockEntity {
         if (activatingPlayer != null && battlePhaseActive) {
             double distance = activatingPlayer.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
 
-            if (distance > 100 * 100) { // Проверяем расстояние (100 блоков в квадрате)
+            if (distance > 60 * 60) { // Проверяем расстояние (100 блоков в квадрате)
                 removeSummonedMobs(); // Удаляем все призванные мобы
                 toggleBattlePhase();
                 removeAltarActivationForPlayer(/*player*/);
@@ -291,7 +291,9 @@ public class AltarBlockEntity extends BlockEntity {
                 if (activatingPlayer instanceof ServerPlayer serverPlayer) {
                     if (Config.enableLossMessageLeave) {
                         Component title = Component.translatable("message.skyarena.battle_failed").withStyle(ChatFormatting.DARK_RED);
+                        Component subtitle = Component.translatable("message.skyarena.left_arena").withStyle(ChatFormatting.WHITE);
                         serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+                        serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
                         serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10)); // Время появления и исчезновения
                     }
                 }

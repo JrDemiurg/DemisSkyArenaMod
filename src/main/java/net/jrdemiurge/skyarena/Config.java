@@ -159,6 +159,35 @@ public class Config {
             mobMap.put("aquamirae:tortured_soul", 40);
         }
 
+        if (ModList.get().isLoaded("quark")) {
+            mobMap.put("quark:forgotten", 90);
+        }
+
+        if (ModList.get().isLoaded("iter_rpg")) {
+            mobMap.put("iter_rpg:earth_elemental", 55);
+            mobMap.put("iter_rpg:water_elemental", 45);
+            mobMap.put("iter_rpg:air_elemental", 55);
+            mobMap.put("iter_rpg:fire_elemental", 55);
+            mobMap.put("iter_rpg:void_elemental", 65);
+        }
+
+        if (ModList.get().isLoaded("alexscaves")) {
+            mobMap.put("alexscaves:caniac", 40);
+            mobMap.put("alexscaves:candicorn", 40);
+            mobMap.put("alexscaves:licowitch", 50);
+            mobMap.put("alexscaves:deep_one_knight", 85);
+            mobMap.put("alexscaves:deep_one_mage", 130);
+            mobMap.put("alexscaves:brainiac", 100);
+        }
+
+        if (ModList.get().isLoaded("galosphere")) {
+            mobMap.put("galosphere:berserker", 210);
+        }
+
+        if (ModList.get().isLoaded("caverns_and_chasms")) {
+            mobMap.put("caverns_and_chasms:mime", 100);
+        }
+
         mobMap.forEach((mobId, value) -> {
             List<Object> mobEntry = new ArrayList<>();
             mobEntry.add(mobId);  // ID моба
@@ -265,7 +294,7 @@ public class Config {
                     "If a mob has this cost or higher, it will always be included in the first summon wave.\n" +
                     "When remaining points exceed this value multiplied by mobCostRatio, mob stats and costs will start increasing.\n" +
                     "This ensures that difficulty increases by making mobs stronger rather than just summoning more of them.")
-            .define("baseScalingThreshold", 130);
+            .define("baseScalingThreshold", 120);
 
 
     private static final ForgeConfigSpec.ConfigValue<Double> SQUAD_SPAWN_CHANCE = BUILDER

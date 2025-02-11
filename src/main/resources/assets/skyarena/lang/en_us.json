@@ -25,10 +25,11 @@
   "message.skyarena.current_points": "Current Points: ",
   "message.skyarena.peaceful_disabled": "Change the difficulty level",
   "message.skyarena.battle_failed": "BATTLE FAILED",
+  "message.skyarena.left_arena": "You have left the arena",
   "message.skyarena.wasted": "Wasted",
   "message.skyarena.cooldown_remaining": "Cooldown: %d seconds",
   "message.skyarena.mobs_glowing": "The mobs have received a glowing effect!",
-  "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs that need to be defeated have been given the Glowing effect. If you can't find them, you can re-enter the world or die and start the battle again.",
+  "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
 
   "advancement.skyarena.root.description": "Endless battles await you",
   "advancement.skyarena.common_arena.title": "To the Heights of Glory",

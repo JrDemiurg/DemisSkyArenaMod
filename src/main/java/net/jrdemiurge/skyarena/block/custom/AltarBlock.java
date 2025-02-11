@@ -19,6 +19,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -157,7 +158,6 @@ public class AltarBlock extends BaseEntityBlock {
                 if (altarBlockEntity.getBattleDelay() != 0){
                     return InteractionResult.SUCCESS;
                 }
-                altarBlockEntity.setBattleDelay(60);
                 // Отслеживаем активацию алтаря
                 altarBlockEntity.recordAltarActivation(pPlayer, altarPos);
 
@@ -270,12 +270,18 @@ public class AltarBlock extends BaseEntityBlock {
 
                                     mobEntity.setPersistenceRequired();
 
-                                    double baseHealth = mobEntity.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
-                                    mobEntity.getAttribute(Attributes.MAX_HEALTH).setBaseValue(baseHealth * costCoefficient);
-                                    mobEntity.setHealth((float) (baseHealth * costCoefficient));
+                                    AttributeInstance healthAttribute = mobEntity.getAttribute(Attributes.MAX_HEALTH);
+                                    if (healthAttribute != null) {
+                                        double baseHealth = healthAttribute.getBaseValue();
+                                        healthAttribute.setBaseValue(baseHealth * costCoefficient);
+                                        mobEntity.setHealth((float) (baseHealth * costCoefficient));
+                                    }
 
-                                    double baseDamage = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue();
-                                    mobEntity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(baseDamage * costCoefficient);
+                                    AttributeInstance attackAttribute = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE);
+                                    if (attackAttribute != null) {
+                                        double baseDamage = attackAttribute.getBaseValue();
+                                        attackAttribute.setBaseValue(baseDamage * costCoefficient);
+                                    }
 
                                     mobEntity.finalizeSpawn(
                                             (ServerLevel) pLevel,
