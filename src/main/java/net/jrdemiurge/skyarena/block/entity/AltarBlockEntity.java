@@ -3,25 +3,23 @@ package net.jrdemiurge.skyarena.block.entity;
 import net.jrdemiurge.skyarena.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -39,13 +37,17 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean isNewBlock = true;
     private boolean PlayerDeath = false;
     private int DeathDelay = 0;
-    private ResourceLocation recordMusic;
     private int BattleDelay = 0;
     private int glowingCounter = 0;
     private int difficultyLevel = 1;
     private String arenaType = "sky_arena";
     private int spawnRadius = 21;
     private boolean firstMessageSent = false;
+    // музыка
+    public ItemStack recordItem = ItemStack.EMPTY;
+    private boolean isPlayingMusic = false;
+    private long musicEndTick = 0;
+    private long musicTickCount = 0;
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntity.ALTAR_BLOCK_ENTITY.get(), pPos, pBlockState);
@@ -156,62 +158,20 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
         summonedMobs.clear();
-        // Убираем стену
-        /*if (this.level != null) {
-            BlockState blockState = this.getBlockState();
-            Direction direction = blockState.getValue(HorizontalDirectionalBlock.FACING); // Направление вашего блока
-            createWall(this.level, this.getBlockPos(), direction, Blocks.AIR); // Заменяем стену на воздух
-        }*/
     }
 
-    /*public void createWall(Level pLevel, BlockPos altarPos, Direction direction, Block blockType) {
-        if (!(Config.createBarrierWall)) {
-            return;
-        }
-        BlockPos wallStart;
-        BlockPos wallEnd;
+    public void setRecordItem(ItemStack stack) {
+        if (stack.getItem() instanceof RecordItem) {
+            this.recordItem = stack.copy();
 
-        // Определяем координаты стены в зависимости от направления
-        switch (direction) {
-            case NORTH -> {
-                wallStart = altarPos.offset(-1, 0, -22); // Стена для севера
-                wallEnd = altarPos.offset(1, 14, -22);
-            }
-            case SOUTH -> {
-                wallStart = altarPos.offset(-1, 0, 22); // Стена для юга
-                wallEnd = altarPos.offset(1, 14, 22);
-            }
-            case WEST -> {
-                wallStart = altarPos.offset(-22, 0, -1); // Стена для запада
-                wallEnd = altarPos.offset(-22, 14, 1);
-            }
-            case EAST -> {
-                wallStart = altarPos.offset(22, 0, -1); // Стена для востока
-                wallEnd = altarPos.offset(22, 14, 1);
-            }
-            default -> { // На случай неизвестного направления (по умолчанию север)
-                wallStart = altarPos.offset(-1, 0, -19);
-                wallEnd = altarPos.offset(1, 14, -19);
+            if (this.level != null) {
+                this.level.blockEntityChanged(this.getBlockPos());
             }
         }
-
-        // Создаем стену с указанным типом блока
-        for (int x = wallStart.getX(); x <= wallEnd.getX(); x++) {
-            for (int y = wallStart.getY(); y <= wallEnd.getY(); y++) {
-                for (int z = wallStart.getZ(); z <= wallEnd.getZ(); z++) {
-                    BlockPos targetPos = new BlockPos(x, y, z);
-                    pLevel.setBlock(targetPos, blockType.defaultBlockState(), 3);
-                }
-            }
-        }
-    }*/
-
-    public ResourceLocation getRecordMusic() {
-        return recordMusic;
     }
 
-    public void setRecordMusic(ResourceLocation recordMusic) {
-        this.recordMusic = recordMusic;
+    public void clearRecordItem() {
+        this.recordItem = ItemStack.EMPTY;
 
         if (this.level != null) {
             this.level.blockEntityChanged(this.getBlockPos());
@@ -238,8 +198,8 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putInt("DifficultyLevel", this.difficultyLevel);
         pTag.putString("ArenaType", this.arenaType);
         pTag.putInt("SpawnRadius", this.spawnRadius);
-        if (this.recordMusic != null) {
-            pTag.putString("RecordMusic", this.recordMusic.toString());
+        if (!this.recordItem.isEmpty()) {
+            pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
         }
     }
 
@@ -252,9 +212,6 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("IsNewBlock")) {
             this.isNewBlock = pTag.getBoolean("IsNewBlock");
         }
-        if (pTag.contains("RecordMusic")) {
-            recordMusic = new ResourceLocation(pTag.getString("RecordMusic"));
-        }
         if (pTag.contains("DifficultyLevel")) {
             this.difficultyLevel = pTag.getInt("DifficultyLevel");
         }
@@ -263,6 +220,9 @@ public class AltarBlockEntity extends BlockEntity {
         }
         if (pTag.contains("SpawnRadius")) {
             this.spawnRadius = pTag.getInt("SpawnRadius");
+        }
+        if (pTag.contains("RecordItem")) {
+            this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
         }
     }
 
@@ -277,13 +237,43 @@ public class AltarBlockEntity extends BlockEntity {
     public void setBattleDelay(int battleDelay) {
         this.BattleDelay = battleDelay;
     }
+
+    public void startMusic() {
+        if (this.level != null && !recordItem.isEmpty() && !isPlayingMusic) {
+            this.musicTickCount = this.level.getGameTime();
+            RecordItem record = (RecordItem) recordItem.getItem();
+            this.musicEndTick = this.musicTickCount + record.getLengthInTicks() + 20L;
+            this.isPlayingMusic = true;
+            this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(recordItem.getItem())); // Используем предмет пластинки
+            this.setChanged();
+        }
+    }
+
+    public void stopMusic() {
+        if (this.level != null && isPlayingMusic) {
+            this.isPlayingMusic = false;
+            this.level.levelEvent(1011, this.getBlockPos(), 0); // Останавливаем музыку
+            this.setChanged();
+        }
+    }
+
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if (this.isPlayingMusic && this.level != null && !recordItem.isEmpty()) {
+
+            if (this.musicTickCount >= this.musicEndTick) {
+                stopMusic();
+                startMusic();
+            }
+            ++this.musicTickCount;
+        }
+
         if (activatingPlayer != null && battlePhaseActive) {
             double distance = activatingPlayer.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
 
-            if (distance > 60 * 60) { // Проверяем расстояние (100 блоков в квадрате)
-                removeSummonedMobs(); // Удаляем все призванные мобы
+            if (distance > 60 * 60) {
+                removeSummonedMobs();
                 toggleBattlePhase();
+                this.stopMusic();
                 removeAltarActivationForPlayer(/*player*/);
                 PlayerDeath = false;
                 DeathDelay = 0;
@@ -305,14 +295,14 @@ public class AltarBlockEntity extends BlockEntity {
 
             if (DeathDelay > 10) {
                 // Проверяем, использовался ли тотем бессмертия
-                if (/*activatingPlayer.getLastDamageSource() != null && */activatingPlayer.getHealth() > 0) {
-                    // Если здоровье игрока больше 0, это значит, что тотем активировался
+                if (activatingPlayer.getHealth() > 0) {
                     PlayerDeath = false;
                     DeathDelay = 0;
-                    return; // Выходим из метода, мобы не исчезают
+                    return;
                 }
-                removeSummonedMobs(); // Удаляем все призванные мобы
+                removeSummonedMobs();
                 toggleBattlePhase();
+                this.stopMusic();
                 removeAltarActivationForPlayer(/*player*/);
                 PlayerDeath = false;
                 DeathDelay = 0;
@@ -328,9 +318,61 @@ public class AltarBlockEntity extends BlockEntity {
                 }
             }
         }
+
         if (BattleDelay > 0) {
             BattleDelay--;
         }
+
+        if (activatingPlayer != null && battlePhaseActive) {
+            summonedMobs.removeIf(Entity::isRemoved);
+            for (Entity entity : summonedMobs) {
+
+                if (entity instanceof NeutralMob neutralMob) {
+                    if (!(activatingPlayer.isCreative() || activatingPlayer.isSpectator())) {
+                        double mobDistance = activatingPlayer.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
+                        if (mobDistance <= 16 * 16) {
+                            if (neutralMob.getTarget() == null || !neutralMob.getTarget().isAlive()) {
+                                neutralMob.setTarget(activatingPlayer);
+                            }
+                        }
+                    }
+                }
+
+                double mobDistanceToAltar = entity.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
+                if (mobDistanceToAltar > 60 * 60) {
+                    List<BlockPos> spawnPositions = findValidSpawnPositions(pLevel, pPos, spawnRadius, activatingPlayer);
+
+                    if (!spawnPositions.isEmpty()) {
+                        BlockPos teleportPos = spawnPositions.get(pLevel.random.nextInt(spawnPositions.size()));
+                        entity.teleportTo(teleportPos.getX() + 0.5, teleportPos.getY(), teleportPos.getZ() + 0.5);
+                    }
+                    continue;
+                }
+            }
+        }
+    }
+
+    public List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, int radius, Player player) {
+        List<BlockPos> validPositions = new ArrayList<>();
+
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                BlockPos currentPos = center.offset(x, 0, z);
+
+                if (x * x + z * z <= radius * radius && //делаем область кругом, чтобы обрезать углы за ареной
+                        level.isEmptyBlock(currentPos) &&
+                        level.isEmptyBlock(currentPos.above()) &&
+                        level.isEmptyBlock(currentPos.above(2)) &&
+                        level.isEmptyBlock(currentPos.north()) && level.isEmptyBlock(currentPos.south()) &&
+                        level.isEmptyBlock(currentPos.east()) && level.isEmptyBlock(currentPos.west()) &&
+                        !level.isEmptyBlock(currentPos.below()) &&
+                        player.blockPosition().distSqr(currentPos) > 10 * 10) {
+                    validPositions.add(currentPos);
+                }
+            }
+        }
+
+        return validPositions;
     }
 
     public void applyGlowEffectToSummonedMobs(Player pPlayer) {
@@ -341,10 +383,13 @@ public class AltarBlockEntity extends BlockEntity {
             int amplifier = 0; // Усиление эффекта (0 — базовый уровень)
             glowingCounter = 0;
 
+            int affectedMobs = 0;
+
             for (Entity mob : summonedMobs) {
                 if (mob instanceof LivingEntity) {
                     LivingEntity livingMob = (LivingEntity) mob;
                     livingMob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, amplifier, false, false));
+                    affectedMobs++;
                 }
             }
             if (Config.enableUnclaimedRewardMessage) {
@@ -352,7 +397,7 @@ public class AltarBlockEntity extends BlockEntity {
                     pPlayer.displayClientMessage(Component.translatable("message.skyarena.unclaimed_reward"), false);
                     firstMessageSent = true;
                 } else {
-                    pPlayer.displayClientMessage(Component.translatable("message.skyarena.mobs_glowing"), true);
+                    pPlayer.displayClientMessage(Component.translatable("message.skyarena.mobs_glowing", affectedMobs), true);
                 }
             }
         }

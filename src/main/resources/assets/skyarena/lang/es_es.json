@@ -28,7 +28,8 @@
   "message.skyarena.left_arena": "Has salido de la arena",
   "message.skyarena.wasted": "Derrotado",
   "message.skyarena.cooldown_remaining": "Tiempo de espera: %d segundos",
-  "message.skyarena.mobs_glowing": "¡Los mobs han recibido un efecto de brillo!",
+  "message.skyarena.mobs_glowing": "¡%s mobs han recibido un efecto de brillo!",
+  "message.skyarena.victory": "¡Victoria!",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
 
   "advancement.skyarena.root.description": "Batallas interminables te esperan",

@@ -173,7 +173,6 @@ public class Config {
 
         if (ModList.get().isLoaded("alexscaves")) {
             mobMap.put("alexscaves:caniac", 40);
-            mobMap.put("alexscaves:candicorn", 40);
             mobMap.put("alexscaves:licowitch", 50);
             mobMap.put("alexscaves:deep_one_knight", 85);
             mobMap.put("alexscaves:deep_one_mage", 130);

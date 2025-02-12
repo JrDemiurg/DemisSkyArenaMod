@@ -8,6 +8,7 @@ import net.jrdemiurge.skyarena.item.ModItems;
 import net.jrdemiurge.skyarena.triggers.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -108,19 +109,10 @@ public class AltarBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-
             // Если это новый блок, устанавливаем начальные очки
             if (altarBlockEntity.isNewBlock()) {
                 altarBlockEntity.setPoints(Config.StartingPoints); // Устанавливаем стартовое количество очков
                 altarBlockEntity.setNewBlock(false); // Устанавливаем флаг в false, так как блок уже был использован
-            }
-
-            // Проверяем, если игрок использует палку (например, деревянную палку)
-            if (pPlayer.getItemInHand(pHand).getItem() == Items.STICK) {
-                // Удаляем музыку с блока
-                altarBlockEntity.setRecordMusic(null);
-                pLevel.playSound(null, altarPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
@@ -131,16 +123,17 @@ public class AltarBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            if (pPlayer.getItemInHand(pHand).getItem() instanceof RecordItem record) {
-                // Получаем музыку из пластинки
-                ResourceLocation music = record.getSound().getLocation();
-                // Запоминаем её в сущности блока
-                altarBlockEntity.setRecordMusic(music);
-                // Воспроизводим звук, подтверждающий успешное сохранение
-                pLevel.playSound(null, altarPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+            if (pPlayer.getItemInHand(pHand).getItem() == Items.STICK) {
+                altarBlockEntity.clearRecordItem(); // Удаляем пластинку
+                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+                return InteractionResult.SUCCESS;
+            }
+
+            if (pPlayer.getItemInHand(pHand).getItem() instanceof RecordItem) {
+                altarBlockEntity.setRecordItem(pPlayer.getItemInHand(pHand)); // Сохраняем пластинку
+                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
 
                 if (pPlayer instanceof ServerPlayer serverPlayer) {
-                    // Вызов триггера
                     UseMusicDisk.INSTANCE.trigger(serverPlayer);
                 }
 
@@ -161,6 +154,7 @@ public class AltarBlock extends BaseEntityBlock {
                 // Отслеживаем активацию алтаря
                 altarBlockEntity.recordAltarActivation(pPlayer, altarPos);
 
+                altarBlockEntity.startMusic();
                 // Отображаем текущие очки игроку в клиентской части
                 Component message = Component.translatable("message.skyarena.difficult_level")
                         .append(Component.literal(String.valueOf(altarBlockEntity.getDifficultyLevel())));
@@ -169,18 +163,15 @@ public class AltarBlock extends BaseEntityBlock {
                 // Устанавливаем окружение
                 setEnvironment(pLevel);
 
-                // Воспроизведение звука
+                /*if (pLevel instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(ParticleTypes.PORTAL,
+                            altarPos.getX() + 0.5,
+                            altarPos.getY() + 0.8,
+                            altarPos.getZ() + 0.5,
+                            100, 0.25, 0.5, 0.25, 0);
+                }*/
+
                 pLevel.playSound(null, altarPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
-
-                /*// Стена
-                Direction direction = pState.getValue(HorizontalDirectionalBlock.FACING); // Направление блока
-                altarBlockEntity.createWall(pLevel, altarPos, direction, Blocks.BARRIER);*/
-
-                // Музыка
-                ResourceLocation music = altarBlockEntity.getRecordMusic();
-                if (music != null) {
-                    pLevel.playSound(null, altarPos, ForgeRegistries.SOUND_EVENTS.getValue(music), SoundSource.RECORDS, 4.0F, 1.0F);
-                }
 
                 int remainingPoints = altarBlockEntity.getRemainingPoints(); // Начальное количество очков
 
@@ -206,7 +197,7 @@ public class AltarBlock extends BaseEntityBlock {
                 double squadSpawnChance = Config.SquadSpawnChance;
                 int squadSpawnSize = Config.SquadSpawnSize;
 
-                List<BlockPos> validPositions = findValidSpawnPositions(pLevel, altarPos, altarBlockEntity.getSpawnRadius(), pPlayer);
+                List<BlockPos> validPositions = altarBlockEntity.findValidSpawnPositions(pLevel, altarPos, altarBlockEntity.getSpawnRadius(), pPlayer);
                 /*Component messagee = Component.literal(String.valueOf(validPositions.size()));
                 pPlayer.displayClientMessage(messagee, false);
                 for (BlockPos pos : validPositions) {
@@ -325,44 +316,23 @@ public class AltarBlock extends BaseEntityBlock {
         return costCoefficient; // Возвращаем новый коэффициент
     }
 
-    private List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, int radius, Player player) {
-        List<BlockPos> validPositions = new ArrayList<>();
-
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                BlockPos currentPos = center.offset(x, 0, z);
-
-                if (x * x + z * z <= radius * radius && //делаем область кругом, чтобы обрезать углы за ареной
-                        level.isEmptyBlock(currentPos) &&
-                        level.isEmptyBlock(currentPos.above()) &&
-                        level.isEmptyBlock(currentPos.above(2)) &&
-                        level.isEmptyBlock(currentPos.north()) && level.isEmptyBlock(currentPos.south()) &&
-                        level.isEmptyBlock(currentPos.east()) && level.isEmptyBlock(currentPos.west()) &&
-                        !level.isEmptyBlock(currentPos.below()) &&
-                        player.blockPosition().distSqr(currentPos) > 10 * 10) {
-                    validPositions.add(currentPos);
-                }
-            }
-        }
-
-        return validPositions;
-    }
-
     private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos altarPos, BlockState pState, Player pPlayer) {
         // Удаляем игрока из списка и добавляем очки
         altarBlockEntity.removeAltarActivationForPlayer(/*pPlayer*/);
         altarBlockEntity.addPoints(Config.PointsIncrease);
 
+        /*if (pLevel instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.PORTAL,
+                    altarPos.getX() + 0.5,
+                    altarPos.getY() + 0.8,
+                    altarPos.getZ() + 0.5,
+                    100, 0.25, 0.5, 0.25, 0);
+        }*/
+
         handleVictoryTriggers(altarBlockEntity, pPlayer);
 
-        // Создаем стену
-        /*Direction direction = pState.getValue(HorizontalDirectionalBlock.FACING);*/
-        /*altarBlockEntity.createWall(pLevel, altarPos, direction, Blocks.AIR);*/
+        pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
 
-        // Создаем сундук
-        /*BlockPos chestPos = getChestPosition(altarPos, direction);
-        Direction chestFacing = getChestFacing(direction);
-        createChest(pLevel, chestPos, chestFacing, pPlayer);*/
         int difficultyLevel = altarBlockEntity.getDifficultyLevel(); // Получаем текущий уровень сложности
         int keyCount = difficultyLevel / 10 + 1;
 
@@ -387,6 +357,7 @@ public class AltarBlock extends BaseEntityBlock {
 
         // Переключаем фазу боя
         altarBlockEntity.toggleBattlePhase();
+        altarBlockEntity.stopMusic();
         altarBlockEntity.setBattleDelay(40);
     }
 
@@ -413,44 +384,6 @@ public class AltarBlock extends BaseEntityBlock {
             if (difficultyLevel >= 100) {
                 DifficultyLevel100.INSTANCE.trigger(serverPlayer);
             }
-        }
-    }
-
-    private BlockPos getChestPosition(BlockPos altarPos, Direction direction) {
-        switch (direction) {
-            case NORTH:
-                return altarPos.offset(0, 2, 19);
-            case SOUTH:
-                return altarPos.offset(0, 2, -19);
-            case WEST:
-                return altarPos.offset(19, 2, 0);
-            case EAST:
-                return altarPos.offset(-19, 2, 0);
-            default:
-                return altarPos.offset(19, 2, 0); // По умолчанию
-        }
-    }
-
-    private Direction getChestFacing(Direction direction) {
-        switch (direction) {
-            case NORTH: return Direction.NORTH;
-            case SOUTH: return Direction.SOUTH;
-            case WEST: return Direction.WEST;
-            case EAST: return Direction.EAST;
-            default: return Direction.WEST; // По умолчанию
-        }
-    }
-
-    private void createChest(Level pLevel, BlockPos chestPos, Direction chestFacing, Player pPlayer) {
-        BlockState chestState = Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, chestFacing);
-        pLevel.setBlock(chestPos, chestState, 3);
-
-        ChestBlockEntity chestEntity = (ChestBlockEntity) pLevel.getBlockEntity(chestPos);
-        if (chestEntity != null && !Config.lootTables.isEmpty()) {
-            // Выбираем случайную таблицу лута из списка
-            chestEntity.clearContent();
-            ResourceLocation randomLootTable = Config.lootTables.get(new Random().nextInt(Config.lootTables.size()));
-            chestEntity.setLootTable(randomLootTable, pPlayer.getRandom().nextLong());
         }
     }
 
