@@ -33,13 +33,10 @@ public class AltarBlockEntity extends BlockEntity {
     private Player activatingPlayer;
     public final List<Entity> summonedMobs = new ArrayList<>();
     private boolean battlePhaseActive = false;
-    private int remainingPoints;
-    private boolean isNewBlock = true;
     private boolean PlayerDeath = false;
     private int DeathDelay = 0;
     private int BattleDelay = 0;
     private int glowingCounter = 0;
-    private int difficultyLevel = 1;
     private String arenaType = "sky_arena";
     private int spawnRadius = 21;
     private boolean firstMessageSent = false;
@@ -48,6 +45,13 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean isPlayingMusic = false;
     private long musicEndTick = 0;
     private long musicTickCount = 0;
+    // сложность
+    private int remainingPoints;
+    private boolean isNewBlock = true;
+    private int difficultyLevel = 1;
+
+    private static final Map<String, Integer> playerPoints = new HashMap<>();
+    private static final Map<String, Integer> playerDifficulty = new HashMap<>();
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntity.ALTAR_BLOCK_ENTITY.get(), pPos, pBlockState);
@@ -129,6 +133,13 @@ public class AltarBlockEntity extends BlockEntity {
         return remainingPoints;
     }
 
+    public int getRemainingPoints(Player player) {
+        if (Config.individualPlayerStats) {
+            return playerPoints.getOrDefault(player.getGameProfile().getName(), Config.StartingPoints);
+        }
+        return remainingPoints;
+    }
+
     public void addPoints(int points) {
         this.remainingPoints += points;
 
@@ -137,8 +148,33 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
+    public void addPoints(Player player, int points) {
+        if (Config.individualPlayerStats) {
+            playerPoints.put(player.getGameProfile().getName(),
+                    getRemainingPoints(player) + points);
+        } else {
+            this.remainingPoints += points;
+        }
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
     public void setPoints(int points) {
         this.remainingPoints = points;
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void setPoints(Player player, int points) {
+        if (Config.individualPlayerStats) {
+            playerPoints.put(player.getGameProfile().getName(), points);
+        } else {
+            this.remainingPoints = points;
+        }
 
         if (this.level != null) {
             this.level.blockEntityChanged(this.getBlockPos());
@@ -182,8 +218,40 @@ public class AltarBlockEntity extends BlockEntity {
         return difficultyLevel;
     }
 
+    public int getDifficultyLevel(Player player) {
+        if (Config.individualPlayerStats) {
+            return playerDifficulty.getOrDefault(player.getGameProfile().getName(), 1);
+        }
+        return difficultyLevel;
+    }
+
     public void increaseDifficultyLevel() {
         difficultyLevel++;
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void increaseDifficultyLevel(Player player) {
+        if (Config.individualPlayerStats) {
+            playerDifficulty.put(player.getGameProfile().getName(),
+                    getDifficultyLevel(player) + 1);
+        } else {
+            this.difficultyLevel++;
+        }
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void setDifficultyLevel(Player player, int level) {
+        if (Config.individualPlayerStats) {
+            playerDifficulty.put(player.getGameProfile().getName(), level);
+        } else {
+            this.difficultyLevel = level;
+        }
 
         if (this.level != null) {
             this.level.blockEntityChanged(this.getBlockPos());
@@ -200,6 +268,22 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putInt("SpawnRadius", this.spawnRadius);
         if (!this.recordItem.isEmpty()) {
             pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
+        }
+
+        if (!playerPoints.isEmpty()) {
+            CompoundTag playersTag = new CompoundTag();
+            for (Map.Entry<String, Integer> entry : playerPoints.entrySet()) {
+                playersTag.putInt(entry.getKey(), entry.getValue());
+            }
+            pTag.put("PlayerPoints", playersTag);
+        }
+
+        if (!playerDifficulty.isEmpty()) {
+            CompoundTag difficultyTag = new CompoundTag();
+            for (Map.Entry<String, Integer> entry : playerDifficulty.entrySet()) {
+                difficultyTag.putInt(entry.getKey(), entry.getValue());
+            }
+            pTag.put("PlayerDifficulty", difficultyTag);
         }
     }
 
@@ -223,6 +307,18 @@ public class AltarBlockEntity extends BlockEntity {
         }
         if (pTag.contains("RecordItem")) {
             this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
+        }
+        if (pTag.contains("PlayerPoints")) {
+            CompoundTag playersTag = pTag.getCompound("PlayerPoints");
+            for (String key : playersTag.getAllKeys()) {
+                playerPoints.put(key, playersTag.getInt(key));
+            }
+        }
+        if (pTag.contains("PlayerDifficulty")) {
+            CompoundTag difficultyTag = pTag.getCompound("PlayerDifficulty");
+            for (String key : difficultyTag.getAllKeys()) {
+                playerDifficulty.put(key, difficultyTag.getInt(key));
+            }
         }
     }
 

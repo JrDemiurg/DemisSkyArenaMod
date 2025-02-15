@@ -30,6 +30,7 @@
   "message.skyarena.cooldown_remaining": "Tiempo de espera: %d segundos",
   "message.skyarena.mobs_glowing": "¡%s mobs han recibido un efecto de brillo!",
   "message.skyarena.victory": "¡Victoria!",
+  "message.skyarena.points_reset": "El nivel de dificultad ha sido restablecido",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
 
   "advancement.skyarena.root.description": "Batallas interminables te esperan",

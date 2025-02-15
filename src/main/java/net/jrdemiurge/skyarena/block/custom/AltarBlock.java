@@ -106,6 +106,8 @@ public class AltarBlock extends BaseEntityBlock {
                 Component message = Component.literal(newType);
                 pPlayer.displayClientMessage(message, true);
 
+                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
                 return InteractionResult.SUCCESS;
             }
 
@@ -117,7 +119,7 @@ public class AltarBlock extends BaseEntityBlock {
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
                 Component message = Component.translatable("message.skyarena.current_points")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getRemainingPoints())));
+                        .append(Component.literal(String.valueOf(altarBlockEntity.getRemainingPoints(pPlayer))));
 
                 pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
                 return InteractionResult.SUCCESS;
@@ -125,6 +127,7 @@ public class AltarBlock extends BaseEntityBlock {
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.STICK) {
                 altarBlockEntity.clearRecordItem(); // Удаляем пластинку
+                altarBlockEntity.stopMusic();
                 pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.SUCCESS;
             }
@@ -133,9 +136,34 @@ public class AltarBlock extends BaseEntityBlock {
                 altarBlockEntity.setRecordItem(pPlayer.getItemInHand(pHand)); // Сохраняем пластинку
                 pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
 
+                if (altarBlockEntity.isBattlePhaseActive()) {
+                    altarBlockEntity.stopMusic();
+                    altarBlockEntity.startMusic();
+                }
+
                 if (pPlayer instanceof ServerPlayer serverPlayer) {
                     UseMusicDisk.INSTANCE.trigger(serverPlayer);
                 }
+
+                return InteractionResult.SUCCESS;
+            }
+
+            if (pPlayer.getItemInHand(pHand).getItem() == Items.NETHERITE_INGOT) {
+                if (pPlayer.getCooldowns().isOnCooldown(Items.NETHERITE_INGOT) || altarBlockEntity.isBattlePhaseActive()) {
+                    return InteractionResult.PASS;
+                }
+
+                altarBlockEntity.setPoints(pPlayer, Config.StartingPoints);
+                altarBlockEntity.setDifficultyLevel(pPlayer, 1);
+
+                pPlayer.getItemInHand(pHand).shrink(1);
+
+                pPlayer.getCooldowns().addCooldown(Items.NETHERITE_INGOT, 40); // 40 тиков = 2 секунды
+
+                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+                Component message = Component.translatable("message.skyarena.points_reset");
+                pPlayer.displayClientMessage(message, true);
 
                 return InteractionResult.SUCCESS;
             }
@@ -157,7 +185,7 @@ public class AltarBlock extends BaseEntityBlock {
                 altarBlockEntity.startMusic();
                 // Отображаем текущие очки игроку в клиентской части
                 Component message = Component.translatable("message.skyarena.difficult_level")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getDifficultyLevel())));
+                        .append(Component.literal(String.valueOf(altarBlockEntity.getDifficultyLevel(pPlayer))));
                 pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
 
                 // Устанавливаем окружение
@@ -173,7 +201,7 @@ public class AltarBlock extends BaseEntityBlock {
 
                 pLevel.playSound(null, altarPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
 
-                int remainingPoints = altarBlockEntity.getRemainingPoints(); // Начальное количество очков
+                int remainingPoints = altarBlockEntity.getRemainingPoints(pPlayer); // Начальное количество очков
 
                 double costCoefficient = calculateCostCoefficient(remainingPoints);
 
@@ -319,7 +347,7 @@ public class AltarBlock extends BaseEntityBlock {
     private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos altarPos, BlockState pState, Player pPlayer) {
         // Удаляем игрока из списка и добавляем очки
         altarBlockEntity.removeAltarActivationForPlayer(/*pPlayer*/);
-        altarBlockEntity.addPoints(Config.PointsIncrease);
+        altarBlockEntity.addPoints(pPlayer ,Config.PointsIncrease);
 
         /*if (pLevel instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.PORTAL,
@@ -333,7 +361,7 @@ public class AltarBlock extends BaseEntityBlock {
 
         pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
 
-        int difficultyLevel = altarBlockEntity.getDifficultyLevel(); // Получаем текущий уровень сложности
+        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer); // Получаем текущий уровень сложности
         int keyCount = difficultyLevel / 10 + 1;
 
         ItemStack keyStack = switch (altarBlockEntity.getArenaType()) {
@@ -350,7 +378,7 @@ public class AltarBlock extends BaseEntityBlock {
         );
         pLevel.addFreshEntity(keyEntity);
 
-        altarBlockEntity.increaseDifficultyLevel();
+        altarBlockEntity.increaseDifficultyLevel(pPlayer);
 
         // Воспроизведение звука
         pLevel.playSound(null, altarPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -362,7 +390,7 @@ public class AltarBlock extends BaseEntityBlock {
     }
 
     private void handleVictoryTriggers(AltarBlockEntity altarBlockEntity, Player pPlayer) {
-        int difficultyLevel = altarBlockEntity.getDifficultyLevel(); // Получаем текущий уровень сложности
+        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer); // Получаем текущий уровень сложности
 
         if (pPlayer instanceof ServerPlayer serverPlayer) {
             DifficultyLevel1.INSTANCE.trigger(serverPlayer);

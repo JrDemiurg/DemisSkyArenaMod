@@ -30,6 +30,7 @@
   "message.skyarena.cooldown_remaining": "Cooldown: %d seconds",
   "message.skyarena.mobs_glowing": "%s mobs have received a glowing effect!",
   "message.skyarena.victory": "Victory!",
+  "message.skyarena.points_reset": "Difficulty level has been reset",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
 
   "advancement.skyarena.root.description": "Endless battles await you",

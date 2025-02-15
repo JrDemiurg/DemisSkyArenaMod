@@ -30,6 +30,7 @@
   "message.skyarena.cooldown_remaining": "Abklingzeit: %d Sekunden",
   "message.skyarena.mobs_glowing": "%s Mobs haben einen Leuchteffekt erhalten!",
   "message.skyarena.victory": "Sieg!",
+  "message.skyarena.points_reset": "Schwierigkeitsgrad wurde zurückgesetzt",
   "message.skyarena.unclaimed_reward": "§4Wenn du die Belohnung nicht erhalten kannst, bedeutet das, dass du nicht alle Monster besiegt hast. Die verbleibenden Monster haben den Leuchteffekt erhalten. Wenn du sie nicht finden kannst, verlasse die Arena, um den Kampf neu zu starten.",
 
   "advancement.skyarena.root.description": "Endlose Kämpfe erwarten dich",

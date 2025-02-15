@@ -323,11 +323,6 @@ public class Config {
                     "If false, no items will drop from summoned mobs.")
             .define("enableMobItemDrop", true);
 
-/*    private static final ForgeConfigSpec.BooleanValue CREATE_BARRIER_WALL = BUILDER
-            .comment("Determines whether a barrier wall will block the exit at the start of the battle.\n" +
-                    "If true, a temporary barrier will be created to prevent leaving the battle area.")
-            .define("createBarrierWall", false);*/
-
     private static final ForgeConfigSpec.BooleanValue REQUIRE_EMPTY_CHEST = BUILDER
             .comment("Determines whether the reward key can only be used on empty chests.\n" +
                     "If true, the key cannot be applied to a chest that contains items.")
@@ -344,6 +339,12 @@ public class Config {
     private static final ForgeConfigSpec.BooleanValue ENABLE_UNCLAIMED_REWARD_MESSAGE = BUILDER
             .comment("Show an unclaimed reward message when any summoned mob has the Glowing effect.")
             .define("enableUnclaimedRewardMessage", true);
+
+    private static final ForgeConfigSpec.BooleanValue INDIVIDUAL_PLAYER_STATS = BUILDER
+            .comment("If true, each player has their own points and difficulty level,\n" +
+                    "which are the same across all arenas.\n" +
+                    "If false, each Altar Battle has its own points and difficulty level.")
+            .define("individualPlayerStats", false);
 
     private static final ForgeConfigSpec.ConfigValue<List<List<Object>>> MOB_VALUES = BUILDER
             .comment("List of mobs with their values (e.g., [[\"minecraft:zombie\", 10]])")
@@ -362,7 +363,6 @@ public class Config {
     public static int PointsIncrease;
     public static boolean enableRain;
     public static boolean enableMobItemDrop;
-    /*public static boolean createBarrierWall;*/
     public static int mobCostRatio;
     public static double SquadSpawnChance;
     public static int SquadSpawnSize;
@@ -371,6 +371,7 @@ public class Config {
     public static boolean enableLossMessageDeath;
     public static boolean enableUnclaimedRewardMessage;
     public static int baseScalingThreshold;
+    public static boolean individualPlayerStats;
 
 
     private static boolean validateLootTable(final Object obj)
@@ -385,7 +386,6 @@ public class Config {
         PointsIncrease = POINTS_INCREASE.get();
         enableRain = ENABLE_RAIN.get();
         enableMobItemDrop = ENABLE_MOB_ITEM_DROP.get();
-        /*createBarrierWall = CREATE_BARRIER_WALL.get();*/
         mobCostRatio = MOB_COST_RATIO.get();
         SquadSpawnChance = SQUAD_SPAWN_CHANCE.get();
         SquadSpawnSize = SQUAD_SPAWN_SIZE.get();
@@ -394,6 +394,7 @@ public class Config {
         enableLossMessageDeath = ENABLE_LOSS_MESSAGE_DEATH.get();
         enableUnclaimedRewardMessage = ENABLE_UNCLAIMED_REWARD_MESSAGE.get();
         baseScalingThreshold = BASE_SCALING_THRESHOLD.get();
+        individualPlayerStats = INDIVIDUAL_PLAYER_STATS.get();
 
 
         lootTables = LOOT_TABLES.get().stream()

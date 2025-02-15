@@ -30,6 +30,7 @@
   "message.skyarena.cooldown_remaining": "Temps de recharge : %d secondes",
   "message.skyarena.mobs_glowing": "%s mobs ont reçu un effet lumineux !",
   "message.skyarena.victory": "Victoire !",
+  "message.skyarena.points_reset": "Le niveau de difficulté a été réinitialisé",
   "message.skyarena.unclaimed_reward": "§4Si vous ne pouvez pas récupérer la récompense, cela signifie que vous n'avez pas vaincu tous les monstres. Les monstres restants ont reçu l'effet Luminance. Si vous ne pouvez pas les trouver, quittez l'arène pour recommencer le combat.",
 
   "advancement.skyarena.root.description": "Des batailles sans fin vous attendent",
