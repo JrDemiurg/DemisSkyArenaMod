@@ -1,0 +1,30 @@
+{
+  "parent": "skyarena:use_altar_battle",
+  "display": {
+    "icon": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "title": {
+      "translate": "advancement.skyarena.use_netherite_ingot.title"
+    },
+    "description": {
+      "translate": "advancement.skyarena.use_netherite_ingot.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "use_netherite_ingot": {
+      "trigger": "skyarena:use_netherite_ingot",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "use_netherite_ingot"
+    ]
+  ]
+}

@@ -55,6 +55,8 @@ public class SkyArena {
         LOGGER.info("Registering triggers...");
         CriteriaTriggers.register(UseAltarBattle.INSTANCE);
         CriteriaTriggers.register(UseMusicDisk.INSTANCE);
+        CriteriaTriggers.register(UseStick.INSTANCE);
+        CriteriaTriggers.register(UseNetheriteIngot.INSTANCE);
         CriteriaTriggers.register(DifficultyLevel1.INSTANCE);
         CriteriaTriggers.register(DifficultyLevel5.INSTANCE);
         CriteriaTriggers.register(DifficultyLevel10.INSTANCE);

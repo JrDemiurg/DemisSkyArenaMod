@@ -1,0 +1,30 @@
+{
+  "parent": "skyarena:use_music_disk",
+  "display": {
+    "icon": {
+      "item": "minecraft:stick"
+    },
+    "title": {
+      "translate": "advancement.skyarena.use_stick.title"
+    },
+    "description": {
+      "translate": "advancement.skyarena.use_stick.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "use_stick": {
+      "trigger": "skyarena:use_stick",
+      "conditions": {
+      }
+    }
+  },
+  "requirements": [
+    [
+      "use_stick"
+    ]
+  ]
+}

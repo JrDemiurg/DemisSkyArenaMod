@@ -2,6 +2,7 @@ package net.jrdemiurge.skyarena.item;
 
 import net.jrdemiurge.skyarena.SkyArena;
 import net.jrdemiurge.skyarena.item.custom.IceEyeItem;
+import net.jrdemiurge.skyarena.item.custom.MobAnalyzerItem;
 import net.jrdemiurge.skyarena.item.custom.SkyEyeItem;
 import net.jrdemiurge.skyarena.item.custom.RewardKeyItem;
 import net.minecraft.world.item.Item;
@@ -34,6 +35,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> ICE_EYE = ITEMS.register("ice_eye",
             () -> new IceEyeItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> MOB_ANALYZER = ITEMS.register("mob_analyzer",
+            () -> new MobAnalyzerItem(new Item.Properties()));
 
 
     public static void register(IEventBus eventBus) {

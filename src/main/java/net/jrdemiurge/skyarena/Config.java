@@ -308,41 +308,38 @@ public class Config {
             .define("squadSpawnSize", 3);
 
     private static final ForgeConfigSpec.ConfigValue<Boolean> NIGHT_TIME = BUILDER
-            .comment("Enables or disables setting the time to night when the battle starts.\n" +
-                    "If true, the game will automatically switch to night time at the start of the battle.")
+            .comment("If true, the game will automatically switch to night time at the start of the battle.")
             .define("nightTime", true);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_RAIN = BUILDER
-            .comment("Enables or disables starting rain when the battle begins.\n" +
-                    "If true, it will start raining at the beginning of the battle.")
+            .comment("If true, it will start raining at the beginning of the battle.")
             .define("enableRain", false);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_MOB_ITEM_DROP = BUILDER
-            .comment("Determines whether summoned mobs drop items upon death.\n" +
-                    "If true, summoned mobs will drop their loot as usual.\n" +
+            .comment("If true, summoned mobs will drop their loot as usual.\n" +
                     "If false, no items will drop from summoned mobs.")
             .define("enableMobItemDrop", true);
 
     private static final ForgeConfigSpec.BooleanValue REQUIRE_EMPTY_CHEST = BUILDER
-            .comment("Determines whether the reward key can only be used on empty chests.\n" +
-                    "If true, the key cannot be applied to a chest that contains items.")
+            .comment("If true, the reward key can only be used on empty chests.\n" +
+                    "If false, the chest's contents will be cleared before being filled with loot.")
             .define("requireEmptyChest", false);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_LOSS_MESSAGE_LEAVE = BUILDER
-            .comment("Should the defeat message be shown when the player leaves the arena?")
+            .comment("If true, a defeat message will be shown when the player leaves the arena.")
             .define("enableLossMessageLeave", true);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_LOSS_MESSAGE_DEATH = BUILDER
-            .comment("Should the defeat message be shown when the player dies in battle?")
+            .comment("If true, a defeat message will be shown when the player dies in battle.")
             .define("enableLossMessageDeath", true);
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_UNCLAIMED_REWARD_MESSAGE = BUILDER
-            .comment("Show an unclaimed reward message when any summoned mob has the Glowing effect.")
+            .comment("If true, when mobs receive the Glowing effect, a message will appear recommending leaving the arena to restart the battle.\n" +
+                    "The message appears only once per game session.")
             .define("enableUnclaimedRewardMessage", true);
 
     private static final ForgeConfigSpec.BooleanValue INDIVIDUAL_PLAYER_STATS = BUILDER
-            .comment("If true, each player has their own points and difficulty level,\n" +
-                    "which are the same across all arenas.\n" +
+            .comment("If true, each player has their own points and difficulty level, which are the same across all arenas.\n" +
                     "If false, each Altar Battle has its own points and difficulty level.")
             .define("individualPlayerStats", false);
 

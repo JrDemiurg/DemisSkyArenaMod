@@ -32,6 +32,7 @@ public class ModCreativeTabs {
                         output.accept(ModItems.FOREST_KEY.get());
                         output.accept(ModItems.CRIMSON_EYE.get());
                         output.accept(ModItems.ICE_EYE.get());
+                        output.accept(ModItems.MOB_ANALYZER.get());
                     })
                     .build());
 

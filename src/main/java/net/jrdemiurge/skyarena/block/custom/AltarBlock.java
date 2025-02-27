@@ -129,6 +129,11 @@ public class AltarBlock extends BaseEntityBlock {
                 altarBlockEntity.clearRecordItem(); // Удаляем пластинку
                 altarBlockEntity.stopMusic();
                 pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+                if (pPlayer instanceof ServerPlayer serverPlayer) {
+                    UseStick.INSTANCE.trigger(serverPlayer);
+                }
+
                 return InteractionResult.SUCCESS;
             }
 
@@ -164,6 +169,10 @@ public class AltarBlock extends BaseEntityBlock {
 
                 Component message = Component.translatable("message.skyarena.points_reset");
                 pPlayer.displayClientMessage(message, true);
+
+                if (pPlayer instanceof ServerPlayer serverPlayer) {
+                    UseNetheriteIngot.INSTANCE.trigger(serverPlayer);
+                }
 
                 return InteractionResult.SUCCESS;
             }
@@ -201,7 +210,11 @@ public class AltarBlock extends BaseEntityBlock {
 
                 pLevel.playSound(null, altarPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
 
+                altarBlockEntity.setGlowingCounter(0);
+
                 int remainingPoints = altarBlockEntity.getRemainingPoints(pPlayer); // Начальное количество очков
+
+                altarBlockEntity.setBattleDifficultyLevel(altarBlockEntity.getDifficultyLevel(pPlayer));
 
                 double costCoefficient = calculateCostCoefficient(remainingPoints);
 
@@ -321,6 +334,8 @@ public class AltarBlock extends BaseEntityBlock {
                     }
                 }
                 if (!(altarBlockEntity.canSummonMobs())) altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
+
+                return InteractionResult.SUCCESS;
             }
 
             altarBlockEntity.applyGlowEffectToSummonedMobs(pPlayer);
@@ -347,7 +362,6 @@ public class AltarBlock extends BaseEntityBlock {
     private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos altarPos, BlockState pState, Player pPlayer) {
         // Удаляем игрока из списка и добавляем очки
         altarBlockEntity.removeAltarActivationForPlayer(/*pPlayer*/);
-        altarBlockEntity.addPoints(pPlayer ,Config.PointsIncrease);
 
         /*if (pLevel instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.PORTAL,
@@ -361,7 +375,7 @@ public class AltarBlock extends BaseEntityBlock {
 
         pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
 
-        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer); // Получаем текущий уровень сложности
+        int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
         int keyCount = difficultyLevel / 10 + 1;
 
         ItemStack keyStack = switch (altarBlockEntity.getArenaType()) {
@@ -378,8 +392,10 @@ public class AltarBlock extends BaseEntityBlock {
         );
         pLevel.addFreshEntity(keyEntity);
 
-        altarBlockEntity.increaseDifficultyLevel(pPlayer);
-
+        if (altarBlockEntity.getBattleDifficultyLevel() >= altarBlockEntity.getDifficultyLevel(pPlayer)) {
+            altarBlockEntity.increaseDifficultyLevel(pPlayer);
+            altarBlockEntity.addPoints(pPlayer, Config.PointsIncrease);
+        }
         // Воспроизведение звука
         pLevel.playSound(null, altarPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
 

@@ -49,6 +49,7 @@ public class AltarBlockEntity extends BlockEntity {
     private int remainingPoints;
     private boolean isNewBlock = true;
     private int difficultyLevel = 1;
+    private int battleDifficultyLevel = 1;
 
     private static final Map<String, Integer> playerPoints = new HashMap<>();
     private static final Map<String, Integer> playerDifficulty = new HashMap<>();
@@ -256,6 +257,15 @@ public class AltarBlockEntity extends BlockEntity {
         if (this.level != null) {
             this.level.blockEntityChanged(this.getBlockPos());
         }
+    }
+
+
+    public int getBattleDifficultyLevel() {
+        return battleDifficultyLevel;
+    }
+
+    public void setBattleDifficultyLevel(int battleDifficultyLevel) {
+        this.battleDifficultyLevel = battleDifficultyLevel;
     }
 
     @Override
@@ -469,6 +479,10 @@ public class AltarBlockEntity extends BlockEntity {
         }
 
         return validPositions;
+    }
+
+    public void setGlowingCounter(int glowingCounter) {
+        this.glowingCounter = glowingCounter;
     }
 
     public void applyGlowEffectToSummonedMobs(Player pPlayer) {
