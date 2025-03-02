@@ -187,6 +187,12 @@ public class Config {
             mobMap.put("caverns_and_chasms:mime", 100);
         }
 
+        if (ModList.get().isLoaded("eeeabsmobs")) {
+            mobMap.put("eeeabsmobs:corpse_warlock", 250);
+            mobMap.put("eeeabsmobs:guling_sentinel_heavy", 250);
+            mobMap.put("eeeabsmobs:immortal_executioner", 160);
+        }
+
         mobMap.forEach((mobId, value) -> {
             List<Object> mobEntry = new ArrayList<>();
             mobEntry.add(mobId);  // ID моба

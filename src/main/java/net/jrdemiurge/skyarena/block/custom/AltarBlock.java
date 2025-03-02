@@ -72,17 +72,6 @@ public class AltarBlock extends BaseEntityBlock {
 
             if (!(blockEntity instanceof AltarBlockEntity altarBlockEntity)) return InteractionResult.PASS;
 
-            if (pPlayer instanceof ServerPlayer serverPlayer) {
-                // Вызов триггера
-                UseAltarBattle.INSTANCE.trigger(serverPlayer);
-            }
-
-            if (pLevel.getDifficulty() == Difficulty.PEACEFUL) {
-                Component message = Component.translatable("message.skyarena.peaceful_disabled");
-                pPlayer.displayClientMessage(message, true);
-                return InteractionResult.PASS;
-            }
-
             if (pPlayer.getItemInHand(pHand).getItem() == Blocks.BEDROCK.asItem()) {
                 // Переключаем тип арены
                 String currentType = altarBlockEntity.getArenaType();
@@ -111,20 +100,6 @@ public class AltarBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            // Если это новый блок, устанавливаем начальные очки
-            if (altarBlockEntity.isNewBlock()) {
-                altarBlockEntity.setPoints(Config.StartingPoints); // Устанавливаем стартовое количество очков
-                altarBlockEntity.setNewBlock(false); // Устанавливаем флаг в false, так как блок уже был использован
-            }
-
-            if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
-                Component message = Component.translatable("message.skyarena.current_points")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getRemainingPoints(pPlayer))));
-
-                pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
-                return InteractionResult.SUCCESS;
-            }
-
             if (pPlayer.getItemInHand(pHand).getItem() == Items.STICK) {
                 altarBlockEntity.clearRecordItem(); // Удаляем пластинку
                 altarBlockEntity.stopMusic();
@@ -150,6 +125,26 @@ public class AltarBlock extends BaseEntityBlock {
                     UseMusicDisk.INSTANCE.trigger(serverPlayer);
                 }
 
+                return InteractionResult.SUCCESS;
+            }
+
+            if (pLevel.getDifficulty() == Difficulty.PEACEFUL) {
+                Component message = Component.translatable("message.skyarena.peaceful_disabled");
+                pPlayer.displayClientMessage(message, true);
+                return InteractionResult.PASS;
+            }
+
+            // Если это новый блок, устанавливаем начальные очки
+            if (altarBlockEntity.isNewBlock()) {
+                altarBlockEntity.setPoints(Config.StartingPoints); // Устанавливаем стартовое количество очков
+                altarBlockEntity.setNewBlock(false); // Устанавливаем флаг в false, так как блок уже был использован
+            }
+
+            if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
+                Component message = Component.translatable("message.skyarena.current_points")
+                        .append(Component.literal(String.valueOf(altarBlockEntity.getRemainingPoints(pPlayer))));
+
+                pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
                 return InteractionResult.SUCCESS;
             }
 
@@ -188,6 +183,12 @@ public class AltarBlock extends BaseEntityBlock {
                 if (altarBlockEntity.getBattleDelay() != 0){
                     return InteractionResult.SUCCESS;
                 }
+
+                if (pPlayer instanceof ServerPlayer serverPlayer) {
+                    // Вызов триггера
+                    UseAltarBattle.INSTANCE.trigger(serverPlayer);
+                }
+
                 // Отслеживаем активацию алтаря
                 altarBlockEntity.recordAltarActivation(pPlayer, altarPos);
 
