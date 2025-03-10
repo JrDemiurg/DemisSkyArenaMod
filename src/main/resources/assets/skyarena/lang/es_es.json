@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bLlave del End",
   "item.skyarena.crimson_eye": "Ojo Carmesí",
   "item.skyarena.ice_eye": "Ojo de Hielo",
-  "item.skyarena.mob_analyzer": "Analizador de Mobs",
+  "item.skyarena.mob_analyzer": "§4Analizador",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Clic derecho en un cofre vacío para llenarlo de botín",
   "tooltip.skyarena.trophy": "§8Clic derecho en el bloque para recibir un beneficio!",
-  "tooltip.skyarena.mob_analyzer": "§8Haz clic derecho en un mob para obtener información sobre sus atributos",
+  "tooltip.skyarena.mob_analyzer": "§8Haz clic derecho en un mob o en el Altar de Batalla para obtener información sobre sus atributos",
 
   "message.skyarena.difficult_level": "Nivel de Dificultad: ",
   "message.skyarena.current_points": "Puntos Actuales: ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "¡%s mobs han recibido un efecto de brillo!",
   "message.skyarena.victory": "¡Victoria!",
   "message.skyarena.points_reset": "El nivel de dificultad ha sido restablecido",
+  "message.skyarena.max_difficult_level_1": "Tu batalla termina aquí",
+  "message.skyarena.max_difficult_level_2": "Busca combates en otro lugar",
+  "message.skyarena.cannot_reset_difficulty": "No puedes restablecer la dificultad aquí",
+  "message.skyarena.no_spawn_position": "No hay un lugar adecuado para la aparición de mobs",
+  "message.skyarena.cannot_do_during_battle": "No puedes hacer esto durante la batalla",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
 
   "advancement.skyarena.root.description": "Batallas interminables te esperan",

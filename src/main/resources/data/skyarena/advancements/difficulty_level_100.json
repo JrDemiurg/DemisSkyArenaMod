@@ -29,7 +29,7 @@
   ],
   "rewards": {
     "loot": [
-      "skyarena:netherite_trophy"
+      "skyarena:advancement_rewards/netherite_trophy"
     ]
   }
 }

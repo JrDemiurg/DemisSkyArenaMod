@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bEnder Key",
   "item.skyarena.crimson_eye": "Crimson Eye",
   "item.skyarena.ice_eye": "Eye of Ice",
-  "item.skyarena.mob_analyzer": "Mob Analyzer",
+  "item.skyarena.mob_analyzer": "§4Analyzer",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Right-Click on any empty chest to fill it with loot",
   "tooltip.skyarena.trophy": "§8Right-Click on the block to receive a buff!",
-  "tooltip.skyarena.mob_analyzer": "§8Right-click on a mob to get information about its attributes",
+  "tooltip.skyarena.mob_analyzer": "§8Right-click on a mob or the Altar of Battle to get information about its attributes",
 
   "message.skyarena.difficult_level": "Difficulty Level: ",
   "message.skyarena.current_points": "Current Points: ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "%s mobs have received a glowing effect!",
   "message.skyarena.victory": "Victory!",
   "message.skyarena.points_reset": "Difficulty level has been reset",
+  "message.skyarena.max_difficult_level_1": "Your battle ends here",
+  "message.skyarena.max_difficult_level_2": "Seek battles elsewhere",
+  "message.skyarena.cannot_reset_difficulty": "You cannot reset the difficulty here",
+  "message.skyarena.no_spawn_position": "No suitable place for mob spawning",
+  "message.skyarena.cannot_do_during_battle": "You cannot do this during battle",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
 
   "advancement.skyarena.root.description": "Endless battles await you",

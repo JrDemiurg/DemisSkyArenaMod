@@ -28,7 +28,7 @@ public class MobAnalyzerItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack pStack, Player pPlayer, LivingEntity pInteractionTarget, InteractionHand pUsedHand) {
         if (!pPlayer.level().isClientSide && pPlayer instanceof ServerPlayer serverPlayer) {
             String entityId = pInteractionTarget.getEncodeId();
-            serverPlayer.sendSystemMessage(Component.literal("§6Mob: §f" + entityId));
+            serverPlayer.sendSystemMessage(Component.literal("§4Mob: §a" + entityId));
 
             Map<Attribute, Double> attributes = new LinkedHashMap<>(); // Используем LinkedHashMap
 
@@ -45,7 +45,7 @@ public class MobAnalyzerItem extends Item {
 
             attributes.forEach((attr, value) -> {
                 String formattedValue = String.format("%.2f", value); // Округление до тысячных
-                serverPlayer.sendSystemMessage(Component.literal("§7" + attr.getDescriptionId() + ": §a" + formattedValue));
+                serverPlayer.sendSystemMessage(Component.literal("§6" + attr.getDescriptionId() + ": §a" + formattedValue));
             });
 
             return InteractionResult.SUCCESS;

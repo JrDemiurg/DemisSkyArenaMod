@@ -29,7 +29,7 @@
   ],
   "rewards": {
     "loot": [
-      "skyarena:diamond_trophy"
+      "skyarena:advancement_rewards/diamond_trophy"
     ]
   }
 }

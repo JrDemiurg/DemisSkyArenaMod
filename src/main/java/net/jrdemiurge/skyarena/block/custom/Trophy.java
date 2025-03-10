@@ -1,12 +1,18 @@
 package net.jrdemiurge.skyarena.block.custom;
 
+import net.jrdemiurge.skyarena.block.ModBlocks;
+import net.jrdemiurge.skyarena.config.SkyArenaConfig;
+import net.jrdemiurge.skyarena.config.TrophyConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -29,19 +35,46 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 
-public class IronTrophy extends Block {
+public class Trophy extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public IronTrophy(Properties pProperties) {
+    public Trophy(Properties pProperties) {
         super(pProperties);
     }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
-            pPlayer.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1800 * 20, 0));
-            pLevel.playSound(null, pPos, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
+            String trophyKey = this.asItem().toString();
+
+            TrophyConfig trophyConfig = SkyArenaConfig.configData.trophies.getOrDefault(trophyKey, SkyArenaConfig.DEFAULT_TROPHY);
+            if (trophyConfig == null) {
+                return InteractionResult.FAIL;
+            }
+
+            int cooldownTicks = trophyConfig.cooldown * 20;
+            if (pPlayer.getCooldowns().isOnCooldown(this.asItem())) {
+                float cooldownPercent = pPlayer.getCooldowns().getCooldownPercent(this.asItem(), 0.0F);
+                int remainingCooldownTicks = (int) (cooldownPercent * cooldownTicks);
+                int secondsLeft = remainingCooldownTicks / 20;
+
+                pPlayer.displayClientMessage(Component.translatable("message.skyarena.cooldown_remaining", secondsLeft), true);
+                return InteractionResult.FAIL;
+            }
+
+            pPlayer.getCooldowns().addCooldown(this.asItem(), cooldownTicks);
+
+            for (Map.Entry<String, TrophyConfig.EffectConfig> entry : trophyConfig.effects.entrySet()) {
+                MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(entry.getKey()));
+                if (effect != null) {
+                    TrophyConfig.EffectConfig effectConfig = entry.getValue();
+                    pPlayer.addEffect(new MobEffectInstance(effect, effectConfig.duration * 20, effectConfig.amplifier, false, false));
+                }
+            }
+
+            pLevel.playSound(null, pPos, SoundEvents.AMETHYST_BLOCK_HIT, SoundSource.PLAYERS, 5.0F, 1.0F);
         }
         return InteractionResult.SUCCESS;
     }

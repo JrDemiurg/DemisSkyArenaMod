@@ -33,38 +33,38 @@ public class ModBlocks {
                     .strength(-1.0F, 3600000.0F)  // Устанавливает прочность, как у бедрока
             ));
 
-    public static final RegistryObject<Block> NETHERITE_TROPHY = registerBlock("netherite_trophy",
-            () -> new NetheriteTrophy(BlockBehaviour.Properties.copy(Blocks.NETHERITE_BLOCK)
-                    .noOcclusion().
-                    lightLevel((state) -> 5)
-            ));
-
     public static final RegistryObject<Block> OAK_TROPHY = registerBlock("oak_trophy",
-            () -> new OakTrophy(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS)
                     .noOcclusion().
                     lightLevel((state) -> 5)
             ));
 
     public static final RegistryObject<Block> STONE_TROPHY = registerBlock("stone_trophy",
-            () -> new StoneTrophy(BlockBehaviour.Properties.copy(Blocks.STONE)
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.STONE)
                     .noOcclusion().
                     lightLevel((state) -> 5)
             ));
 
     public static final RegistryObject<Block> IRON_TROPHY = registerBlock("iron_trophy",
-            () -> new IronTrophy(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)
                     .noOcclusion().
                     lightLevel((state) -> 5)
             ));
 
     public static final RegistryObject<Block> GOLD_TROPHY = registerBlock("gold_trophy",
-            () -> new GoldTrophy(BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK)
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.GOLD_BLOCK)
                     .noOcclusion().
                     lightLevel((state) -> 5)
             ));
 
     public static final RegistryObject<Block> DIAMOND_TROPHY = registerBlock("diamond_trophy",
-            () -> new DiamondTrophy(BlockBehaviour.Properties.copy(Blocks.DIAMOND_BLOCK)
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.DIAMOND_BLOCK)
+                    .noOcclusion().
+                    lightLevel((state) -> 5)
+            ));
+
+    public static final RegistryObject<Block> NETHERITE_TROPHY = registerBlock("netherite_trophy",
+            () -> new Trophy(BlockBehaviour.Properties.copy(Blocks.NETHERITE_BLOCK)
                     .noOcclusion().
                     lightLevel((state) -> 5)
             ));

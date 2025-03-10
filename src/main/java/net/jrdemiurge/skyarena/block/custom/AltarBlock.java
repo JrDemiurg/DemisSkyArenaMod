@@ -1,6 +1,7 @@
 package net.jrdemiurge.skyarena.block.custom;
 
-import net.jrdemiurge.skyarena.Config;
+import com.mojang.logging.LogUtils;
+import net.jrdemiurge.skyarena.SkyArena;
 import net.jrdemiurge.skyarena.block.ModBlocks;
 import net.jrdemiurge.skyarena.block.entity.AltarBlockEntity;
 import net.jrdemiurge.skyarena.block.entity.ModBlockEntity;
@@ -8,9 +9,9 @@ import net.jrdemiurge.skyarena.item.ModItems;
 import net.jrdemiurge.skyarena.triggers.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,17 +31,21 @@ import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -50,53 +55,89 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class AltarBlock extends BaseEntityBlock {
+public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public AltarBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER).setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.defaultBlockState()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false));
     }
 
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
             // получаем кординаты нижней части и определяем ентити блок
-            BlockPos altarPos = pState.getValue(HALF) == DoubleBlockHalf.UPPER ? pPos.below() : pPos;
+            BlockPos altarPos = pPos;
             BlockEntity blockEntity = pLevel.getBlockEntity(altarPos);
 
             if (!(blockEntity instanceof AltarBlockEntity altarBlockEntity)) return InteractionResult.PASS;
 
             if (pPlayer.getItemInHand(pHand).getItem() == Blocks.BEDROCK.asItem()) {
-                // Переключаем тип арены
-                String currentType = altarBlockEntity.getArenaType();
-                String newType;
-
-                switch (currentType) {
-                    case "sky_arena":
-                        newType = "ice_arena";
-                        break;
-                    case "ice_arena":
-                        newType = "sky_arena";
-                        break;
-                    default:
-                        newType = "sky_arena";
-                        break;
+                if (altarBlockEntity.isBattlePhaseActive()) {
+                    Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
+                    pPlayer.displayClientMessage(message, true);
+                    return InteractionResult.SUCCESS;
                 }
 
-                altarBlockEntity.setArenaType(newType);
+                altarBlockEntity.switchToNextArena();
 
-                // Отображаем сообщение игроку
-                Component message = Component.literal(newType);
+                Component message = Component.literal(altarBlockEntity.getArenaType());
                 pPlayer.displayClientMessage(message, true);
 
                 pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
 
+                return InteractionResult.SUCCESS;
+            }
+
+            if (pPlayer.getItemInHand(pHand).getItem() == ModItems.MOB_ANALYZER.get()) {
+                MutableComponent message = Component.literal("§4=== Arena Info ===\n")
+                        .append(Component.literal("§6Arena Type: §a" + altarBlockEntity.getArenaType() + "\n"))
+                        .append(Component.literal("§6Difficulty Level: §a" + altarBlockEntity.getDifficultyLevel(pPlayer) + "\n"))
+                        .append(Component.literal("§6Points: §a" + altarBlockEntity.getPoints(pPlayer) + "\n"))
+                        .append(Component.literal("§6Starting Points: §a" + altarBlockEntity.getStartingPoints() + "\n"))
+                        .append(Component.literal("§6Points Increase: §a" + altarBlockEntity.getPointsIncrease() + "\n"))
+                        .append(Component.literal("§6Mob Spawn Radius: §a" + altarBlockEntity.getMobSpawnRadius() + "\n"))
+                        .append(Component.literal("§6Spawn Distance From Player: §a" + altarBlockEntity.getSpawnDistanceFromPlayer() + "\n"))
+                        .append(Component.literal("§6Mob Cost Ratio: §a" + altarBlockEntity.getMobCostRatio() + "\n"))
+                        .append(Component.literal("§6Base Scaling Threshold: §a" + altarBlockEntity.getBaseScalingThreshold() + "\n"))
+                        .append(Component.literal("§6Mob Stat Growth Coefficient: §a" + altarBlockEntity.getMobStatGrowthCoefficient() + "\n"))
+                        .append(Component.literal("§6Squad Spawn Chance: §a" + altarBlockEntity.getSquadSpawnChance() + "\n"))
+                        .append(Component.literal("§6Squad Spawn Size: §a" + altarBlockEntity.getSquadSpawnSize() + "\n"))
+                        .append(Component.literal("§6Battle Loss Distance: §a" + altarBlockEntity.getBattleLossDistance() + "\n"))
+                        .append(Component.literal("§6Mob Teleport Distance: §a" + altarBlockEntity.getMobTeleportDistance() + "\n"))
+                        .append(Component.literal("§6Max Difficulty Level: §a" + altarBlockEntity.getMaxDifficultyLevel() + "\n"))
+                        .append(Component.literal("§6Allow Difficulty Reset: §a" + altarBlockEntity.isAllowDifficultyReset() + "\n"))
+                        .append(Component.literal("§6Allow Water And Air Spawn: §a" + altarBlockEntity.isAllowWaterAndAirSpawn() + "\n"))
+                        .append(Component.literal("§6Individual Player Stats: §a" + altarBlockEntity.isIndividualPlayerStats() + "\n"))
+                        .append(Component.literal("§6Night Time: §a" + altarBlockEntity.isNightTime() + "\n"))
+                        .append(Component.literal("§6Enable Rain: §a" + altarBlockEntity.isEnableRain() + "\n"))
+                        .append(Component.literal("§6Enable Mob Item Drop: §a" + altarBlockEntity.isEnableMobItemDrop() + "\n"))
+                        .append(Component.literal("§6Reward Item: §a" + altarBlockEntity.getRewardItem() + "\n"))
+                        .append(Component.literal("§6Reward Increase Interval: §a" + altarBlockEntity.getRewardIncreaseInterval() + "\n"));
+
+                Map<String, Integer> mobValues = altarBlockEntity.getMobValuesUnfiltered();
+                if (mobValues != null && !mobValues.isEmpty()) {
+                    message = message.append(Component.literal("§4=== Mob Values ===\n"));
+                    if (mobValues.size() > 60) {
+                        message = message.append(Component.literal("§6Too many mobs in the list! Check the console for the full list.\n"));
+                        SkyArena.LOGGER.info("Full list of mobs (Total: " + mobValues.size() + "):");
+                        mobValues.forEach((mob, value) -> SkyArena.LOGGER.info(mob + ": " + value));
+                    } else {
+                        for (Map.Entry<String, Integer> entry : mobValues.entrySet()) {
+                            message = message.append(Component.literal("§6" + entry.getKey() + ": §a" + entry.getValue() + "\n"));
+                        }
+                    }
+                }
+
+                pPlayer.displayClientMessage(message, false);
                 return InteractionResult.SUCCESS;
             }
 
@@ -128,32 +169,32 @@ public class AltarBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
-            if (pLevel.getDifficulty() == Difficulty.PEACEFUL) {
-                Component message = Component.translatable("message.skyarena.peaceful_disabled");
-                pPlayer.displayClientMessage(message, true);
-                return InteractionResult.PASS;
-            }
-
-            // Если это новый блок, устанавливаем начальные очки
-            if (altarBlockEntity.isNewBlock()) {
-                altarBlockEntity.setPoints(Config.StartingPoints); // Устанавливаем стартовое количество очков
-                altarBlockEntity.setNewBlock(false); // Устанавливаем флаг в false, так как блок уже был использован
-            }
-
             if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
                 Component message = Component.translatable("message.skyarena.current_points")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getRemainingPoints(pPlayer))));
+                        .append(Component.literal(String.valueOf(altarBlockEntity.getPoints(pPlayer))));
 
                 pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
                 return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.NETHERITE_INGOT) {
-                if (pPlayer.getCooldowns().isOnCooldown(Items.NETHERITE_INGOT) || altarBlockEntity.isBattlePhaseActive()) {
+                if (!altarBlockEntity.isAllowDifficultyReset()){
+                    Component message = Component.translatable("message.skyarena.cannot_reset_difficulty");
+                    pPlayer.displayClientMessage(message, true);
                     return InteractionResult.PASS;
                 }
 
-                altarBlockEntity.setPoints(pPlayer, Config.StartingPoints);
+                if (altarBlockEntity.isBattlePhaseActive()) {
+                    Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
+                    pPlayer.displayClientMessage(message, true);
+                    return InteractionResult.PASS;
+                }
+
+                if (pPlayer.getCooldowns().isOnCooldown(Items.NETHERITE_INGOT)) {
+                    return InteractionResult.PASS;
+                }
+
+
                 altarBlockEntity.setDifficultyLevel(pPlayer, 1);
 
                 pPlayer.getItemInHand(pHand).shrink(1);
@@ -172,6 +213,12 @@ public class AltarBlock extends BaseEntityBlock {
                 return InteractionResult.SUCCESS;
             }
 
+            if (pLevel.getDifficulty() == Difficulty.PEACEFUL) {
+                Component message = Component.translatable("message.skyarena.peaceful_disabled");
+                pPlayer.displayClientMessage(message, true);
+                return InteractionResult.SUCCESS;
+            }
+
             // выдача награды
             if (altarBlockEntity.isBattlePhaseActive() && altarBlockEntity.canSummonMobs()) {
                 handleGiveReward(altarBlockEntity, pLevel, altarPos, pState, pPlayer);
@@ -180,6 +227,20 @@ public class AltarBlock extends BaseEntityBlock {
             // начало боя
             if (!(altarBlockEntity.isBattlePhaseActive())) {
 
+                if (altarBlockEntity.getMaxDifficultyLevel() != 0 && altarBlockEntity.getDifficultyLevel(pPlayer) > altarBlockEntity.getMaxDifficultyLevel()) {
+                    Component message;
+
+                    if (ThreadLocalRandom.current().nextBoolean()) {
+                        message = Component.translatable("message.skyarena.max_difficult_level_1");
+                    } else {
+                        message = Component.translatable("message.skyarena.max_difficult_level_2");
+                    }
+
+                    pPlayer.displayClientMessage(message, true);
+
+                    return InteractionResult.SUCCESS;
+                }
+
                 if (altarBlockEntity.getBattleDelay() != 0){
                     return InteractionResult.SUCCESS;
                 }
@@ -187,6 +248,22 @@ public class AltarBlock extends BaseEntityBlock {
                 if (pPlayer instanceof ServerPlayer serverPlayer) {
                     // Вызов триггера
                     UseAltarBattle.INSTANCE.trigger(serverPlayer);
+                }
+
+                List<BlockPos> validPositions = altarBlockEntity.findValidSpawnPositions(pLevel, altarPos, pPlayer);
+                /*Component messagee = Component.literal(String.valueOf(validPositions.size()));
+                pPlayer.displayClientMessage(messagee, false);
+                for (BlockPos pos : validPositions) {
+                    pLevel.setBlock(pos, Blocks.GLOWSTONE.defaultBlockState(), 3);
+
+                    // Планируем возврат исходного состояния через 5 секунд
+                    pLevel.scheduleTick(pos, Blocks.GLOWSTONE, 100);
+                }*/
+
+                if (validPositions.isEmpty()){
+                    Component message = Component.translatable("message.skyarena.no_spawn_position");
+                    pPlayer.displayClientMessage(message, true);
+                    return InteractionResult.SUCCESS;
                 }
 
                 // Отслеживаем активацию алтаря
@@ -199,7 +276,9 @@ public class AltarBlock extends BaseEntityBlock {
                 pPlayer.displayClientMessage(message, true); // true для отображения над горячей панелью
 
                 // Устанавливаем окружение
-                setEnvironment(pLevel);
+                boolean isNight = altarBlockEntity.isNightTime();
+                boolean isRain = altarBlockEntity.isEnableRain();
+                setEnvironment(pLevel, isNight, isRain);
 
                 /*if (pLevel instanceof ServerLevel serverLevel) {
                     serverLevel.sendParticles(ParticleTypes.PORTAL,
@@ -213,16 +292,22 @@ public class AltarBlock extends BaseEntityBlock {
 
                 altarBlockEntity.setGlowingCounter(0);
 
-                int remainingPoints = altarBlockEntity.getRemainingPoints(pPlayer); // Начальное количество очков
+                int remainingPoints = altarBlockEntity.getPoints(pPlayer);
 
                 altarBlockEntity.setBattleDifficultyLevel(altarBlockEntity.getDifficultyLevel(pPlayer));
 
-                double costCoefficient = calculateCostCoefficient(remainingPoints);
+                int mobCostRatio = altarBlockEntity.getMobCostRatio();
+                int baseScalingThreshold = altarBlockEntity.getBaseScalingThreshold();
+                double costCoefficient = calculateCostCoefficient(remainingPoints, mobCostRatio, baseScalingThreshold);
+                double statsCoefficient = (costCoefficient - 1) * altarBlockEntity.getMobStatGrowthCoefficient() + 1;
+                // Component message1 = Component.literal(costCoefficient + " " +  statsCoefficient);
+                // pPlayer.displayClientMessage(message1, false);
 
-                int minMobValue = Config.mobValues.stream()
-                        .map(mob -> (Integer) mob.get(1)) // Получаем стоимость каждого моба
-                        .min(Integer::compareTo) // Находим минимальную стоимость
-                        .orElse(100000); // Если список пуст, стоимость = 0
+                Map<String, Integer> mobValues = altarBlockEntity.getMobValues();
+
+                int minMobValue = mobValues.isEmpty()
+                        ? 100000 // Если список пуст, возвращаем большое значение
+                        : Collections.min(mobValues.values());
 
                 minMobValue = (int) (minMobValue * costCoefficient);
 
@@ -235,34 +320,20 @@ public class AltarBlock extends BaseEntityBlock {
 
                 int skipCount = 0;
 
-                int mobCostRatio = Config.mobCostRatio;
-                double squadSpawnChance = Config.SquadSpawnChance;
-                int squadSpawnSize = Config.SquadSpawnSize;
+                double squadSpawnChance = altarBlockEntity.getSquadSpawnChance();
+                int squadSpawnSize = altarBlockEntity.getSquadSpawnSize();
 
-                List<BlockPos> validPositions = altarBlockEntity.findValidSpawnPositions(pLevel, altarPos, altarBlockEntity.getSpawnRadius(), pPlayer);
-                /*Component messagee = Component.literal(String.valueOf(validPositions.size()));
-                pPlayer.displayClientMessage(messagee, false);
-                for (BlockPos pos : validPositions) {
-                    pLevel.setBlock(pos, Blocks.GLOWSTONE.defaultBlockState(), 3);
-
-                    // Планируем возврат исходного состояния через 5 секунд
-                    pLevel.scheduleTick(pos, Blocks.GLOWSTONE, 100);
-                }*/
-
-                if (validPositions.isEmpty()) return InteractionResult.FAIL;
-
-                // Цикл для призыва мобов, пока есть очки или не получится призвать больше
                 while (remainingPoints >= minMobValue) {
-                // выбираем рандомного моба
-                    int randomIndex = ThreadLocalRandom.current().nextInt(Config.mobValues.size());
-                    List<Object> selectedMob = Config.mobValues.get(randomIndex);
-                    String mobTypeString = (String) selectedMob.get(0); // ID моба как строка
-                    int mobValue = (Integer) selectedMob.get(1); // Значение для моба
+
+                    int randomIndex = ThreadLocalRandom.current().nextInt(mobValues.size());
+                    List<String> keys = new ArrayList<>(mobValues.keySet());
+                    String mobTypeString = keys.get(randomIndex);
+                    int mobValue = mobValues.get(mobTypeString);
 
                     mobValue = (int) (mobValue * costCoefficient);
 
                     // пропускаем дешёвых мобов до 5 раз
-                    if (mobValue <= remainingPoints / mobCostRatio && skipCount < 6) {
+                    if (mobValue < remainingPoints / mobCostRatio && skipCount < 6) {
                         skipCount++;
                         continue;
                     }
@@ -295,7 +366,7 @@ public class AltarBlock extends BaseEntityBlock {
 
                                     /*mobEntity.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(16.0);*/
 
-                                    if (!(Config.enableMobItemDrop)) {
+                                    if (!(altarBlockEntity.isEnableMobItemDrop())) {
                                         CompoundTag entityData = mobEntity.saveWithoutId(new CompoundTag());
                                         entityData.putString("DeathLootTable", "minecraft:empty");
                                         mobEntity.load(entityData);
@@ -306,14 +377,14 @@ public class AltarBlock extends BaseEntityBlock {
                                     AttributeInstance healthAttribute = mobEntity.getAttribute(Attributes.MAX_HEALTH);
                                     if (healthAttribute != null) {
                                         double baseHealth = healthAttribute.getBaseValue();
-                                        healthAttribute.setBaseValue(baseHealth * costCoefficient);
-                                        mobEntity.setHealth((float) (baseHealth * costCoefficient));
+                                        healthAttribute.setBaseValue(baseHealth * statsCoefficient);
+                                        mobEntity.setHealth((float) (baseHealth * statsCoefficient));
                                     }
 
                                     AttributeInstance attackAttribute = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE);
                                     if (attackAttribute != null) {
                                         double baseDamage = attackAttribute.getBaseValue();
-                                        attackAttribute.setBaseValue(baseDamage * costCoefficient);
+                                        attackAttribute.setBaseValue(baseDamage * statsCoefficient);
                                     }
 
                                     mobEntity.finalizeSpawn(
@@ -334,7 +405,10 @@ public class AltarBlock extends BaseEntityBlock {
                         }
                     }
                 }
-                if (!(altarBlockEntity.canSummonMobs())) altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
+
+                if (!(altarBlockEntity.canSummonMobs())){
+                    altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
+                }
 
                 return InteractionResult.SUCCESS;
             }
@@ -344,20 +418,19 @@ public class AltarBlock extends BaseEntityBlock {
         return InteractionResult.SUCCESS;
     }
 
-    public double calculateCostCoefficient(int remainingPoints) {
+    public double calculateCostCoefficient(int remainingPoints, int mobCostRatio, int baseScalingThreshold) {
         double costCoefficient = 1.0;
-        double startcost = Config.baseScalingThreshold;
 
         while (true) {
-            double cost = startcost * costCoefficient;
-            if (cost < remainingPoints / Config.mobCostRatio) {
+            double cost = (double) baseScalingThreshold * costCoefficient;
+            if (cost < (double) remainingPoints / mobCostRatio) {
                 costCoefficient += 0.1;
                 continue;
             }
             break;
         }
 
-        return costCoefficient; // Возвращаем новый коэффициент
+        return Math.round(costCoefficient * 10) / 10.0; // Возвращаем новый коэффициент
     }
 
     private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos altarPos, BlockState pState, Player pPlayer) {
@@ -377,25 +450,42 @@ public class AltarBlock extends BaseEntityBlock {
         pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
 
         int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
-        int keyCount = difficultyLevel / 10 + 1;
+        int keyCount = (difficultyLevel-1) / altarBlockEntity.getRewardIncreaseInterval() + 1;
 
-        ItemStack keyStack = switch (altarBlockEntity.getArenaType()) {
-            case "sky_arena" -> new ItemStack(ModItems.CRIMSON_KEY.get(), keyCount);
-            case "ice_arena" -> new ItemStack(ModItems.ICE_KEY.get(), keyCount);
-            default -> new ItemStack(ModItems.CRIMSON_KEY.get(), keyCount);
-        };
-        ItemEntity keyEntity = new ItemEntity(
-                pLevel,
-                pPlayer.getX(),
-                pPlayer.getY(),
-                pPlayer.getZ(),
-                keyStack
-        );
-        pLevel.addFreshEntity(keyEntity);
+        String rewardLootTableId = altarBlockEntity.getRewardItem();
+
+        if (pLevel instanceof ServerLevel serverLevel) {
+            LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(new ResourceLocation(rewardLootTableId));
+
+            if (lootTable == LootTable.EMPTY) {
+                rewardLootTableId = "skyarena:battle_rewards/crimson_key";
+                lootTable = serverLevel.getServer().getLootData().getLootTable(new ResourceLocation(rewardLootTableId));
+            }
+
+            if (lootTable != LootTable.EMPTY) {
+                LootParams lootParams = new LootParams.Builder(serverLevel)
+                        .withParameter(LootContextParams.ORIGIN, pPlayer.position()) // Позиция игрока
+                        .withParameter(LootContextParams.THIS_ENTITY, pPlayer) // Сам игрок
+                        .create(LootContextParamSets.GIFT); // Используемый набор параметров (GIFT подойдёт для выдачи)
+
+                for (int i = 0; i < keyCount; i++) {
+                    List<ItemStack> lootItems = lootTable.getRandomItems(lootParams);
+                    for (ItemStack stack : lootItems) {
+                        ItemEntity rewardEntity = new ItemEntity(
+                                pLevel,
+                                pPlayer.getX(),
+                                pPlayer.getY(),
+                                pPlayer.getZ(),
+                                stack
+                        );
+                        pLevel.addFreshEntity(rewardEntity);
+                    }
+                }
+            }
+        }
 
         if (altarBlockEntity.getBattleDifficultyLevel() >= altarBlockEntity.getDifficultyLevel(pPlayer)) {
             altarBlockEntity.increaseDifficultyLevel(pPlayer);
-            altarBlockEntity.addPoints(pPlayer, Config.PointsIncrease);
         }
         // Воспроизведение звука
         pLevel.playSound(null, altarPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -403,7 +493,7 @@ public class AltarBlock extends BaseEntityBlock {
         // Переключаем фазу боя
         altarBlockEntity.toggleBattlePhase();
         altarBlockEntity.stopMusic();
-        altarBlockEntity.setBattleDelay(40);
+        altarBlockEntity.setBattleDelay(30);
     }
 
     private void handleVictoryTriggers(AltarBlockEntity altarBlockEntity, Player pPlayer) {
@@ -432,12 +522,12 @@ public class AltarBlock extends BaseEntityBlock {
         }
     }
 
-    private void setEnvironment(Level pLevel) {
-        if (Config.isNightTime) {
+    private void setEnvironment(Level pLevel,boolean isNight, boolean isRain) {
+        if (isNight) {
             setNightTime(pLevel);
         }
 
-        if (Config.enableRain) {
+        if (isRain) {
             setRain(pLevel);
         }
     }
@@ -468,7 +558,7 @@ public class AltarBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? RenderShape.MODEL : RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
 
     private static final VoxelShape SHAPE_NORTH = Block.box(2, 0, 5, 14, 16, 11);
@@ -492,31 +582,66 @@ public class AltarBlock extends BaseEntityBlock {
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
 
-        // Проверка, что есть место для верхней части блока
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
         if (pos.getY() < level.getMaxBuildHeight() - 1 && level.getBlockState(pos.above()).canBeReplaced(context)) {
-            return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(HALF, DoubleBlockHalf.LOWER);
+            return this.defaultBlockState()
+                    .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                    .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
         } else {
             return null; // Нет места для размещения двух блоков
         }
     }
 
     @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
+    }
+
+    @Override
+    public boolean placeLiquid(LevelAccessor level, BlockPos pos, BlockState state, FluidState fluidState) {
+        if (!state.getValue(WATERLOGGED) && fluidState.getType() == Fluids.WATER) {
+            level.setBlock(pos, state.setValue(WATERLOGGED, true), 3);
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canPlaceLiquid(BlockGetter level, BlockPos pos, BlockState state, Fluid fluid) {
+        return !state.getValue(WATERLOGGED) && fluid == Fluids.WATER;
+    }
+
+    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.setPlacedBy(level, pos, state, placer, itemStack);
 
-        // Получаем направление нижнего блока
         Direction facing = state.getValue(FACING);
+        boolean isWaterAbove = level.getBlockState(pos.above()).getBlock() == Blocks.WATER;
 
-        // Устанавливаем верхний блок над нижним с тем же направлением
         BlockPos posAbove = pos.above();
-        BlockState topBlockState = ModBlocks.ALTAR_BATTLE_TOP.get().defaultBlockState().setValue(AltarBlockTop.FACING, facing);
+        BlockState topBlockState = ModBlocks.ALTAR_BATTLE_TOP.get().defaultBlockState()
+                .setValue(AltarBlockTop.FACING, facing)
+                .setValue(AltarBlockTop.WATERLOGGED, isWaterAbove);
         level.setBlock(posAbove, topBlockState, 3);
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof AltarBlockEntity altarBlockEntity) {
+            altarBlockEntity.loadArenaConfig(altarBlockEntity.getArenaType());
+        }
     }
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
-            // Удаление верхнего блока, если удаляется нижний
             BlockPos abovePos = pos.above();
             if (level.getBlockState(abovePos).getBlock() == ModBlocks.ALTAR_BATTLE_TOP.get()) {
                 level.destroyBlock(abovePos, false);
@@ -537,7 +662,7 @@ public class AltarBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF);
+        builder.add(FACING, WATERLOGGED);
     }
 
     @Override

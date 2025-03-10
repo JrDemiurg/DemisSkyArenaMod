@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bエンダーキー",
   "item.skyarena.crimson_eye": "深紅の眼",
   "item.skyarena.ice_eye": "凍り付いた眼",
-  "item.skyarena.mob_analyzer": "§4モブアナライザー",
+  "item.skyarena.mob_analyzer": "§4アナライザー",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shiftを押しながら空のチェストに右クリックで中身を生成します",
   "tooltip.skyarena.trophy": "§8設置した状態で右クリックするとバフを受け取れます",
-  "tooltip.skyarena.mob_analyzer": "§8モブを右クリックすると、現在のステータスが表示されます",
+  "tooltip.skyarena.mob_analyzer": "§8モブまたは戦いの祭壇を右クリックすると、その属性に関する情報を取得できます",
 
   "message.skyarena.difficult_level": "難易度: ",
   "message.skyarena.current_points": "現在のポイント: ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "%s 体のMobを発光させました",
   "message.skyarena.victory": "勝利!",
   "message.skyarena.points_reset": "難易度がリセットされました",
+  "message.skyarena.max_difficult_level_1": "ここであなたの戦いは終わる",
+  "message.skyarena.max_difficult_level_2": "他の場所で戦いを探してください",
+  "message.skyarena.cannot_reset_difficulty": "ここでは難易度をリセットできません",
+  "message.skyarena.no_spawn_position": "モブをスポーンする適切な場所がありません",
+  "message.skyarena.cannot_do_during_battle": "戦闘中はこれを行うことはできません",
   "message.skyarena.unclaimed_reward": "§4報酬を受け取れない場合、全てのMobを倒していない可能性があります。生存しているMobには発光のエフェクトがかかっているるのでそれらを倒してください。",
 
   "advancement.skyarena.root.description": "終わりのない戦い",

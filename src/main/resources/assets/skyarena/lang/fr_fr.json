@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bClé de l'Ender",
   "item.skyarena.crimson_eye": "Œil Pourpre",
   "item.skyarena.ice_eye": "Œil de Glace",
-  "item.skyarena.mob_analyzer": "Analyseur de Mobs",
+  "item.skyarena.mob_analyzer": "§4Analyseur",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Clic droit sur un coffre vide pour le remplir de butin",
   "tooltip.skyarena.trophy": "§8Clic droit sur le bloc pour recevoir un buff !",
-  "tooltip.skyarena.mob_analyzer": "§8Faites un clic droit sur une créature pour obtenir des informations sur ses attributs",
+  "tooltip.skyarena.mob_analyzer": "§8Faites un clic droit sur une créature ou sur l'Autel de Bataille pour obtenir des informations sur ses attributs",
 
   "message.skyarena.difficult_level": "Niveau de difficulté : ",
   "message.skyarena.current_points": "Points actuels : ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "%s mobs ont reçu un effet lumineux !",
   "message.skyarena.victory": "Victoire !",
   "message.skyarena.points_reset": "Le niveau de difficulté a été réinitialisé",
+  "message.skyarena.max_difficult_level_1": "Votre bataille se termine ici",
+  "message.skyarena.max_difficult_level_2": "Cherchez un combat ailleurs",
+  "message.skyarena.cannot_reset_difficulty": "Vous ne pouvez pas réinitialiser la difficulté ici",
+  "message.skyarena.no_spawn_position": "Aucun endroit adapté pour l’apparition des mobs",
+  "message.skyarena.cannot_do_during_battle": "Vous ne pouvez pas faire cela pendant le combat",
   "message.skyarena.unclaimed_reward": "§4Si vous ne pouvez pas récupérer la récompense, cela signifie que vous n'avez pas vaincu tous les monstres. Les monstres restants ont reçu l'effet Luminance. Si vous ne pouvez pas les trouver, quittez l'arène pour recommencer le combat.",
 
   "advancement.skyarena.root.description": "Des batailles sans fin vous attendent",

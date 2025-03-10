@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bКлюч Эндера",
   "item.skyarena.crimson_eye": "Багряное око",
   "item.skyarena.ice_eye": "Ледяное око",
-  "item.skyarena.mob_analyzer": "§4Анализатор мобов",
+  "item.skyarena.mob_analyzer": "§4Анализатор",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + ПКМ по любому пустому сундуку, чтобы наполнить его добычей",
   "tooltip.skyarena.trophy": "§8ПКМ по блоку чтобы получить бафф!",
-  "tooltip.skyarena.mob_analyzer": "§8Щелкните ПКМ по мобу, чтобы получить информацию о его характеристиках",
+  "tooltip.skyarena.mob_analyzer": "§8Щелкните ПКМ по мобу или алтарю битвы, чтобы получить информацию о его характеристиках",
 
   "message.skyarena.difficult_level": "Уровень сложности: ",
   "message.skyarena.current_points": "Текущие очки: ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "%s мобов получили эффект свечения!",
   "message.skyarena.victory": "Победа!",
   "message.skyarena.points_reset": "Уровень сложности сброшен",
+  "message.skyarena.max_difficult_level_1": "Здесь ваша битва окончена",
+  "message.skyarena.max_difficult_level_2": "Поищите сражений в другом месте",
+  "message.skyarena.cannot_reset_difficulty": "Здесь нельзя сбросить уровень сложности",
+  "message.skyarena.no_spawn_position": "Нет подходящего места для спавна мобов",
+  "message.skyarena.cannot_do_during_battle": "Вы не можете сделать это во время боя",
   "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, покиньте арену, чтобы начать битву заново.",
 
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",

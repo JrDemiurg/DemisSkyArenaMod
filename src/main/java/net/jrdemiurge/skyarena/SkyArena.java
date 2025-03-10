@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 @Mod(SkyArena.MOD_ID)
 public class SkyArena {
     public static final String MOD_ID = "skyarena";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public SkyArena() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();

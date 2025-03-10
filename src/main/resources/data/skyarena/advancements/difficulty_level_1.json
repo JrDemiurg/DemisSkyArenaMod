@@ -29,7 +29,7 @@
   ],
   "rewards": {
     "loot": [
-      "skyarena:oak_trophy"
+      "skyarena:advancement_rewards/oak_trophy"
     ]
   }
 }

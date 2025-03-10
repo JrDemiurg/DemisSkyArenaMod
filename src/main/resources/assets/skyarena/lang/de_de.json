@@ -15,13 +15,13 @@
   "item.skyarena.ender_key": "§bEnderschlüssel",
   "item.skyarena.crimson_eye": "Karmesinauge",
   "item.skyarena.ice_eye": "Auge des Eises",
-  "item.skyarena.mob_analyzer": "Mob-Analysator",
+  "item.skyarena.mob_analyzer": "§4Analysator",
 
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Rechtsklick auf eine leere Truhe, um sie mit Beute zu füllen",
   "tooltip.skyarena.trophy": "§8Rechtsklick auf den Block, um einen Buff zu erhalten!",
-  "tooltip.skyarena.mob_analyzer": "§8Rechtsklick auf einen Mob, um Informationen über seine Attribute zu erhalten",
+  "tooltip.skyarena.mob_analyzer": "§8Rechtsklick auf einen Mob oder den Altar des Kampfes, um Informationen über seine Attribute zu erhalten",
 
   "message.skyarena.difficult_level": "Schwierigkeitsgrad: ",
   "message.skyarena.current_points": "Aktuelle Punkte: ",
@@ -33,6 +33,11 @@
   "message.skyarena.mobs_glowing": "%s Mobs haben einen Leuchteffekt erhalten!",
   "message.skyarena.victory": "Sieg!",
   "message.skyarena.points_reset": "Schwierigkeitsgrad wurde zurückgesetzt",
+  "message.skyarena.max_difficult_level_1": "Hier endet euer Kampf",
+  "message.skyarena.max_difficult_level_2": "Sucht euch einen anderen Kampf",
+  "message.skyarena.cannot_reset_difficulty": "Hier kann die Schwierigkeit nicht zurückgesetzt werden",
+  "message.skyarena.no_spawn_position": "Kein geeigneter Ort für das Spawnen von Mobs",
+  "message.skyarena.cannot_do_during_battle": "Du kannst das während des Kampfes nicht tun",
   "message.skyarena.unclaimed_reward": "§4Wenn du die Belohnung nicht erhalten kannst, bedeutet das, dass du nicht alle Monster besiegt hast. Die verbleibenden Monster haben den Leuchteffekt erhalten. Wenn du sie nicht finden kannst, verlasse die Arena, um den Kampf neu zu starten.",
 
   "advancement.skyarena.root.description": "Endlose Kämpfe erwarten dich",
