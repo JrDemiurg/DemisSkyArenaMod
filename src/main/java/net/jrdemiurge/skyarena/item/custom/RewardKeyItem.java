@@ -70,7 +70,7 @@ public class RewardKeyItem extends Item {
                 player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), 20);
                 level.playSound(null, positionClicked, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS; // если carry on установоен надо возвращать fail или pass (pass ещё надо прочекать), и самому проигрывать анимацию использования
             }
         }
         return InteractionResult.PASS;

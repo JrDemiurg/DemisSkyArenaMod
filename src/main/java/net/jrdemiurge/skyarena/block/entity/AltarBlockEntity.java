@@ -449,7 +449,7 @@ public class AltarBlockEntity extends BlockEntity {
         if (PlayerDeath){
             DeathDelay++;
 
-            if (DeathDelay > 10) {
+            if (activatingPlayer != null && DeathDelay > 10) {
                 // Проверяем, использовался ли тотем бессмертия
                 if (activatingPlayer.getHealth() > 0) {
                     PlayerDeath = false;

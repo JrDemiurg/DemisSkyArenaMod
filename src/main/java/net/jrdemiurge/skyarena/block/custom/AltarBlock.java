@@ -395,8 +395,11 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                                             null
                                     );
 
-                                    pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
+                                    if (!mobTypeString.equals("born_in_chaos_v1:spiritof_chaos")) {
+                                        pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
+                                    }
                                 }
+
                                 /*pPlayer.displayClientMessage(Component.literal(mobTypeString + mobValue), false);*/
                                 pLevel.addFreshEntity(mob);
                                 altarBlockEntity.addSummonedMob(mob); // записываем призванного моба
