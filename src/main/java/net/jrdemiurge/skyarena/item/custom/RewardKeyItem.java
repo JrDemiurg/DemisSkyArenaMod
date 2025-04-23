@@ -17,19 +17,29 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class RewardKeyItem extends Item {
     public RewardKeyItem(Properties pProperties) {
         super(pProperties);
     }
+
+    public static final Set<BlockPos> keyedChests = new HashSet<>();
+
+    public static final List<String> BLOCK_ID_BLACKLIST = List.of(
+            "lootr:lootr_chest",
+            "lootr:lootr_inventory",
+            "lootr:lootr_trapped_chest"
+    );
 
     @Override
     public InteractionResult useOn(UseOnContext pContext) {
@@ -40,6 +50,13 @@ public class RewardKeyItem extends Item {
 
         if (!level.isClientSide() && player != null) {
             BlockEntity blockEntity = level.getBlockEntity(positionClicked);
+
+            BlockState clickedBlockState = level.getBlockState(positionClicked);
+            ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(clickedBlockState.getBlock());
+
+            if (blockId != null && BLOCK_ID_BLACKLIST.contains(blockId.toString())) {
+                return InteractionResult.PASS;
+            }
 
             if (blockEntity instanceof ChestBlockEntity chestEntity) {
 
@@ -64,13 +81,20 @@ public class RewardKeyItem extends Item {
                     ResourceLocation randomLootTable = validLootTables.get(new Random().nextInt(validLootTables.size()));
                     System.out.println("Loot table: " + randomLootTable);
                     chestEntity.setLootTable(randomLootTable, player.getRandom().nextLong());
+                    chestEntity.unpackLootTable(player);
                 }
 
+                int keyCount = itemStack.getCount();
+
+                player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), 15);
                 player.getItemInHand(hand).shrink(1);
-                player.getCooldowns().addCooldown(player.getItemInHand(hand).getItem(), 20);
                 level.playSound(null, positionClicked, SoundEvents.AMETHYST_BLOCK_HIT  , SoundSource.PLAYERS, 5.0F, 1.0F);
 
-                return InteractionResult.SUCCESS; // если carry on установоен надо возвращать fail или pass (pass ещё надо прочекать), и самому проигрывать анимацию использования
+                if (keyCount == 1){
+                    keyedChests.add(positionClicked.immutable());
+                }
+
+                return InteractionResult.SUCCESS;
             }
         }
         return InteractionResult.PASS;

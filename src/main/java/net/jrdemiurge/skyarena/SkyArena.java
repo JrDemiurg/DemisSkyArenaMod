@@ -6,6 +6,7 @@ import net.jrdemiurge.skyarena.block.entity.AltarBlockEntity;
 import net.jrdemiurge.skyarena.block.entity.ModBlockEntity;
 import net.jrdemiurge.skyarena.item.ModCreativeTabs;
 import net.jrdemiurge.skyarena.item.ModItems;
+import net.jrdemiurge.skyarena.item.custom.RewardKeyItem;
 import net.jrdemiurge.skyarena.triggers.*;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -85,6 +88,17 @@ public class SkyArena {
                     altarEntity.setPlayerDeath(true);
                 }
             }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getLevel().isClientSide()) return;
+
+        BlockPos pos = event.getPos();
+        if (RewardKeyItem.keyedChests.contains(pos)) {
+            event.setCanceled(true);
+            RewardKeyItem.keyedChests.remove(pos);
         }
     }
 
