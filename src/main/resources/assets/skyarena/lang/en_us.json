@@ -20,7 +20,7 @@
   "creativetab.skyarena_tab": "§5Sky Arena",
 
   "tooltip.skyarena.reward_key": "§8Shift + Right-Click on any empty chest to fill it with loot",
-  "tooltip.skyarena.trophy": "§8Right-Click on the block to receive a buff!",
+  "tooltip.skyarena.trophy": "§8Right-Click on the trophy to receive a buff!",
   "tooltip.skyarena.mob_analyzer": "§8Right-click on a mob or the Altar of Battle to get information about its attributes",
 
   "message.skyarena.difficult_level": "Difficulty Level: ",

@@ -311,9 +311,11 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 minMobValue = (int) (minMobValue * costCoefficient);
 
-                PlayerTeam summonedMobsTeam = (PlayerTeam) pLevel.getScoreboard().getPlayerTeam("summonedMobs");
+                String teamName = altarBlockEntity.isEnableMobItemDrop() ? "summonedByArena" : "summonedByArenaWithoutLoot";
+
+                PlayerTeam summonedMobsTeam = (PlayerTeam) pLevel.getScoreboard().getPlayerTeam(teamName);
                 if (summonedMobsTeam == null) {
-                    summonedMobsTeam = pLevel.getScoreboard().addPlayerTeam("summonedMobs");
+                    summonedMobsTeam = pLevel.getScoreboard().addPlayerTeam(teamName);
                     summonedMobsTeam.setAllowFriendlyFire(false); // Запрещаем союзникам атаковать друг друга
                     summonedMobsTeam.setCollisionRule(Team.CollisionRule.NEVER); // Избегаем столкновений между союзниками
                 }

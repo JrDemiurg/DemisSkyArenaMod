@@ -18,7 +18,7 @@
       "individualPlayerStats": true,
       "nightTime": true,
       "enableRain": false,
-      "enableMobItemDrop": true,
+      "enableMobItemDrop": false,
       "reward": "skyarena:battle_rewards/crimson_key",
       "rewardIncreaseInterval": 10,
       "mobValues": {
@@ -148,7 +148,7 @@
       "individualPlayerStats": true,
       "nightTime": true,
       "enableRain": false,
-      "enableMobItemDrop": true,
+      "enableMobItemDrop": false,
       "reward": "skyarena:battle_rewards/ice_key",
       "rewardIncreaseInterval": 10,
       "mobValues": {
