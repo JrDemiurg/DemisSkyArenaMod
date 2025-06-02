@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public class SkyArenaConfig {
         defaultArena.enableRain = false;
         defaultArena.enableMobItemDrop = true;
         defaultArena.reward = "skyarena:battle_rewards/crimson_key";
-        defaultArena.mobValues = new HashMap<>();
+        defaultArena.mobValues = new LinkedHashMap<>();
 
         defaultArena.mobValues.put("minecraft:zombie", 20);
         defaultArena.mobValues.put("minecraft:skeleton", 30);

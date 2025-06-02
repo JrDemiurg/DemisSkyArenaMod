@@ -37,7 +37,7 @@ public class ModItems {
             () -> new IceEyeItem(new Item.Properties()));
 
     public static final RegistryObject<Item> MOB_ANALYZER = ITEMS.register("mob_analyzer",
-            () -> new MobAnalyzerItem(new Item.Properties()));
+            () -> new MobAnalyzerItem(new Item.Properties().stacksTo(1)));
 
 
     public static void register(IEventBus eventBus) {

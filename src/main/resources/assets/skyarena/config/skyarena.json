@@ -63,6 +63,7 @@
         "born_in_chaos_v1:zombie_clown": 55,
         "born_in_chaos_v1:zombie_fisherman": 25,
         "born_in_chaos_v1:zombie_lumberjack": 35,
+        "born_in_chaos_v1:missioner": 250,
         "iceandfire:troll": 80,
         "mutantmonsters:mutant_zombie": 200,
         "mutantmonsters:mutant_skeleton": 220,
@@ -127,7 +128,21 @@
         "caverns_and_chasms:mime": 100,
         "eeeabsmobs:corpse_warlock": 270,
         "eeeabsmobs:guling_sentinel_heavy": 250,
-        "eeeabsmobs:immortal_executioner": 150
+        "eeeabsmobs:immortal_executioner": 150,
+        "luminous_beasts:tree_ent": 200,
+        "luminous_beasts:hermit_king": 210,
+        "luminous_beasts:mummy": 210,
+        "luminous_beasts:yeti": 210,
+        "luminous_beasts:bone_stalker": 240,
+        "luminous_beasts:witch_doctor": 230,
+        "luminous_beasts:piglin_executioner": 250,
+        "luminous_beasts:horseless_headsman": 350,
+        "luminousworld:treant": 200,
+        "luminousworld:king_crab": 210,
+        "luminousworld:mummy": 210,
+        "luminousworld:yeti": 210,
+        "luminousworld:bone_stalker": 240,
+        "luminousworld:witch_doctor": 230
       }
     },
     "ice_arena": {
@@ -193,6 +208,7 @@
         "born_in_chaos_v1:zombie_clown": 55,
         "born_in_chaos_v1:zombie_fisherman": 25,
         "born_in_chaos_v1:zombie_lumberjack": 35,
+        "born_in_chaos_v1:missioner": 250,
         "iceandfire:troll": 80,
         "mutantmonsters:mutant_zombie": 200,
         "mutantmonsters:mutant_skeleton": 220,
@@ -257,7 +273,21 @@
         "caverns_and_chasms:mime": 100,
         "eeeabsmobs:corpse_warlock": 270,
         "eeeabsmobs:guling_sentinel_heavy": 250,
-        "eeeabsmobs:immortal_executioner": 150
+        "eeeabsmobs:immortal_executioner": 150,
+        "luminous_beasts:tree_ent": 200,
+        "luminous_beasts:hermit_king": 210,
+        "luminous_beasts:mummy": 210,
+        "luminous_beasts:yeti": 210,
+        "luminous_beasts:bone_stalker": 240,
+        "luminous_beasts:witch_doctor": 230,
+        "luminous_beasts:piglin_executioner": 250,
+        "luminous_beasts:horseless_headsman": 350,
+        "luminousworld:treant": 200,
+        "luminousworld:king_crab": 210,
+        "luminousworld:mummy": 210,
+        "luminousworld:yeti": 210,
+        "luminousworld:bone_stalker": 240,
+        "luminousworld:witch_doctor": 230
       }
     }
   },

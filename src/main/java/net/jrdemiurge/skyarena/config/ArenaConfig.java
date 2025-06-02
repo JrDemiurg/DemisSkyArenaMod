@@ -1,6 +1,6 @@
 package net.jrdemiurge.skyarena.config;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class ArenaConfig {
     public int startingPoints;
@@ -23,5 +23,5 @@ public class ArenaConfig {
     public boolean enableRain;
     public boolean enableMobItemDrop;
     public String reward;
-    public Map<String, Integer> mobValues;
+    public LinkedHashMap<String, Integer> mobValues;
 }

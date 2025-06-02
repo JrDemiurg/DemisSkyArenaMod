@@ -1,6 +1,5 @@
 package net.jrdemiurge.skyarena.block.entity;
 
-import com.mojang.logging.LogUtils;
 import net.jrdemiurge.skyarena.Config;
 import net.jrdemiurge.skyarena.config.ArenaConfig;
 import net.jrdemiurge.skyarena.config.SkyArenaConfig;
@@ -27,10 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class AltarBlockEntity extends BlockEntity {
@@ -74,7 +70,7 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean enableRain;
     private boolean enableMobItemDrop;
     private String rewardItem;
-    private Map<String, Integer> mobValues;
+    private LinkedHashMap<String, Integer> mobValues;
 
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
@@ -123,8 +119,8 @@ public class AltarBlockEntity extends BlockEntity {
             this.mobValues = arenaConfig.mobValues != null
                     ? arenaConfig.mobValues.entrySet().stream()
                     .filter(entry -> ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(entry.getKey()))) // Проверяем, существует ли моб
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                    : new HashMap<>();
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new))
+                    : new LinkedHashMap<>();
 
             if (this.level != null) {
                 this.level.blockEntityChanged(this.getBlockPos());
@@ -368,7 +364,7 @@ public class AltarBlockEntity extends BlockEntity {
 
         if (pTag.contains("MobValues")) {
             CompoundTag mobValuesTag = pTag.getCompound("MobValues");
-            this.mobValues = new HashMap<>();
+            this.mobValues = new LinkedHashMap<>();
             for (String key : mobValuesTag.getAllKeys()) {
                 mobValues.put(key, mobValuesTag.getInt(key));
             }
