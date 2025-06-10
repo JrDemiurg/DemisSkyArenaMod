@@ -289,6 +289,59 @@
         "luminousworld:bone_stalker": 240,
         "luminousworld:witch_doctor": 230
       }
+    },
+    "example_with_preset_waves": {
+      "startingPoints": 500,
+      "pointsIncrease": 100,
+      "mobSpawnRadius": 36,
+      "spawnDistanceFromPlayer": 18,
+      "mobCostRatio": 20,
+      "baseScalingThreshold": 120,
+      "mobStatGrowthCoefficient": 1.0,
+      "squadSpawnChance": 0.35,
+      "squadSpawnSize": 3,
+      "battleLossDistance": 60,
+      "mobTeleportDistance": 50,
+      "maxDifficultyLevel": 0,
+      "allowDifficultyReset": true,
+      "allowWaterAndAirSpawn": false,
+      "individualPlayerStats": true,
+      "nightTime": true,
+      "enableRain": false,
+      "enableMobItemDrop": false,
+      "reward": "skyarena:battle_rewards/ice_key",
+      "rewardIncreaseInterval": 10,
+      "mobValues": {
+        "minecraft:zombie": 20,
+        "minecraft:skeleton": 30,
+        "minecraft:husk": 25,
+        "minecraft:pillager": 35,
+        "minecraft:ravager": 150
+      },
+      "presetWaves": {
+        "1": {
+          "mobStatMultiplier": 2,
+          "reward": "minecraft:chests/simple_dungeon",
+          "mobs": [
+            { "type": "minecraft:zombie", "count": 2 },
+            { "type": "minecraft:skeleton", "count": 1 }
+          ]
+        },
+        "3": {
+          "mobStatMultiplier": 1,
+          "reward": "skyarena:battle_rewards/ice_key",
+          "mobs": [
+            { "type": "minecraft:skeleton", "count": 3 }
+          ]
+        },
+        "10": {
+          "mobStatMultiplier": 0.5,
+          "reward": "skyarena:battle_rewards/ender_key",
+          "mobs": [
+            { "type": "minecraft:warden", "count": 1 }
+          ]
+        }
+      }
     }
   },
   "keys": {

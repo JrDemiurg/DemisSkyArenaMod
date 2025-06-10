@@ -2,10 +2,14 @@ package net.jrdemiurge.skyarena.block.entity;
 
 import net.jrdemiurge.skyarena.Config;
 import net.jrdemiurge.skyarena.config.ArenaConfig;
+import net.jrdemiurge.skyarena.config.PresetWave;
 import net.jrdemiurge.skyarena.config.SkyArenaConfig;
+import net.jrdemiurge.skyarena.config.WaveMob;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
@@ -71,6 +75,7 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean enableMobItemDrop;
     private String rewardItem;
     private LinkedHashMap<String, Integer> mobValues;
+    private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
 
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
@@ -81,7 +86,7 @@ public class AltarBlockEntity extends BlockEntity {
     public void loadArenaConfig(String arenaType) {
 
         if (level != null && level.isClientSide) {
-            return; // Клиент не должен загружать конфиг
+            return;
         }
 
         ArenaConfig arenaConfig;
@@ -113,7 +118,6 @@ public class AltarBlockEntity extends BlockEntity {
             this.nightTime = arenaConfig.nightTime;
             this.enableRain = arenaConfig.enableRain;
             this.enableMobItemDrop = arenaConfig.enableMobItemDrop;
-            // возможно надо проверять есть ли такой предмет или вообще создать таблицу лута с ключом, и выдавать таблицу лута
             this.rewardItem = arenaConfig.reward != null ? arenaConfig.reward : "skyarena:battle_rewards/crimson_key";
 
             this.mobValues = arenaConfig.mobValues != null
@@ -121,6 +125,12 @@ public class AltarBlockEntity extends BlockEntity {
                     .filter(entry -> ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(entry.getKey()))) // Проверяем, существует ли моб
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new))
                     : new LinkedHashMap<>();
+
+            if (arenaConfig.presetWaves != null) {
+                this.presetWaves = new LinkedHashMap<>(arenaConfig.presetWaves);
+            } else {
+                this.presetWaves = new LinkedHashMap<>();
+            }
 
             if (this.level != null) {
                 this.level.blockEntityChanged(this.getBlockPos());
@@ -322,6 +332,29 @@ public class AltarBlockEntity extends BlockEntity {
             }
             pTag.put("MobValues", mobValuesTag);
         }
+
+        if (!presetWaves.isEmpty()) {
+            CompoundTag presetWavesTag = new CompoundTag();
+
+            for (Map.Entry<Integer, PresetWave> entry : presetWaves.entrySet()) {
+                CompoundTag waveTag = new CompoundTag();
+                waveTag.putDouble("MobStatMultiplier", entry.getValue().mobStatMultiplier);
+                waveTag.putString("Reward", entry.getValue().reward);
+
+                ListTag mobsTag = new ListTag();
+                for (WaveMob mob : entry.getValue().mobs) {
+                    CompoundTag mobTag = new CompoundTag();
+                    mobTag.putString("Type", mob.type);
+                    mobTag.putInt("Count", mob.count);
+                    mobsTag.add(mobTag);
+                }
+
+                waveTag.put("Mobs", mobsTag);
+                presetWavesTag.put(entry.getKey().toString(), waveTag);
+            }
+
+            pTag.put("PresetWaves", presetWavesTag);
+        }
     }
 
     @Override
@@ -367,6 +400,34 @@ public class AltarBlockEntity extends BlockEntity {
             this.mobValues = new LinkedHashMap<>();
             for (String key : mobValuesTag.getAllKeys()) {
                 mobValues.put(key, mobValuesTag.getInt(key));
+            }
+        }
+
+
+        if (pTag.contains("PresetWaves")) {
+            CompoundTag presetWavesTag = pTag.getCompound("PresetWaves");
+            presetWaves.clear();
+
+            for (String key : presetWavesTag.getAllKeys()) {
+                int waveNumber = Integer.parseInt(key);
+                CompoundTag waveTag = presetWavesTag.getCompound(key);
+
+                PresetWave wave = new PresetWave();
+                wave.mobStatMultiplier = waveTag.getDouble("MobStatMultiplier");
+                wave.reward = waveTag.getString("Reward");
+
+                ListTag mobsTag = waveTag.getList("Mobs", Tag.TAG_COMPOUND);
+                wave.mobs = new ArrayList<>();
+
+                for (Tag tag : mobsTag) {
+                    CompoundTag mobTag = (CompoundTag) tag;
+                    WaveMob mob = new WaveMob();
+                    mob.type = mobTag.getString("Type");
+                    mob.count = mobTag.getInt("Count");
+                    wave.mobs.add(mob);
+                }
+
+                presetWaves.put(waveNumber, wave);
             }
         }
 
@@ -656,5 +717,9 @@ public class AltarBlockEntity extends BlockEntity {
 
     public boolean isAllowDifficultyReset() {
         return allowDifficultyReset;
+    }
+
+    public Map<Integer, PresetWave> getPresetWaves() {
+        return this.presetWaves;
     }
 }

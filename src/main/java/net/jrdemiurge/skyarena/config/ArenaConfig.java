@@ -1,6 +1,7 @@
 package net.jrdemiurge.skyarena.config;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ArenaConfig {
     public int startingPoints;
@@ -24,4 +25,5 @@ public class ArenaConfig {
     public boolean enableMobItemDrop;
     public String reward;
     public LinkedHashMap<String, Integer> mobValues;
+    public Map<Integer, PresetWave> presetWaves;
 }
