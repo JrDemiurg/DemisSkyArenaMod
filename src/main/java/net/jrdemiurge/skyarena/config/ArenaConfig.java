@@ -26,4 +26,5 @@ public class ArenaConfig {
     public String reward;
     public LinkedHashMap<String, Integer> mobValues;
     public Map<Integer, PresetWave> presetWaves;
+    public int mobGriefingProtectionRadius;
 }

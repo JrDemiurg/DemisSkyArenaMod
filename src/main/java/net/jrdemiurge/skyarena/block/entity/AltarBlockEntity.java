@@ -74,8 +74,10 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean enableRain;
     private boolean enableMobItemDrop;
     private String rewardItem;
+    private int mobGriefingProtectionRadius = 0;
     private LinkedHashMap<String, Integer> mobValues;
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
+    private static final Map<BlockPos, Integer> protectedAltarZones = new HashMap<>();
 
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
@@ -83,6 +85,7 @@ public class AltarBlockEntity extends BlockEntity {
         super(ModBlockEntity.ALTAR_BLOCK_ENTITY.get(), pPos, pBlockState);
     }
 
+    // сделать чтобы destroyBlock работало от Entity игрока
     public void loadArenaConfig(String arenaType) {
 
         if (level != null && level.isClientSide) {
@@ -119,6 +122,7 @@ public class AltarBlockEntity extends BlockEntity {
             this.enableRain = arenaConfig.enableRain;
             this.enableMobItemDrop = arenaConfig.enableMobItemDrop;
             this.rewardItem = arenaConfig.reward != null ? arenaConfig.reward : "skyarena:battle_rewards/crimson_key";
+            this.mobGriefingProtectionRadius = arenaConfig.mobGriefingProtectionRadius;
 
             this.mobValues = arenaConfig.mobValues != null
                     ? arenaConfig.mobValues.entrySet().stream()
@@ -130,6 +134,10 @@ public class AltarBlockEntity extends BlockEntity {
                 this.presetWaves = new LinkedHashMap<>(arenaConfig.presetWaves);
             } else {
                 this.presetWaves = new LinkedHashMap<>();
+            }
+
+            if (mobGriefingProtectionRadius != 0) {
+                protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
             }
 
             if (this.level != null) {
@@ -206,9 +214,22 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void clearRemoved() {
+        super.clearRemoved();
+        if (!this.level.isClientSide()) {
+            if (mobGriefingProtectionRadius != 0) {
+                protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
+            }
+        }
+    }
+
+    @Override
     public void setRemoved() {
         super.setRemoved();
         removeSummonedMobs();
+        if (!this.level.isClientSide()) {
+            protectedAltarZones.remove(this.getBlockPos());
+        }
         stopMusic();
     }
 
@@ -312,6 +333,7 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putBoolean("EnableRain", this.enableRain);
         pTag.putBoolean("EnableMobItemDrop", this.enableMobItemDrop);
         pTag.putString("RewardItem", this.rewardItem);
+        pTag.putInt("MobGriefingProtectionRadius", this.mobGriefingProtectionRadius);
 
         if (!this.recordItem.isEmpty()) {
             pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
@@ -383,6 +405,7 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("EnableRain")) this.enableRain = pTag.getBoolean("EnableRain");
         if (pTag.contains("EnableMobItemDrop")) this.enableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
         if (pTag.contains("RewardItem")) this.rewardItem = pTag.getString("RewardItem");
+        if (pTag.contains("MobGriefingProtectionRadius")) this.mobGriefingProtectionRadius = pTag.getInt("MobGriefingProtectionRadius");
 
         if (pTag.contains("RecordItem")) {
             this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
@@ -639,6 +662,18 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
+    public static boolean isNearProtectedAltar(BlockPos pos) {
+        for (Map.Entry<BlockPos, Integer> entry : protectedAltarZones.entrySet()) {
+            BlockPos altarPos = entry.getKey();
+            int protectionRadius = entry.getValue();
+
+            if (altarPos.closerThan(pos, protectionRadius)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getStartingPoints() {
         return startingPoints;
     }
@@ -717,6 +752,10 @@ public class AltarBlockEntity extends BlockEntity {
 
     public boolean isAllowDifficultyReset() {
         return allowDifficultyReset;
+    }
+
+    public int getMobGriefingProtectionRadius() {
+        return mobGriefingProtectionRadius;
     }
 
     public Map<Integer, PresetWave> getPresetWaves() {

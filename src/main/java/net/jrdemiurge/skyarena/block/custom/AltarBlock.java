@@ -475,7 +475,8 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 "Enable Rain: " + altarBlockEntity.isEnableRain(),
                 "Enable Mob Item Drop: " + altarBlockEntity.isEnableMobItemDrop(),
                 "Reward Item: " + altarBlockEntity.getRewardItem(),
-                "Reward Increase Interval: " + altarBlockEntity.getRewardIncreaseInterval()
+                "Reward Increase Interval: " + altarBlockEntity.getRewardIncreaseInterval(),
+                "Mob Griefing Protection Radius: " + altarBlockEntity.getMobGriefingProtectionRadius()
         };
 
         for (String line : lines) {

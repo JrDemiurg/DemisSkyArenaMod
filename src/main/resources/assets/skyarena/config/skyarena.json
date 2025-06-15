@@ -21,6 +21,7 @@
       "enableMobItemDrop": false,
       "reward": "skyarena:battle_rewards/crimson_key",
       "rewardIncreaseInterval": 10,
+      "mobGriefingProtectionRadius": 35,
       "mobValues": {
         "minecraft:zombie": 20,
         "minecraft:skeleton": 30,
@@ -64,6 +65,8 @@
         "born_in_chaos_v1:zombie_fisherman": 25,
         "born_in_chaos_v1:zombie_lumberjack": 35,
         "born_in_chaos_v1:missioner": 250,
+        "born_in_chaos_v1:skeleton_demoman": 35,
+        "born_in_chaos_v1:scarlet_persecutor": 45,
         "iceandfire:troll": 80,
         "mutantmonsters:mutant_zombie": 200,
         "mutantmonsters:mutant_skeleton": 220,
@@ -93,6 +96,7 @@
         "cataclysm:deepling_priest": 70,
         "cataclysm:deepling_warlock": 70,
         "cataclysm:koboleton": 45,
+        "cataclysm:kobolediator": 250,
         "call_of_yucutan:undead_warrior": 25,
         "call_of_yucutan:blowgun_huracan": 40,
         "netherexp:ecto_slab": 25,
@@ -106,6 +110,7 @@
         "illagerinvasion:alchemist": 40,
         "illagerinvasion:sorcerer": 40,
         "illagerinvasion:necromancer": 80,
+        "illagerinvasion:firecaller": 55,
         "mowziesmobs:naga": 60,
         "mowziesmobs:bluff": 85,
         "irons_spellbooks:citadel_keeper": 150,
@@ -137,12 +142,14 @@
         "luminous_beasts:witch_doctor": 230,
         "luminous_beasts:piglin_executioner": 250,
         "luminous_beasts:horseless_headsman": 350,
+        "luminous_beasts:phoenixbird": 300,
         "luminousworld:treant": 200,
         "luminousworld:king_crab": 210,
         "luminousworld:mummy": 210,
         "luminousworld:yeti": 210,
         "luminousworld:bone_stalker": 240,
-        "luminousworld:witch_doctor": 230
+        "luminousworld:witch_doctor": 230,
+        "luminousworld:pheonix": 300
       }
     },
     "ice_arena": {
@@ -166,6 +173,7 @@
       "enableMobItemDrop": false,
       "reward": "skyarena:battle_rewards/ice_key",
       "rewardIncreaseInterval": 10,
+      "mobGriefingProtectionRadius": 50,
       "mobValues": {
         "minecraft:zombie": 20,
         "minecraft:skeleton": 30,
@@ -209,6 +217,8 @@
         "born_in_chaos_v1:zombie_fisherman": 25,
         "born_in_chaos_v1:zombie_lumberjack": 35,
         "born_in_chaos_v1:missioner": 250,
+        "born_in_chaos_v1:skeleton_demoman": 35,
+        "born_in_chaos_v1:scarlet_persecutor": 45,
         "iceandfire:troll": 80,
         "mutantmonsters:mutant_zombie": 200,
         "mutantmonsters:mutant_skeleton": 220,
@@ -238,6 +248,7 @@
         "cataclysm:deepling_priest": 70,
         "cataclysm:deepling_warlock": 70,
         "cataclysm:koboleton": 45,
+        "cataclysm:kobolediator": 250,
         "call_of_yucutan:undead_warrior": 25,
         "call_of_yucutan:blowgun_huracan": 40,
         "netherexp:ecto_slab": 25,
@@ -251,6 +262,7 @@
         "illagerinvasion:alchemist": 40,
         "illagerinvasion:sorcerer": 40,
         "illagerinvasion:necromancer": 80,
+        "illagerinvasion:firecaller": 55,
         "mowziesmobs:naga": 60,
         "mowziesmobs:bluff": 85,
         "irons_spellbooks:citadel_keeper": 150,
@@ -282,12 +294,14 @@
         "luminous_beasts:witch_doctor": 230,
         "luminous_beasts:piglin_executioner": 250,
         "luminous_beasts:horseless_headsman": 350,
+        "luminous_beasts:phoenixbird": 300,
         "luminousworld:treant": 200,
         "luminousworld:king_crab": 210,
         "luminousworld:mummy": 210,
         "luminousworld:yeti": 210,
         "luminousworld:bone_stalker": 240,
-        "luminousworld:witch_doctor": 230
+        "luminousworld:witch_doctor": 230,
+        "luminousworld:pheonix": 300
       }
     },
     "example_with_preset_waves": {
@@ -311,6 +325,7 @@
       "enableMobItemDrop": false,
       "reward": "skyarena:battle_rewards/ice_key",
       "rewardIncreaseInterval": 10,
+      "mobGriefingProtectionRadius": 50,
       "mobValues": {
         "minecraft:zombie": 20,
         "minecraft:skeleton": 30,
