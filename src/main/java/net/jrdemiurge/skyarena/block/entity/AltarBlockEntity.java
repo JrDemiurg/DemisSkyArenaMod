@@ -20,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -563,12 +564,12 @@ public class AltarBlockEntity extends BlockEntity {
             summonedMobs.removeIf(Entity::isRemoved);
             for (Entity entity : summonedMobs) {
 
-                if (entity instanceof NeutralMob neutralMob) {
-                    if (!(activatingPlayer.isCreative() || activatingPlayer.isSpectator())) {
-                        double mobDistance = activatingPlayer.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
-                        if (mobDistance <= 16 * 16) {
-                            if (neutralMob.getTarget() == null || !neutralMob.getTarget().isAlive()) {
-                                neutralMob.setTarget(activatingPlayer);
+                if (entity instanceof Mob mob) {
+                    if (mob.getTarget() == null || !mob.getTarget().isAlive()) {
+                        if (!(activatingPlayer.isCreative() || activatingPlayer.isSpectator())) {
+                            double mobDistance = activatingPlayer.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
+                            if (mobDistance <= 16 * 16) {
+                                mob.setTarget(activatingPlayer);
                             }
                         }
                     }
