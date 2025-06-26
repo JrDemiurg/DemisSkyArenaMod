@@ -1,10 +1,12 @@
 package net.jrdemiurge.skyarena.block.custom;
 
+import net.jrdemiurge.skyarena.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -128,5 +130,10 @@ public class AltarBlockTop extends Block implements SimpleWaterloggedBlock {
     @Override
     public boolean canPlaceLiquid(BlockGetter level, BlockPos pos, BlockState state, Fluid fluid) {
         return !state.getValue(WATERLOGGED) && fluid == Fluids.WATER;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter pLevel, BlockPos pPos, BlockState pState) {
+        return new ItemStack(ModBlocks.ALTAR_BATTLE.get().asItem());
     }
 }

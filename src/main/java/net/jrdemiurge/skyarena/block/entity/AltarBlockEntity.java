@@ -21,7 +21,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,6 +28,7 @@ import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
@@ -42,9 +42,10 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean battlePhaseActive = false;
     private boolean PlayerDeath = false;
     private int DeathDelay = 0;
-    private int BattleDelay = 0;
+    private long battleEndTime = 0;
     private int glowingCounter = 0;
     private boolean firstMessageSent = false;
+    private static final Map<Player, Long> playerMessageTimestamps = new HashMap<>();
     // музыка
     private ItemStack recordItem = ItemStack.EMPTY;
     private boolean isPlayingMusic = false;
@@ -71,15 +72,16 @@ public class AltarBlockEntity extends BlockEntity {
     private boolean allowDifficultyReset;
     private boolean allowWaterAndAirSpawn;
     private boolean individualPlayerStats;
-    private boolean nightTime;
-    private boolean enableRain;
-    private boolean enableMobItemDrop;
+    private boolean setNight;
+    private boolean setRain;
+    private boolean disableMobItemDrop;
     private String rewardItem;
     private int mobGriefingProtectionRadius = 0;
+    private int bossBarHideRadius = 0;
     private LinkedHashMap<String, Integer> mobValues;
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
     private static final Map<BlockPos, Integer> protectedAltarZones = new HashMap<>();
-
+    private static final Map<BlockPos, Integer> bossBarHideAltarZones = new HashMap<>();
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -119,11 +121,12 @@ public class AltarBlockEntity extends BlockEntity {
             this.allowDifficultyReset = arenaConfig.allowDifficultyReset;
             this.allowWaterAndAirSpawn = arenaConfig.allowWaterAndAirSpawn;
             this.individualPlayerStats = arenaConfig.individualPlayerStats;
-            this.nightTime = arenaConfig.nightTime;
-            this.enableRain = arenaConfig.enableRain;
-            this.enableMobItemDrop = arenaConfig.enableMobItemDrop;
+            this.setNight = arenaConfig.setNight;
+            this.setRain = arenaConfig.setRain;
+            this.disableMobItemDrop = arenaConfig.disableMobItemDrop;
             this.rewardItem = arenaConfig.reward != null ? arenaConfig.reward : "skyarena:battle_rewards/crimson_key";
             this.mobGriefingProtectionRadius = arenaConfig.mobGriefingProtectionRadius;
+            this.bossBarHideRadius = arenaConfig.bossBarHideRadius;
 
             this.mobValues = arenaConfig.mobValues != null
                     ? arenaConfig.mobValues.entrySet().stream()
@@ -139,6 +142,10 @@ public class AltarBlockEntity extends BlockEntity {
 
             if (mobGriefingProtectionRadius != 0) {
                 protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
+            }
+
+            if (bossBarHideRadius != 0){
+                bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
             }
 
             if (this.level != null) {
@@ -221,6 +228,9 @@ public class AltarBlockEntity extends BlockEntity {
             if (mobGriefingProtectionRadius != 0) {
                 protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
             }
+            if (bossBarHideRadius != 0) {
+                bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
+            }
         }
     }
 
@@ -230,6 +240,7 @@ public class AltarBlockEntity extends BlockEntity {
         removeSummonedMobs();
         if (!this.level.isClientSide()) {
             protectedAltarZones.remove(this.getBlockPos());
+            bossBarHideAltarZones.remove(this.getBlockPos());
         }
         stopMusic();
     }
@@ -330,11 +341,12 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putBoolean("AllowDifficultyReset", this.allowDifficultyReset);
         pTag.putBoolean("AllowWaterAndAirSpawn", this.allowWaterAndAirSpawn);
         pTag.putBoolean("IndividualPlayerStats", this.individualPlayerStats);
-        pTag.putBoolean("NightTime", this.nightTime);
-        pTag.putBoolean("EnableRain", this.enableRain);
-        pTag.putBoolean("EnableMobItemDrop", this.enableMobItemDrop);
+        pTag.putBoolean("SetNight", this.setNight);
+        pTag.putBoolean("SetRain", this.setRain);
+        pTag.putBoolean("EnableMobItemDrop", this.disableMobItemDrop);
         pTag.putString("RewardItem", this.rewardItem);
         pTag.putInt("MobGriefingProtectionRadius", this.mobGriefingProtectionRadius);
+        pTag.putInt("BossBarHideRadius", this.bossBarHideRadius);
 
         if (!this.recordItem.isEmpty()) {
             pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
@@ -402,11 +414,12 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("AllowDifficultyReset")) this.allowDifficultyReset = pTag.getBoolean("AllowDifficultyReset");
         if (pTag.contains("AllowWaterAndAirSpawn")) this.allowWaterAndAirSpawn = pTag.getBoolean("AllowWaterAndAirSpawn");
         if (pTag.contains("IndividualPlayerStats")) this.individualPlayerStats = pTag.getBoolean("IndividualPlayerStats");
-        if (pTag.contains("NightTime")) this.nightTime = pTag.getBoolean("NightTime");
-        if (pTag.contains("EnableRain")) this.enableRain = pTag.getBoolean("EnableRain");
-        if (pTag.contains("EnableMobItemDrop")) this.enableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
+        if (pTag.contains("SetNight")) this.setNight = pTag.getBoolean("SetNight");
+        if (pTag.contains("SetRain")) this.setRain = pTag.getBoolean("SetRain");
+        if (pTag.contains("EnableMobItemDrop")) this.disableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
         if (pTag.contains("RewardItem")) this.rewardItem = pTag.getString("RewardItem");
         if (pTag.contains("MobGriefingProtectionRadius")) this.mobGriefingProtectionRadius = pTag.getInt("MobGriefingProtectionRadius");
+        if (pTag.contains("BossBarHideRadius")) this.bossBarHideRadius = pTag.getInt("BossBarHideRadius");
 
         if (pTag.contains("RecordItem")) {
             this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
@@ -467,14 +480,6 @@ public class AltarBlockEntity extends BlockEntity {
         PlayerDeath = death;
     }
 
-    public int getBattleDelay() {
-        return BattleDelay;
-    }
-
-    public void setBattleDelay(int battleDelay) {
-        this.BattleDelay = battleDelay;
-    }
-
     public void startMusic() {
         if (this.level != null && !recordItem.isEmpty() && !isPlayingMusic) {
             this.musicTickCount = this.level.getGameTime();
@@ -495,6 +500,23 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        long gameTime = level.getGameTime();
+        if (gameTime % 10 == 0) {
+            AABB area = new AABB(worldPosition).inflate(2);
+            List<Player> players = level.getEntitiesOfClass(Player.class, area);
+
+            for (Player player : players) {
+                long lastShownTick = playerMessageTimestamps.getOrDefault(player, -40L);
+                if (!this.isBattlePhaseActive() && gameTime - lastShownTick >= 60) {
+                    int diff = this.getDifficultyLevel(player);
+                    player.displayClientMessage(
+                            Component.translatable("message.skyarena.difficult_level")
+                            .append(Component.literal(String.valueOf(diff))), true);
+                    playerMessageTimestamps.put(player, level.getGameTime() - 20);
+                }
+            }
+        }
+
         if (this.isPlayingMusic && this.level != null && !recordItem.isEmpty()) {
 
             if (this.musicTickCount >= this.musicEndTick) {
@@ -554,10 +576,6 @@ public class AltarBlockEntity extends BlockEntity {
                     }
                 }
             }
-        }
-
-        if (BattleDelay > 0) {
-            BattleDelay--;
         }
 
         if (activatingPlayer != null && battlePhaseActive) {
@@ -659,12 +677,25 @@ public class AltarBlockEntity extends BlockEntity {
                 } else {
                     pPlayer.displayClientMessage(Component.translatable("message.skyarena.mobs_glowing", affectedMobs), true);
                 }
+                putPlayerMessageTimestamps(pPlayer);
             }
         }
     }
 
     public static boolean isNearProtectedAltar(BlockPos pos) {
         for (Map.Entry<BlockPos, Integer> entry : protectedAltarZones.entrySet()) {
+            BlockPos altarPos = entry.getKey();
+            int protectionRadius = entry.getValue();
+
+            if (altarPos.closerThan(pos, protectionRadius)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isNearBossBarHideAltar(BlockPos pos) {
+        for (Map.Entry<BlockPos, Integer> entry : bossBarHideAltarZones.entrySet()) {
             BlockPos altarPos = entry.getKey();
             int protectionRadius = entry.getValue();
 
@@ -727,16 +758,16 @@ public class AltarBlockEntity extends BlockEntity {
         return squadSpawnSize;
     }
 
-    public boolean isNightTime() {
-        return nightTime;
+    public boolean isSetNight() {
+        return setNight;
     }
 
-    public boolean isEnableRain() {
-        return enableRain;
+    public boolean isSetRain() {
+        return setRain;
     }
 
-    public boolean isEnableMobItemDrop() {
-        return enableMobItemDrop;
+    public boolean isDisableMobItemDrop() {
+        return disableMobItemDrop;
     }
 
     public String getRewardItem() {
@@ -759,7 +790,23 @@ public class AltarBlockEntity extends BlockEntity {
         return mobGriefingProtectionRadius;
     }
 
+    public int getBossBarHideRadius() {
+        return bossBarHideRadius;
+    }
+
     public Map<Integer, PresetWave> getPresetWaves() {
         return this.presetWaves;
+    }
+
+    public void putPlayerMessageTimestamps(Player player){
+        playerMessageTimestamps.put(player, level.getGameTime());
+    }
+
+    public long getBattleEndTime() {
+        return battleEndTime;
+    }
+
+    public void setBattleEndTime(long battleEndTime) {
+        this.battleEndTime = battleEndTime;
     }
 }

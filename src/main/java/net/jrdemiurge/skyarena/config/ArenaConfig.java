@@ -20,11 +20,12 @@ public class ArenaConfig {
     public boolean allowDifficultyReset;
     public boolean allowWaterAndAirSpawn;
     public boolean individualPlayerStats;
-    public boolean nightTime;
-    public boolean enableRain;
-    public boolean enableMobItemDrop;
+    public boolean setNight;
+    public boolean setRain;
+    public boolean disableMobItemDrop;
     public String reward;
     public LinkedHashMap<String, Integer> mobValues;
     public Map<Integer, PresetWave> presetWaves;
     public int mobGriefingProtectionRadius;
+    public int bossBarHideRadius;
 }

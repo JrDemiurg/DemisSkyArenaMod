@@ -1,6 +1,6 @@
 {
-  "block.skyarena.altar_battle": "§5Алтарь Битвы",
-  "block.skyarena.altar_battle_top": "§5Алтарь Битвы",
+  "block.skyarena.altar_battle": "§5Алтарь сражений",
+  "block.skyarena.altar_battle_top": "§5Алтарь сражений",
   "block.skyarena.netherite_trophy": "§6Незеритовый трофей",
   "block.skyarena.oak_trophy": "§6Деревянный трофей",
   "block.skyarena.stone_trophy": "§6Каменный трофей",
@@ -10,9 +10,9 @@
 
   "item.skyarena.forest_key": "§bЛесной ключ",
   "item.skyarena.crimson_key": "§bБагряный ключ",
-  "item.skyarena.desert_key": "§bПустынный Ключ",
-  "item.skyarena.ice_key": "§bЛедяной Ключ",
-  "item.skyarena.ender_key": "§bКлюч Эндера",
+  "item.skyarena.desert_key": "§bПустынный ключ",
+  "item.skyarena.ice_key": "§bЛедяной ключ",
+  "item.skyarena.ender_key": "§bКлюч эндера",
   "item.skyarena.crimson_eye": "Багряное око",
   "item.skyarena.ice_eye": "Ледяное око",
   "item.skyarena.mob_analyzer": "§4Анализатор",

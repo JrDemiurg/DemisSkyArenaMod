@@ -86,9 +86,9 @@ public class SkyArenaConfig {
         defaultArena.allowDifficultyReset = true;
         defaultArena.allowWaterAndAirSpawn = false;
         defaultArena.individualPlayerStats = false;
-        defaultArena.nightTime = true;
-        defaultArena.enableRain = false;
-        defaultArena.enableMobItemDrop = true;
+        defaultArena.setNight = true;
+        defaultArena.setRain = false;
+        defaultArena.disableMobItemDrop = true;
         defaultArena.reward = "skyarena:battle_rewards/crimson_key";
         defaultArena.mobValues = new LinkedHashMap<>();
 

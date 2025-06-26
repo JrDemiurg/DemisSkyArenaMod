@@ -16,6 +16,7 @@
     "MixinSiameseSkeletonsleftEntity",
     "MixinSiameseSkeletonsrightEntity",
     "MixinSpiritGuideEntity",
-    "MixinSupremeBonescallerEntity"
+    "MixinSupremeBonescallerEntity",
+    "ServerBossEventMixin"
   ]
 }

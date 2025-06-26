@@ -75,134 +75,57 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
-            BlockPos altarPos = pPos;
-            BlockEntity blockEntity = pLevel.getBlockEntity(altarPos);
+            BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
 
             if (!(blockEntity instanceof AltarBlockEntity altarBlockEntity)) return InteractionResult.PASS;
 
             if (pPlayer.getItemInHand(pHand).getItem() == Blocks.BEDROCK.asItem()) {
-                if (altarBlockEntity.isBattlePhaseActive()) {
-                    Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
-                    pPlayer.displayClientMessage(message, true);
-                    return InteractionResult.SUCCESS;
-                }
-
-                altarBlockEntity.switchToNextArena();
-
-                Component message = Component.literal(altarBlockEntity.getArenaType());
-                pPlayer.displayClientMessage(message, true);
-
-                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-
+                handleBedrockUse(pLevel, pPos, pPlayer, pHand, altarBlockEntity);
                 return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() == ModItems.MOB_ANALYZER.get()) {
-                showArenaInfo(pPlayer,altarBlockEntity);
+                showArenaInfo(pPlayer, altarBlockEntity);
                 return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.STICK) {
-                altarBlockEntity.clearRecordItem();
-                altarBlockEntity.stopMusic();
-                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-
-                if (pPlayer instanceof ServerPlayer serverPlayer) {
-                    UseStick.INSTANCE.trigger(serverPlayer);
-                }
-
+                handleStickUse(pLevel, pPos, pPlayer, pHand, altarBlockEntity);
                 return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() instanceof RecordItem) {
-                altarBlockEntity.setRecordItem(pPlayer.getItemInHand(pHand));
-                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-
-                if (altarBlockEntity.isBattlePhaseActive()) {
-                    altarBlockEntity.stopMusic();
-                    altarBlockEntity.startMusic();
-                }
-
-                if (pPlayer instanceof ServerPlayer serverPlayer) {
-                    UseMusicDisk.INSTANCE.trigger(serverPlayer);
-                }
-
-                return InteractionResult.SUCCESS;
-            }
-
-            if (pPlayer.getItemInHand(pHand).getItem() == Items.BLAZE_ROD) {
-                Component message = Component.translatable("message.skyarena.current_points")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getPoints(pPlayer))));
-
-                pPlayer.displayClientMessage(message, true);
+                handleRecordUse(pLevel, pPos, pPlayer, pHand, altarBlockEntity);
                 return InteractionResult.SUCCESS;
             }
 
             if (pPlayer.getItemInHand(pHand).getItem() == Items.NETHERITE_INGOT) {
-                if (!altarBlockEntity.isAllowDifficultyReset()){
-                    Component message = Component.translatable("message.skyarena.cannot_reset_difficulty");
-                    pPlayer.displayClientMessage(message, true);
-                    return InteractionResult.PASS;
-                }
-
-                if (altarBlockEntity.isBattlePhaseActive()) {
-                    Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
-                    pPlayer.displayClientMessage(message, true);
-                    return InteractionResult.PASS;
-                }
-
-                if (pPlayer.getCooldowns().isOnCooldown(Items.NETHERITE_INGOT)) {
-                    return InteractionResult.PASS;
-                }
-
-
-                altarBlockEntity.setDifficultyLevel(pPlayer, 1);
-
-                pPlayer.getItemInHand(pHand).shrink(1);
-
-                pPlayer.getCooldowns().addCooldown(Items.NETHERITE_INGOT, 40); // 40 тиков = 2 секунды
-
-                pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
-
-                Component message = Component.translatable("message.skyarena.points_reset");
-                pPlayer.displayClientMessage(message, true);
-
-                if (pPlayer instanceof ServerPlayer serverPlayer) {
-                    UseNetheriteIngot.INSTANCE.trigger(serverPlayer);
-                }
-
-                return InteractionResult.SUCCESS;
+                return handleNetheriteIngotUse(pLevel, pPos, pPlayer, pHand, altarBlockEntity);
             }
 
             if (pLevel.getDifficulty() == Difficulty.PEACEFUL) {
                 Component message = Component.translatable("message.skyarena.peaceful_disabled");
                 pPlayer.displayClientMessage(message, true);
+                altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
                 return InteractionResult.SUCCESS;
             }
 
             // выдача награды
             if (altarBlockEntity.isBattlePhaseActive() && altarBlockEntity.canSummonMobs()) {
-                handleGiveReward(altarBlockEntity, pLevel, altarPos, pState, pPlayer);
+                handleGiveReward(altarBlockEntity, pLevel, pPos, pState, pPlayer);
                 return InteractionResult.SUCCESS;
             }
             // начало боя
             if (!(altarBlockEntity.isBattlePhaseActive())) {
 
-                if (altarBlockEntity.getMaxDifficultyLevel() != 0 && altarBlockEntity.getDifficultyLevel(pPlayer) > altarBlockEntity.getMaxDifficultyLevel()) {
-                    Component message;
+                int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
 
-                    if (ThreadLocalRandom.current().nextBoolean()) {
-                        message = Component.translatable("message.skyarena.max_difficult_level_1");
-                    } else {
-                        message = Component.translatable("message.skyarena.max_difficult_level_2");
-                    }
-
-                    pPlayer.displayClientMessage(message, true);
-
+                if (altarBlockEntity.getMaxDifficultyLevel() != 0 && difficultyLevel > altarBlockEntity.getMaxDifficultyLevel()) {
+                    handleMaxDifficultyLevel(pPlayer, altarBlockEntity);
                     return InteractionResult.SUCCESS;
                 }
 
-                if (altarBlockEntity.getBattleDelay() != 0){
+                if (pLevel.getGameTime() - altarBlockEntity.getBattleEndTime() < 30) {
                     return InteractionResult.SUCCESS;
                 }
 
@@ -210,69 +133,32 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     UseAltarBattle.INSTANCE.trigger(serverPlayer);
                 }
 
-                List<BlockPos> validPositions = altarBlockEntity.findValidSpawnPositions(pLevel, altarPos, pPlayer);
-                /*Component messagee = Component.literal(String.valueOf(validPositions.size()));
-                pPlayer.displayClientMessage(messagee, false);
-                for (BlockPos pos : validPositions) {
-                    pLevel.setBlock(pos, Blocks.GLOWSTONE.defaultBlockState(), 3);
-
-                    // Планируем возврат исходного состояния через 5 секунд
-                    pLevel.scheduleTick(pos, Blocks.GLOWSTONE, 100);
-                }*/
-
-                if (validPositions.isEmpty()){
+                List<BlockPos> validPositions = altarBlockEntity.findValidSpawnPositions(pLevel, pPos, pPlayer);
+                if (validPositions.isEmpty()) {
                     Component message = Component.translatable("message.skyarena.no_spawn_position");
                     pPlayer.displayClientMessage(message, true);
+                    altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
                     return InteractionResult.SUCCESS;
                 }
 
-                // Отслеживаем активацию алтаря
-                altarBlockEntity.recordAltarActivation(pPlayer, altarPos);
+                altarBlockEntity.recordAltarActivation(pPlayer, pPos);
 
                 altarBlockEntity.startMusic();
-                // Отображаем текущие очки игроку в клиентской части
-                Component message = Component.translatable("message.skyarena.difficult_level")
-                        .append(Component.literal(String.valueOf(altarBlockEntity.getDifficultyLevel(pPlayer))));
-                pPlayer.displayClientMessage(message, true);
 
-                // Устанавливаем окружение
-                boolean isNight = altarBlockEntity.isNightTime();
-                boolean isRain = altarBlockEntity.isEnableRain();
-                setEnvironment(pLevel, isNight, isRain);
+                pLevel.playSound(null, pPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
 
-                /*if (pLevel instanceof ServerLevel serverLevel) {
-                    serverLevel.sendParticles(ParticleTypes.PORTAL,
-                            altarPos.getX() + 0.5,
-                            altarPos.getY() + 0.8,
-                            altarPos.getZ() + 0.5,
-                            100, 0.25, 0.5, 0.25, 0);
-                }*/
-
-                pLevel.playSound(null, altarPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
+                setEnvironment(pLevel, altarBlockEntity.isSetNight(), altarBlockEntity.isSetRain());
 
                 altarBlockEntity.setGlowingCounter(0);
 
-                int remainingPoints = altarBlockEntity.getPoints(pPlayer);
+                altarBlockEntity.setBattleDifficultyLevel(difficultyLevel);
 
-                altarBlockEntity.setBattleDifficultyLevel(altarBlockEntity.getDifficultyLevel(pPlayer));
+                Component message = Component.translatable("message.skyarena.difficult_level")
+                        .append(Component.literal(String.valueOf(difficultyLevel)));
+                pPlayer.displayClientMessage(message, true);
+                altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
 
-                int mobCostRatio = altarBlockEntity.getMobCostRatio();
-                int baseScalingThreshold = altarBlockEntity.getBaseScalingThreshold();
-                double costCoefficient = calculateCostCoefficient(remainingPoints, mobCostRatio, baseScalingThreshold);
-                double statsCoefficient = (costCoefficient - 1) * altarBlockEntity.getMobStatGrowthCoefficient() + 1;
-                // Component message1 = Component.literal(costCoefficient + " " +  statsCoefficient);
-                // pPlayer.displayClientMessage(message1, false);
-
-                Map<String, Integer> mobValues = altarBlockEntity.getMobValues();
-
-                int minMobValue = mobValues.isEmpty()
-                        ? 100000
-                        : Collections.min(mobValues.values());
-
-                minMobValue = (int) (minMobValue * costCoefficient);
-
-                String teamName = altarBlockEntity.isEnableMobItemDrop() ? "summonedByArena" : "summonedByArenaWithoutLoot";
-
+                String teamName = !altarBlockEntity.isDisableMobItemDrop() ? "summonedByArena" : "summonedByArenaWithoutLoot";
                 PlayerTeam summonedMobsTeam = (PlayerTeam) pLevel.getScoreboard().getPlayerTeam(teamName);
                 if (summonedMobsTeam == null) {
                     summonedMobsTeam = pLevel.getScoreboard().addPlayerTeam(teamName);
@@ -280,11 +166,10 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     summonedMobsTeam.setCollisionRule(Team.CollisionRule.NEVER);
                 }
 
+                // Preset Wave
                 Map<Integer, PresetWave> presetWaves = altarBlockEntity.getPresetWaves();
-                int currentLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
-
-                if (presetWaves.containsKey(currentLevel)) {
-                    PresetWave wave = presetWaves.get(currentLevel);
+                if (presetWaves.containsKey(difficultyLevel)) {
+                    PresetWave wave = presetWaves.get(difficultyLevel);
                     double statMultiplier = wave.mobStatMultiplier;
 
                     for (WaveMob waveMob : wave.mobs) {
@@ -292,49 +177,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                         if (entityType == null) continue;
 
                         for (int i = 0; i < waveMob.count; i++) {
-                            BlockPos spawnPos = validPositions.get(ThreadLocalRandom.current().nextInt(validPositions.size()));
-                            Entity mob = entityType.create(pLevel);
-                            if (mob == null) continue;
-
-                            mob.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
-
-                            if (mob instanceof Mob mobEntity) {
-                                if (!altarBlockEntity.isEnableMobItemDrop()) {
-                                    CompoundTag entityData = mobEntity.saveWithoutId(new CompoundTag());
-                                    entityData.putString("DeathLootTable", "minecraft:empty");
-                                    mobEntity.load(entityData);
-                                }
-
-                                mobEntity.setPersistenceRequired();
-
-                                AttributeInstance healthAttribute = mobEntity.getAttribute(Attributes.MAX_HEALTH);
-                                if (healthAttribute != null) {
-                                    double baseHealth = healthAttribute.getBaseValue();
-                                    healthAttribute.setBaseValue(baseHealth * statMultiplier);
-                                    mobEntity.setHealth((float) (baseHealth * statMultiplier));
-                                }
-
-                                AttributeInstance attackAttribute = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE);
-                                if (attackAttribute != null) {
-                                    double baseDamage = attackAttribute.getBaseValue();
-                                    attackAttribute.setBaseValue(baseDamage * statMultiplier);
-                                }
-
-                                mobEntity.finalizeSpawn(
-                                        (ServerLevel) pLevel,
-                                        pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
-                                        MobSpawnType.NATURAL,
-                                        null,
-                                        null
-                                );
-
-                                if (!waveMob.type.equals("born_in_chaos_v1:spiritof_chaos")) {
-                                    pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
-                                }
-                            }
-
-                            pLevel.addFreshEntity(mob);
-                            altarBlockEntity.addSummonedMob(mob);
+                            spawnArenaMob(pLevel, altarBlockEntity, entityType, validPositions, statMultiplier, waveMob.type, summonedMobsTeam);
                         }
                     }
 
@@ -344,6 +187,22 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                     return InteractionResult.SUCCESS;
                 }
+
+                // Random Wave
+                int remainingPoints = altarBlockEntity.getPoints(pPlayer);
+
+                int mobCostRatio = altarBlockEntity.getMobCostRatio();
+                int baseScalingThreshold = altarBlockEntity.getBaseScalingThreshold();
+                double costCoefficient = calculateCostCoefficient(remainingPoints, mobCostRatio, baseScalingThreshold);
+                double statsCoefficient = (costCoefficient - 1) * altarBlockEntity.getMobStatGrowthCoefficient() + 1;
+
+                Map<String, Integer> mobValues = altarBlockEntity.getMobValues();
+
+                int minMobValue = mobValues.isEmpty()
+                        ? 100000
+                        : Collections.min(mobValues.values());
+
+                minMobValue = (int) (minMobValue * costCoefficient);
 
                 int skipCount = 0;
 
@@ -367,76 +226,23 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     skipCount = 0;
 
                     if (remainingPoints >= mobValue) {
-                        boolean spawnTriple = ThreadLocalRandom.current().nextDouble() < squadSpawnChance;
+                        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(mobTypeString));
 
-                        // Спавним одного или трёх мобов
+                        boolean spawnTriple = ThreadLocalRandom.current().nextDouble() < squadSpawnChance;
                         int mobsToSpawn = spawnTriple ? squadSpawnSize : 1;
 
                         for (int i = 0; i < mobsToSpawn; i++) {
-                            // Проверяем, хватает ли очков для следующего моба
                             if (remainingPoints < mobValue) {
-                                break; // Останавливаемся, если очков больше не хватает
+                                break;
                             }
 
-                            EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(mobTypeString));
-
-                            Entity mob = entityType.create(pLevel);
-                            if (mob != null) {
-
-                                BlockPos spawnPos = validPositions.get(ThreadLocalRandom.current().nextInt(validPositions.size()));
-
-                                mob.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
-
-                                // Чтобы моб спавнился в стандартной комплектации. К примеру скелет будет появляться с луком.
-                                if (mob instanceof Mob) {
-                                    Mob mobEntity = (Mob) mob;
-
-                                    /*mobEntity.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(16.0);*/
-
-                                    if (!(altarBlockEntity.isEnableMobItemDrop())) {
-                                        CompoundTag entityData = mobEntity.saveWithoutId(new CompoundTag());
-                                        entityData.putString("DeathLootTable", "minecraft:empty");
-                                        mobEntity.load(entityData);
-                                    }
-
-                                    mobEntity.setPersistenceRequired();
-
-                                    AttributeInstance healthAttribute = mobEntity.getAttribute(Attributes.MAX_HEALTH);
-                                    if (healthAttribute != null) {
-                                        double baseHealth = healthAttribute.getBaseValue();
-                                        healthAttribute.setBaseValue(baseHealth * statsCoefficient);
-                                        mobEntity.setHealth((float) (baseHealth * statsCoefficient));
-                                    }
-
-                                    AttributeInstance attackAttribute = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE);
-                                    if (attackAttribute != null) {
-                                        double baseDamage = attackAttribute.getBaseValue();
-                                        attackAttribute.setBaseValue(baseDamage * statsCoefficient);
-                                    }
-
-                                    mobEntity.finalizeSpawn(
-                                            (ServerLevel) pLevel,
-                                            pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
-                                            MobSpawnType.NATURAL,
-                                            null,
-                                            null
-                                    );
-
-                                    if (!mobTypeString.equals("born_in_chaos_v1:spiritof_chaos")) {
-                                        pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
-                                    }
-                                }
-
-                                /*pPlayer.displayClientMessage(Component.literal(mobTypeString + mobValue), false);*/
-                                pLevel.addFreshEntity(mob);
-                                altarBlockEntity.addSummonedMob(mob); // записываем призванного моба
-                                remainingPoints -= mobValue;
-                            }
+                            boolean success = spawnArenaMob(pLevel, altarBlockEntity, entityType, validPositions, statsCoefficient, mobTypeString, summonedMobsTeam);
+                            if (success) remainingPoints -= mobValue;
                         }
                     }
                 }
 
-                if (!(altarBlockEntity.canSummonMobs())){
+                if (!(altarBlockEntity.canSummonMobs())) {
                     altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
                 }
 
@@ -448,6 +254,52 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return InteractionResult.SUCCESS;
     }
 
+    private static boolean spawnArenaMob(Level pLevel, AltarBlockEntity altarBlockEntity, EntityType<?> entityType, List<BlockPos> validPositions, double statMultiplier, String mobTypeString, PlayerTeam summonedMobsTeam) {
+        Entity mob = entityType.create(pLevel);
+        if (mob == null) return false;
+
+        BlockPos spawnPos = validPositions.get(ThreadLocalRandom.current().nextInt(validPositions.size()));
+        mob.setPos(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5);
+
+        if (mob instanceof Mob mobEntity) {
+            if (altarBlockEntity.isDisableMobItemDrop()) {
+                CompoundTag entityData = mobEntity.saveWithoutId(new CompoundTag());
+                entityData.putString("DeathLootTable", "minecraft:empty");
+                mobEntity.load(entityData);
+            }
+
+            mobEntity.setPersistenceRequired();
+
+            AttributeInstance healthAttribute = mobEntity.getAttribute(Attributes.MAX_HEALTH);
+            if (healthAttribute != null) {
+                double baseHealth = healthAttribute.getBaseValue();
+                healthAttribute.setBaseValue(baseHealth * statMultiplier);
+                mobEntity.setHealth(mobEntity.getMaxHealth());
+            }
+
+            AttributeInstance attackAttribute = mobEntity.getAttribute(Attributes.ATTACK_DAMAGE);
+            if (attackAttribute != null) {
+                double baseDamage = attackAttribute.getBaseValue();
+                attackAttribute.setBaseValue(baseDamage * statMultiplier);
+            }
+
+            mobEntity.finalizeSpawn(
+                    (ServerLevel) pLevel,
+                    pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
+                    MobSpawnType.NATURAL,
+                    null,
+                    null
+            );
+
+            if (!mobTypeString.equals("born_in_chaos_v1:spiritof_chaos")) {
+                pLevel.getScoreboard().addPlayerToTeam(mob.getStringUUID(), summonedMobsTeam);
+            }
+        }
+
+        pLevel.addFreshEntity(mob);
+        altarBlockEntity.addSummonedMob(mob);
+        return true;
+    }
     public void showArenaInfo(Player pPlayer, AltarBlockEntity altarBlockEntity) {
         MutableComponent message = Component.literal("§4=== Arena Info ===\n");
         StringBuilder logMessage = new StringBuilder("=== Arena Info ===\n");
@@ -471,12 +323,13 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 "Allow Difficulty Reset: " + altarBlockEntity.isAllowDifficultyReset(),
                 "Allow Water And Air Spawn: " + altarBlockEntity.isAllowWaterAndAirSpawn(),
                 "Individual Player Stats: " + altarBlockEntity.isIndividualPlayerStats(),
-                "Night Time: " + altarBlockEntity.isNightTime(),
-                "Enable Rain: " + altarBlockEntity.isEnableRain(),
-                "Enable Mob Item Drop: " + altarBlockEntity.isEnableMobItemDrop(),
+                "Set Night: " + altarBlockEntity.isSetNight(),
+                "Set Rain: " + altarBlockEntity.isSetRain(),
+                "Disable Mob Item Drop: " + altarBlockEntity.isDisableMobItemDrop(),
                 "Reward Item: " + altarBlockEntity.getRewardItem(),
                 "Reward Increase Interval: " + altarBlockEntity.getRewardIncreaseInterval(),
-                "Mob Griefing Protection Radius: " + altarBlockEntity.getMobGriefingProtectionRadius()
+                "Mob Griefing Protection Radius: " + altarBlockEntity.getMobGriefingProtectionRadius(),
+                "Boss Bar Hide Radius: " + altarBlockEntity.getBossBarHideRadius()
         };
 
         for (String line : lines) {
@@ -583,21 +436,105 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return Math.round(costCoefficient * 10) / 10.0; // Возвращаем новый коэффициент
     }
 
-    private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos altarPos, BlockState pState, Player pPlayer) {
-        // Удаляем игрока из списка и добавляем очки
-        altarBlockEntity.removeAltarActivationForPlayer(/*pPlayer*/);
+    private void handleBedrockUse(Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, AltarBlockEntity altarBlockEntity) {
+        if (altarBlockEntity.isBattlePhaseActive()) {
+            Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
+            pPlayer.displayClientMessage(message, true);
+            altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+            return;
+        }
 
-        /*if (pLevel instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(ParticleTypes.PORTAL,
-                    altarPos.getX() + 0.5,
-                    altarPos.getY() + 0.8,
-                    altarPos.getZ() + 0.5,
-                    100, 0.25, 0.5, 0.25, 0);
-        }*/
+        altarBlockEntity.switchToNextArena();
+
+        Component message = Component.literal(altarBlockEntity.getArenaType());
+        pPlayer.displayClientMessage(message, true);
+        altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+
+        pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+    }
+
+    private void handleStickUse(Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, AltarBlockEntity altarBlockEntity) {
+        altarBlockEntity.clearRecordItem();
+        altarBlockEntity.stopMusic();
+        pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        if (pPlayer instanceof ServerPlayer serverPlayer) {
+            UseStick.INSTANCE.trigger(serverPlayer);
+        }
+    }
+
+    private void handleRecordUse(Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, AltarBlockEntity altarBlockEntity) {
+        altarBlockEntity.setRecordItem(pPlayer.getItemInHand(pHand));
+        pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        if (altarBlockEntity.isBattlePhaseActive()) {
+            altarBlockEntity.stopMusic();
+            altarBlockEntity.startMusic();
+        }
+
+        if (pPlayer instanceof ServerPlayer serverPlayer) {
+            UseMusicDisk.INSTANCE.trigger(serverPlayer);
+        }
+    }
+
+    private InteractionResult handleNetheriteIngotUse(Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, AltarBlockEntity altarBlockEntity) {
+        if (!altarBlockEntity.isAllowDifficultyReset()) {
+            Component message = Component.translatable("message.skyarena.cannot_reset_difficulty");
+            pPlayer.displayClientMessage(message, true);
+            altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+            return InteractionResult.PASS;
+        }
+
+        if (altarBlockEntity.isBattlePhaseActive()) {
+            Component message = Component.translatable("message.skyarena.cannot_do_during_battle");
+            pPlayer.displayClientMessage(message, true);
+            altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+            return InteractionResult.PASS;
+        }
+
+        if (pPlayer.getCooldowns().isOnCooldown(Items.NETHERITE_INGOT)) {
+            return InteractionResult.PASS;
+        }
+
+        altarBlockEntity.setDifficultyLevel(pPlayer, 1);
+
+        pPlayer.getItemInHand(pHand).shrink(1);
+
+        pPlayer.getCooldowns().addCooldown(Items.NETHERITE_INGOT, 40);
+
+        pLevel.playSound(null, pPos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+        Component message = Component.translatable("message.skyarena.points_reset");
+        pPlayer.displayClientMessage(message, true);
+        altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+
+        if (pPlayer instanceof ServerPlayer serverPlayer) {
+            UseNetheriteIngot.INSTANCE.trigger(serverPlayer);
+        }
+
+        return InteractionResult.SUCCESS;
+    }
+
+    private void handleMaxDifficultyLevel(Player pPlayer, AltarBlockEntity altarBlockEntity) {
+        Component message;
+
+        if (ThreadLocalRandom.current().nextBoolean()) {
+            message = Component.translatable("message.skyarena.max_difficult_level_1");
+        } else {
+            message = Component.translatable("message.skyarena.max_difficult_level_2");
+        }
+
+        pPlayer.displayClientMessage(message, true);
+        altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+    }
+
+    private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
+        altarBlockEntity.removeAltarActivationForPlayer();
 
         handleVictoryTriggers(altarBlockEntity, pPlayer);
 
         pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
+        altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
 
         int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
         int keyCount = (difficultyLevel-1) / altarBlockEntity.getRewardIncreaseInterval() + 1;
@@ -621,9 +558,9 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
             if (lootTable != LootTable.EMPTY) {
                 LootParams lootParams = new LootParams.Builder(serverLevel)
-                        .withParameter(LootContextParams.ORIGIN, pPlayer.position()) // Позиция игрока
-                        .withParameter(LootContextParams.THIS_ENTITY, pPlayer) // Сам игрок
-                        .create(LootContextParamSets.GIFT); // Используемый набор параметров (GIFT подойдёт для выдачи)
+                        .withParameter(LootContextParams.ORIGIN, pPlayer.position())
+                        .withParameter(LootContextParams.THIS_ENTITY, pPlayer)
+                        .create(LootContextParamSets.GIFT);
 
                 for (int i = 0; i < keyCount; i++) {
                     List<ItemStack> lootItems = lootTable.getRandomItems(lootParams);
@@ -645,12 +582,12 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             altarBlockEntity.increaseDifficultyLevel(pPlayer);
         }
         // Воспроизведение звука
-        pLevel.playSound(null, altarPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        pLevel.playSound(null, pPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         // Переключаем фазу боя
         altarBlockEntity.toggleBattlePhase();
         altarBlockEntity.stopMusic();
-        altarBlockEntity.setBattleDelay(30);
+        altarBlockEntity.setBattleEndTime(pLevel.getGameTime());
     }
 
     private void handleVictoryTriggers(AltarBlockEntity altarBlockEntity, Player pPlayer) {
