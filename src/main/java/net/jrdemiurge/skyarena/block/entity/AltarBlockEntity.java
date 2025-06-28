@@ -1,15 +1,10 @@
 package net.jrdemiurge.skyarena.block.entity;
 
 import net.jrdemiurge.skyarena.Config;
-import net.jrdemiurge.skyarena.config.ArenaConfig;
-import net.jrdemiurge.skyarena.config.PresetWave;
-import net.jrdemiurge.skyarena.config.SkyArenaConfig;
-import net.jrdemiurge.skyarena.config.WaveMob;
+import net.jrdemiurge.skyarena.config.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
@@ -19,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +28,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class AltarBlockEntity extends BlockEntity {
 
@@ -54,32 +49,30 @@ public class AltarBlockEntity extends BlockEntity {
     // сложность
     private int difficultyLevel = 1;
     private int battleDifficultyLevel = 1;
-
+    // данные блока
     private String arenaType = "sky_arena";
-    private int startingPoints;
-    private int pointsIncrease;
     private int mobSpawnRadius;
-    private int mobCostRatio;
-    private int baseScalingThreshold;
-    private double mobStatGrowthCoefficient;
-    private double squadSpawnChance;
-    private int squadSpawnSize;
     private int spawnDistanceFromPlayer;
     private int battleLossDistance;
     private int mobTeleportDistance;
-    private int rewardIncreaseInterval;
-    private int maxDifficultyLevel;
+    private int mobGriefingProtectionRadius = 0;
+    private int bossBarHideRadius = 0;
+    private int mobCostRatio;
+
     private boolean allowDifficultyReset;
     private boolean allowWaterAndAirSpawn;
     private boolean individualPlayerStats;
     private boolean setNight;
     private boolean setRain;
     private boolean disableMobItemDrop;
-    private String rewardItem;
-    private int mobGriefingProtectionRadius = 0;
-    private int bossBarHideRadius = 0;
-    private LinkedHashMap<String, Integer> mobValues;
+
+    private int startingPoints;
+    private double startingStatMultiplier;
+
+    private List<DifficultyLevelRange> difficultyLevelRanges = new ArrayList<>();
+    private LinkedHashMap<String, MobGroup> mobGroups = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
+    //
     private static final Map<BlockPos, Integer> protectedAltarZones = new HashMap<>();
     private static final Map<BlockPos, Integer> bossBarHideAltarZones = new HashMap<>();
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
@@ -105,34 +98,35 @@ public class AltarBlockEntity extends BlockEntity {
 
         if (arenaConfig != null) {
             this.arenaType = arenaType;
-            this.startingPoints = arenaConfig.startingPoints != 0 ? arenaConfig.startingPoints : 500;
             this.mobSpawnRadius = arenaConfig.mobSpawnRadius != 0 ? arenaConfig.mobSpawnRadius : 36;
-            this.pointsIncrease = arenaConfig.pointsIncrease;
-            this.mobCostRatio = arenaConfig.mobCostRatio != 0 ? arenaConfig.mobCostRatio : 20;
-            this.baseScalingThreshold = arenaConfig.baseScalingThreshold != 0 ? arenaConfig.baseScalingThreshold : 120;
-            this.mobStatGrowthCoefficient = arenaConfig.mobStatGrowthCoefficient;
-            this.squadSpawnChance = arenaConfig.squadSpawnChance;
-            this.squadSpawnSize = arenaConfig.squadSpawnSize;
             this.spawnDistanceFromPlayer = arenaConfig.spawnDistanceFromPlayer;
             this.battleLossDistance = arenaConfig.battleLossDistance != 0 ? arenaConfig.battleLossDistance : 60;
             this.mobTeleportDistance = arenaConfig.mobTeleportDistance != 0 ? arenaConfig.mobTeleportDistance : 50;
-            this.rewardIncreaseInterval = arenaConfig.rewardIncreaseInterval != 0 ? arenaConfig.rewardIncreaseInterval : 10;
-            this.maxDifficultyLevel = arenaConfig.maxDifficultyLevel;
+            this.mobGriefingProtectionRadius = arenaConfig.mobGriefingProtectionRadius;
+            this.bossBarHideRadius = arenaConfig.bossBarHideRadius;
+            this.mobCostRatio = arenaConfig.mobCostRatio != 0 ? arenaConfig.mobCostRatio : 20;
+
             this.allowDifficultyReset = arenaConfig.allowDifficultyReset;
             this.allowWaterAndAirSpawn = arenaConfig.allowWaterAndAirSpawn;
             this.individualPlayerStats = arenaConfig.individualPlayerStats;
             this.setNight = arenaConfig.setNight;
             this.setRain = arenaConfig.setRain;
             this.disableMobItemDrop = arenaConfig.disableMobItemDrop;
-            this.rewardItem = arenaConfig.reward != null ? arenaConfig.reward : "skyarena:battle_rewards/crimson_key";
-            this.mobGriefingProtectionRadius = arenaConfig.mobGriefingProtectionRadius;
-            this.bossBarHideRadius = arenaConfig.bossBarHideRadius;
 
-            this.mobValues = arenaConfig.mobValues != null
-                    ? arenaConfig.mobValues.entrySet().stream()
-                    .filter(entry -> ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(entry.getKey()))) // Проверяем, существует ли моб
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new))
-                    : new LinkedHashMap<>();
+            this.startingPoints = arenaConfig.startingPoints != 0 ? arenaConfig.startingPoints : 500;
+            this.startingStatMultiplier = arenaConfig.startingStatMultiplier != 0.0 ? arenaConfig.startingStatMultiplier : 1.0;
+
+            if (arenaConfig.difficultyLevelRanges != null) {
+                this.difficultyLevelRanges = new ArrayList<>(arenaConfig.difficultyLevelRanges);
+            } else {
+                this.difficultyLevelRanges = new ArrayList<>();
+            }
+
+            if (arenaConfig.mobGroups != null) {
+                this.mobGroups = new LinkedHashMap<>(arenaConfig.mobGroups);
+            } else {
+                this.mobGroups = new LinkedHashMap<>();
+            }
 
             if (arenaConfig.presetWaves != null) {
                 this.presetWaves = new LinkedHashMap<>(arenaConfig.presetWaves);
@@ -160,7 +154,7 @@ public class AltarBlockEntity extends BlockEntity {
             return;
         }
 
-        List<String> arenaTypes = new ArrayList<>(SkyArenaConfig.configData.arenas.keySet()); // Получаем список всех арен
+        List<String> arenaTypes = new ArrayList<>(SkyArenaConfig.configData.arenas.keySet());
 
         if (arenaTypes.isEmpty()) {
             return;
@@ -169,22 +163,12 @@ public class AltarBlockEntity extends BlockEntity {
         int currentIndex = arenaTypes.indexOf(this.arenaType);
         int nextIndex = (currentIndex + 1) % arenaTypes.size();
 
-        this.arenaType = arenaTypes.get(nextIndex); // Устанавливаем новый тип арены
-        loadArenaConfig(this.arenaType); // Перезагружаем настройки
+        this.arenaType = arenaTypes.get(nextIndex);
+        loadArenaConfig(this.arenaType);
 
         if (this.level != null) {
-            this.level.blockEntityChanged(this.getBlockPos()); // Уведомляем игру об изменении блока
+            this.level.blockEntityChanged(this.getBlockPos());
         }
-    }
-
-    public Map<String, Integer> getMobValues() {
-        return mobValues.entrySet().stream()
-                .filter(entry -> ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(entry.getKey()))) // Проверяем, существует ли моб
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    public Map<String, Integer> getMobValuesUnfiltered() {
-        return mobValues;
     }
 
     public String getArenaType() {
@@ -273,7 +257,39 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public int getPoints(Player player) {
-        return startingPoints + (getDifficultyLevel(player) - 1) * pointsIncrease;
+        int difficulty = getDifficultyLevel(player);
+        int completedLevels = difficulty - 1;
+        int totalPoints = startingPoints;
+
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+
+            if (completedLevels >= start) {
+                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
+                totalPoints += levelsPassedInRange * range.pointsIncrease;
+            }
+        }
+
+        return totalPoints;
+    }
+
+    public double getStatMultiplier(Player player) {
+        int difficulty = getDifficultyLevel(player);
+        int completedLevels = difficulty - 1;
+        double totalStatMultiplier = startingStatMultiplier;
+
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+
+            if (completedLevels >= start) {
+                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
+                totalStatMultiplier += levelsPassedInRange * range.statMultiplierIncrease;
+            }
+        }
+
+        return totalStatMultiplier;
     }
 
     public int getDifficultyLevel(Player player) {
@@ -326,25 +342,18 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putInt("DifficultyLevel", this.difficultyLevel);
         pTag.putString("ArenaType", this.arenaType);
         pTag.putInt("StartingPoints", this.startingPoints);
-        pTag.putInt("PointsIncrease", this.pointsIncrease);
+        pTag.putDouble("StartingStatMultiplier", this.startingStatMultiplier);
         pTag.putInt("MobSpawnRadius", this.mobSpawnRadius);
         pTag.putInt("MobCostRatio", this.mobCostRatio);
-        pTag.putInt("BaseScalingThreshold", this.baseScalingThreshold);
-        pTag.putDouble("MobStatGrowthCoefficient", this.mobStatGrowthCoefficient);
-        pTag.putDouble("SquadSpawnChance", this.squadSpawnChance);
-        pTag.putInt("SquadSpawnSize", this.squadSpawnSize);
         pTag.putInt("SpawnDistanceFromPlayer", this.spawnDistanceFromPlayer);
         pTag.putInt("BattleLossDistance", this.battleLossDistance);
         pTag.putInt("MobTeleportDistance", this.mobTeleportDistance);
-        pTag.putInt("RewardIncreaseInterval", this.rewardIncreaseInterval);
-        pTag.putInt("MaxDifficultyLevel", this.maxDifficultyLevel);
         pTag.putBoolean("AllowDifficultyReset", this.allowDifficultyReset);
         pTag.putBoolean("AllowWaterAndAirSpawn", this.allowWaterAndAirSpawn);
         pTag.putBoolean("IndividualPlayerStats", this.individualPlayerStats);
         pTag.putBoolean("SetNight", this.setNight);
         pTag.putBoolean("SetRain", this.setRain);
         pTag.putBoolean("EnableMobItemDrop", this.disableMobItemDrop);
-        pTag.putString("RewardItem", this.rewardItem);
         pTag.putInt("MobGriefingProtectionRadius", this.mobGriefingProtectionRadius);
         pTag.putInt("BossBarHideRadius", this.bossBarHideRadius);
 
@@ -360,12 +369,51 @@ public class AltarBlockEntity extends BlockEntity {
             pTag.put("PlayerDifficulty", difficultyTag);
         }
 
-        if (!mobValues.isEmpty()) {
-            CompoundTag mobValuesTag = new CompoundTag();
-            for (Map.Entry<String, Integer> entry : mobValues.entrySet()) {
-                mobValuesTag.putInt(entry.getKey(), entry.getValue());
+        if (!difficultyLevelRanges.isEmpty()) {
+            ListTag rangesTag = new ListTag();
+            for (DifficultyLevelRange range : difficultyLevelRanges) {
+                CompoundTag rangeTag = new CompoundTag();
+
+                ListTag intList = new ListTag();
+                for (int val : range.range) {
+                    intList.add(IntTag.valueOf(val));
+                }
+                rangeTag.put("Range", intList);
+                rangeTag.putInt("PointsIncrease", range.pointsIncrease);
+                rangeTag.putDouble("StatMultiplierIncrease", range.statMultiplierIncrease);
+                rangeTag.putString("RewardLootTable", range.rewardLootTable);
+                rangeTag.putInt("RewardCount", range.rewardCount);
+
+                ListTag usedGroupsTag = new ListTag();
+                for (String group : range.mobGroupsUsed) {
+                    usedGroupsTag.add(StringTag.valueOf(group));
+                }
+                rangeTag.put("MobGroupsUsed", usedGroupsTag);
+
+                rangesTag.add(rangeTag);
             }
-            pTag.put("MobValues", mobValuesTag);
+            pTag.put("DifficultyLevelRanges", rangesTag);
+        }
+
+        if (!mobGroups.isEmpty()) {
+            CompoundTag groupsTag = new CompoundTag();
+            for (Map.Entry<String, MobGroup> entry : mobGroups.entrySet()) {
+                CompoundTag groupTag = new CompoundTag();
+                MobGroup group = entry.getValue();
+                groupTag.putDouble("SquadSpawnChance", group.squadSpawnChance);
+                groupTag.putInt("SquadSpawnSize", group.squadSpawnSize);
+                groupTag.putDouble("AdditionalStatMultiplier", group.additionalStatMultiplier);
+                groupTag.putDouble("MobSpawnChance", group.mobSpawnChance);
+
+                CompoundTag mobValuesTag = new CompoundTag();
+                for (Map.Entry<String, Integer> mobEntry : group.mobValues.entrySet()) {
+                    mobValuesTag.putInt(mobEntry.getKey(), mobEntry.getValue());
+                }
+
+                groupTag.put("MobValues", mobValuesTag);
+                groupsTag.put(entry.getKey(), groupTag);
+            }
+            pTag.put("MobGroups", groupsTag);
         }
 
         if (!presetWaves.isEmpty()) {
@@ -374,7 +422,8 @@ public class AltarBlockEntity extends BlockEntity {
             for (Map.Entry<Integer, PresetWave> entry : presetWaves.entrySet()) {
                 CompoundTag waveTag = new CompoundTag();
                 waveTag.putDouble("MobStatMultiplier", entry.getValue().mobStatMultiplier);
-                waveTag.putString("Reward", entry.getValue().reward);
+                waveTag.putString("RewardLootTable", entry.getValue().rewardLootTable);
+                waveTag.putInt("RewardCount", entry.getValue().rewardCount);
 
                 ListTag mobsTag = new ListTag();
                 for (WaveMob mob : entry.getValue().mobs) {
@@ -399,25 +448,18 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("DifficultyLevel")) this.difficultyLevel = pTag.getInt("DifficultyLevel");
         if (pTag.contains("ArenaType")) this.arenaType = pTag.getString("ArenaType");
         if (pTag.contains("StartingPoints")) this.startingPoints = pTag.getInt("StartingPoints");
-        if (pTag.contains("PointsIncrease")) this.pointsIncrease = pTag.getInt("PointsIncrease");
+        if (pTag.contains("StartingStatMultiplier")) this.startingStatMultiplier = pTag.getDouble("StartingStatMultiplier");
         if (pTag.contains("MobSpawnRadius")) this.mobSpawnRadius = pTag.getInt("MobSpawnRadius");
         if (pTag.contains("MobCostRatio")) this.mobCostRatio = pTag.getInt("MobCostRatio");
-        if (pTag.contains("BaseScalingThreshold")) this.baseScalingThreshold = pTag.getInt("BaseScalingThreshold");
-        if (pTag.contains("MobStatGrowthCoefficient")) this.mobStatGrowthCoefficient = pTag.getDouble("MobStatGrowthCoefficient");
-        if (pTag.contains("SquadSpawnChance")) this.squadSpawnChance = pTag.getDouble("SquadSpawnChance");
-        if (pTag.contains("SquadSpawnSize")) this.squadSpawnSize = pTag.getInt("SquadSpawnSize");
         if (pTag.contains("SpawnDistanceFromPlayer")) this.spawnDistanceFromPlayer = pTag.getInt("SpawnDistanceFromPlayer");
         if (pTag.contains("BattleLossDistance")) this.battleLossDistance = pTag.getInt("BattleLossDistance");
         if (pTag.contains("MobTeleportDistance")) this.mobTeleportDistance = pTag.getInt("MobTeleportDistance");
-        if (pTag.contains("RewardIncreaseInterval")) this.rewardIncreaseInterval = pTag.getInt("RewardIncreaseInterval");
-        if (pTag.contains("MaxDifficultyLevel")) this.maxDifficultyLevel = pTag.getInt("MaxDifficultyLevel");
         if (pTag.contains("AllowDifficultyReset")) this.allowDifficultyReset = pTag.getBoolean("AllowDifficultyReset");
         if (pTag.contains("AllowWaterAndAirSpawn")) this.allowWaterAndAirSpawn = pTag.getBoolean("AllowWaterAndAirSpawn");
         if (pTag.contains("IndividualPlayerStats")) this.individualPlayerStats = pTag.getBoolean("IndividualPlayerStats");
         if (pTag.contains("SetNight")) this.setNight = pTag.getBoolean("SetNight");
         if (pTag.contains("SetRain")) this.setRain = pTag.getBoolean("SetRain");
         if (pTag.contains("EnableMobItemDrop")) this.disableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
-        if (pTag.contains("RewardItem")) this.rewardItem = pTag.getString("RewardItem");
         if (pTag.contains("MobGriefingProtectionRadius")) this.mobGriefingProtectionRadius = pTag.getInt("MobGriefingProtectionRadius");
         if (pTag.contains("BossBarHideRadius")) this.bossBarHideRadius = pTag.getInt("BossBarHideRadius");
 
@@ -432,14 +474,57 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
 
-        if (pTag.contains("MobValues")) {
-            CompoundTag mobValuesTag = pTag.getCompound("MobValues");
-            this.mobValues = new LinkedHashMap<>();
-            for (String key : mobValuesTag.getAllKeys()) {
-                mobValues.put(key, mobValuesTag.getInt(key));
+        if (pTag.contains("DifficultyLevelRanges")) {
+            ListTag rangesTag = pTag.getList("DifficultyLevelRanges", Tag.TAG_COMPOUND);
+            difficultyLevelRanges.clear();
+
+            for (Tag tag : rangesTag) {
+                CompoundTag rangeTag = (CompoundTag) tag;
+                DifficultyLevelRange range = new DifficultyLevelRange();
+
+                ListTag intList = rangeTag.getList("Range", Tag.TAG_INT);
+                range.range = new ArrayList<>();
+                for (Tag intTag : intList) {
+                    range.range.add(((IntTag) intTag).getAsInt());
+                }
+
+                range.pointsIncrease = rangeTag.getInt("PointsIncrease");
+                range.statMultiplierIncrease = rangeTag.getDouble("StatMultiplierIncrease");
+                range.rewardLootTable = rangeTag.getString("RewardLootTable");
+                range.rewardCount = rangeTag.getInt("RewardCount");
+
+                ListTag usedGroupsTag = rangeTag.getList("MobGroupsUsed", Tag.TAG_STRING);
+                range.mobGroupsUsed = new ArrayList<>();
+                for (Tag groupTag : usedGroupsTag) {
+                    range.mobGroupsUsed.add(((StringTag) groupTag).getAsString());
+                }
+
+                difficultyLevelRanges.add(range);
             }
         }
 
+        if (pTag.contains("MobGroups")) {
+            CompoundTag groupsTag = pTag.getCompound("MobGroups");
+            mobGroups.clear();
+
+            for (String key : groupsTag.getAllKeys()) {
+                CompoundTag groupTag = groupsTag.getCompound(key);
+                MobGroup group = new MobGroup();
+
+                group.squadSpawnChance = groupTag.getDouble("SquadSpawnChance");
+                group.squadSpawnSize = groupTag.getInt("SquadSpawnSize");
+                group.additionalStatMultiplier = groupTag.getDouble("AdditionalStatMultiplier");
+                group.mobSpawnChance = groupTag.getDouble("MobSpawnChance");
+
+                CompoundTag mobValuesTag = groupTag.getCompound("MobValues");
+                group.mobValues = new LinkedHashMap<>();
+                for (String mobId : mobValuesTag.getAllKeys()) {
+                    group.mobValues.put(mobId, mobValuesTag.getInt(mobId));
+                }
+
+                mobGroups.put(key, group);
+            }
+        }
 
         if (pTag.contains("PresetWaves")) {
             CompoundTag presetWavesTag = pTag.getCompound("PresetWaves");
@@ -451,7 +536,8 @@ public class AltarBlockEntity extends BlockEntity {
 
                 PresetWave wave = new PresetWave();
                 wave.mobStatMultiplier = waveTag.getDouble("MobStatMultiplier");
-                wave.reward = waveTag.getString("Reward");
+                wave.rewardLootTable = waveTag.getString("RewardLootTable");
+                wave.rewardCount = waveTag.getInt("RewardCount");
 
                 ListTag mobsTag = waveTag.getList("Mobs", Tag.TAG_COMPOUND);
                 wave.mobs = new ArrayList<>();
@@ -710,8 +796,65 @@ public class AltarBlockEntity extends BlockEntity {
         return startingPoints;
     }
 
-    public int getPointsIncrease() {
-        return pointsIncrease;
+    public boolean isBattleOngoing(int difficultyLevel) {
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+            if (difficultyLevel >= start && difficultyLevel <= end) {
+                return true;
+            }
+        }
+        return presetWaves.containsKey(difficultyLevel);
+    }
+
+    public record LootReward(String rewardLootTable, int rewardCount) {}
+
+    public LootReward getRewardFromDifficultyRanges(int difficultyLevel) {
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+            if (difficultyLevel >= start && difficultyLevel <= end) {
+                String lootTable = range.rewardLootTable;
+                int count = range.rewardCount;
+                return new LootReward(lootTable, count);
+            }
+        }
+        return null;
+    }
+
+    public List<ExpandedMobInfo> getAvailableMobs(int difficultyLevel) {
+        List<ExpandedMobInfo> result = new ArrayList<>();
+
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+            if (difficultyLevel >= start && difficultyLevel <= end) {
+                for (String groupId : range.mobGroupsUsed) {
+                    MobGroup group = mobGroups.get(groupId);
+                    if (group == null) continue;
+
+                    for (Map.Entry<String, Integer> entry : group.mobValues.entrySet()) {
+                        String mobId = entry.getKey();
+                        int cost = entry.getValue();
+
+                        if (!ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(mobId))) continue;
+
+                        ExpandedMobInfo info = new ExpandedMobInfo(
+                                mobId,
+                                cost,
+                                group.squadSpawnChance,
+                                group.squadSpawnSize,
+                                group.additionalStatMultiplier,
+                                group.mobSpawnChance
+                        );
+                        result.add(info);
+                    }
+                }
+                break;
+            }
+        }
+
+        return result;
     }
 
     public int getSpawnDistanceFromPlayer() {
@@ -742,22 +885,6 @@ public class AltarBlockEntity extends BlockEntity {
         return mobCostRatio;
     }
 
-    public int getBaseScalingThreshold() {
-        return baseScalingThreshold;
-    }
-
-    public double getMobStatGrowthCoefficient() {
-        return mobStatGrowthCoefficient;
-    }
-
-    public double getSquadSpawnChance() {
-        return squadSpawnChance;
-    }
-
-    public int getSquadSpawnSize() {
-        return squadSpawnSize;
-    }
-
     public boolean isSetNight() {
         return setNight;
     }
@@ -768,18 +895,6 @@ public class AltarBlockEntity extends BlockEntity {
 
     public boolean isDisableMobItemDrop() {
         return disableMobItemDrop;
-    }
-
-    public String getRewardItem() {
-        return rewardItem;
-    }
-
-    public int getRewardIncreaseInterval() {
-        return rewardIncreaseInterval;
-    }
-
-    public int getMaxDifficultyLevel() {
-        return maxDifficultyLevel;
     }
 
     public boolean isAllowDifficultyReset() {
@@ -808,5 +923,17 @@ public class AltarBlockEntity extends BlockEntity {
 
     public void setBattleEndTime(long battleEndTime) {
         this.battleEndTime = battleEndTime;
+    }
+
+    public double getStartingStatMultiplier() {
+        return startingStatMultiplier;
+    }
+
+    public List<DifficultyLevelRange> getDifficultyLevelRanges() {
+        return difficultyLevelRanges;
+    }
+
+    public LinkedHashMap<String, MobGroup> getMobGroups() {
+        return mobGroups;
     }
 }

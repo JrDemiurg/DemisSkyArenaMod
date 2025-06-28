@@ -4,7 +4,8 @@ import java.util.List;
 
 public class PresetWave {
     public double mobStatMultiplier;
-    public String reward;
+    public String rewardLootTable;
+    public int rewardCount;
     public List<WaveMob> mobs;
 }
 

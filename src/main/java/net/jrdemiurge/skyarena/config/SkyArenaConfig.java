@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SkyArenaConfig {
-    private static final Path CONFIG_PATH = FMLPaths.CONFIGDIR.get().resolve("skyarena.json");
+    private static final Path CONFIG_PATH = FMLPaths.CONFIGDIR.get().resolve("sky_arena.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static ModConfig configData;
 
@@ -55,7 +55,7 @@ public class SkyArenaConfig {
     }
 
     private static void copyDefaultConfig() {
-        try (InputStream in = SkyArenaConfig.class.getResourceAsStream("/assets/skyarena/config/skyarena.json")) {
+        try (InputStream in = SkyArenaConfig.class.getResourceAsStream("/assets/skyarena/config/sky_arena.json")) {
             if (in == null) {
                 System.err.println("Не найден конфиг в ресурсах мода!");
                 return;
@@ -70,7 +70,7 @@ public class SkyArenaConfig {
 
     private static ArenaConfig createDefaultArena() {
         ArenaConfig defaultArena = new ArenaConfig();
-        defaultArena.startingPoints = 500;
+        /*defaultArena.startingPoints = 500;
         defaultArena.pointsIncrease = 100;
         defaultArena.mobSpawnRadius = 36;
         defaultArena.mobCostRatio = 20;
@@ -89,7 +89,7 @@ public class SkyArenaConfig {
         defaultArena.setNight = true;
         defaultArena.setRain = false;
         defaultArena.disableMobItemDrop = true;
-        defaultArena.reward = "skyarena:battle_rewards/crimson_key";
+        defaultArena.rewardLootTable = "skyarena:battle_rewards/crimson_key";
         defaultArena.mobValues = new LinkedHashMap<>();
 
         defaultArena.mobValues.put("minecraft:zombie", 20);
@@ -212,7 +212,7 @@ public class SkyArenaConfig {
 
         defaultArena.mobValues.put("eeeabsmobs:corpse_warlock", 250);
         defaultArena.mobValues.put("eeeabsmobs:guling_sentinel_heavy", 250);
-        defaultArena.mobValues.put("eeeabsmobs:immortal_executioner", 160);
+        defaultArena.mobValues.put("eeeabsmobs:immortal_executioner", 160);*/
 
         return defaultArena;
     }
