@@ -1,5 +1,6 @@
 package net.jrdemiurge.skyarena.item.custom;
 
+import net.jrdemiurge.skyarena.mixin.EyeOfEnderAccessor;
 import net.jrdemiurge.skyarena.util.ModTags;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -32,6 +33,7 @@ public class SkyEyeItem extends Item {
                 EyeOfEnder $$7 = new EyeOfEnder(pLevel, pPlayer.getX(), pPlayer.getY(0.5), pPlayer.getZ());
                 $$7.setItem($$3);
                 $$7.signalTo($$6);
+                ((EyeOfEnderAccessor) $$7).setSurviveAfterDeath(true);
                 pLevel.gameEvent(GameEvent.PROJECTILE_SHOOT, $$7.position(), GameEvent.Context.of(pPlayer));
                 pLevel.addFreshEntity($$7);
                 if (pPlayer instanceof ServerPlayer) {

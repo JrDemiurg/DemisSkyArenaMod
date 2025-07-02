@@ -25,9 +25,9 @@ import org.spongepowered.asm.mixin.Pseudo;
 
 @Pseudo
 @Mixin(DireHoundLeaderEntity.class)
-public class MixinDireHoundLeaderEntity extends Monster {
+public class DireHoundLeaderEntityMixin extends Monster {
 
-    public MixinDireHoundLeaderEntity(EntityType<? extends Monster> type, Level level) {
+    public DireHoundLeaderEntityMixin(EntityType<? extends Monster> type, Level level) {
         super(type, level);
     }
     /**

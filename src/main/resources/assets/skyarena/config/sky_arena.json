@@ -161,7 +161,12 @@
             "goety:sorcerer": 60,
             "goety:malghast": 60,
             "goety:blackguard_servant": 70,
-            "goety:ice_golem": 70
+            "goety:ice_golem": 70,
+            "illageandspillage:igniter": 35,
+            "illageandspillage:engineer": 60,
+            "illageandspillage:crocofang": 60,
+            "species:bewereager": 50,
+            "species:wicked": 30
           }
         },
         "elite": {
@@ -171,7 +176,7 @@
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:evoker": 80,
-            "minecraft:ravager": 150,
+            "minecraft:ravager": 130,
             "born_in_chaos_v1:felsteed": 80,
             "born_in_chaos_v1:fallen_chaos_knight": 80,
             "born_in_chaos_v1:zombie_bruiser": 80,
@@ -192,6 +197,7 @@
             "irons_spellbooks:cryomancer": 150,
             "irons_spellbooks:pyromancer": 150,
             "irons_spellbooks:apothecarist": 150,
+            "irons_spellbooks:priest": 150,
             "quark:forgotten": 90,
             "alexscaves:brainiac": 100,
             "caverns_and_chasms:mime": 100,
@@ -202,7 +208,12 @@
             "goety:necromancer": 85,
             "goety:wildfire": 130,
             "goety:black_beast": 130,
-            "goety:brood_mother": 130
+            "goety:brood_mother": 130,
+            "illageandspillage:absorber": 160,
+            "undead_unleashed:dreadknight": 100,
+            "undead_unleashed:flamebreather": 110,
+            "species:quake": 80,
+            "nethers_exorcism_reborn:strampler": 95
           }
         },
         "minibosses": {
@@ -229,29 +240,14 @@
             "galosphere:berserker": 210,
             "eeeabsmobs:guling_sentinel_heavy": 250,
             "eeeabsmobs:corpse_warlock": 270,
-            "luminous_beasts:tree_ent": 200,
-            "luminous_beasts:hermit_king": 210,
-            "luminous_beasts:mummy": 210,
-            "luminous_beasts:yeti": 210,
-            "luminous_beasts:witch_doctor": 230,
-            "luminous_beasts:bone_stalker": 240,
-            "luminous_beasts:piglin_executioner": 250,
-            "luminous_beasts:phoenixbird": 300,
-            "luminous_beasts:horseless_headsman": 350,
-            "luminousworld:treant": 200,
-            "luminousworld:king_crab": 210,
-            "luminousworld:mummy": 210,
-            "luminousworld:yeti": 210,
-            "luminousworld:witch_doctor": 230,
-            "luminousworld:bone_stalker": 240,
-            "luminousworld:pheonix": 300,
             "goety:crone": 200,
             "goety:minister": 200,
             "goety:grave_golem": 280,
             "goety:hostile_redstone_golem": 300,
             "goety:skull_lord": 320,
             "goety:drowned_necromancer_servant": 300,
-            "goety:wither_necromancer_servant": 350
+            "goety:wither_necromancer_servant": 350,
+            "illagerinvasion:invoker": 300
           }
         },
         "bosses": {
@@ -261,7 +257,17 @@
           "mobSpawnChance": 0.5,
           "mobValues": {
             "minecraft:warden": 1000,
-            "minecraft:wither": 500
+            "minecraft:wither": 500,
+            "cataclysm:ender_guardian": 900,
+            "cataclysm:netherite_monstrosity": 750,
+            "cataclysm:ignis": 900,
+            "cataclysm:the_harbinger": 600,
+            "cataclysm:ancient_remnant": 700,
+            "cataclysm:maledictus": 900,
+            "cataclysm:scylla": 900,
+            "irons_spellbooks:dead_king": 600,
+            "goety:vizier": 550,
+            "goety:hostile_redstone_monstrosity": 650
           }
         }
       }
@@ -427,7 +433,12 @@
             "goety:sorcerer": 60,
             "goety:malghast": 60,
             "goety:blackguard_servant": 70,
-            "goety:ice_golem": 70
+            "goety:ice_golem": 70,
+            "illageandspillage:igniter": 35,
+            "illageandspillage:engineer": 60,
+            "illageandspillage:crocofang": 60,
+            "species:bewereager": 50,
+            "species:wicked": 30
           }
         },
         "elite": {
@@ -437,7 +448,7 @@
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:evoker": 80,
-            "minecraft:ravager": 150,
+            "minecraft:ravager": 130,
             "born_in_chaos_v1:felsteed": 80,
             "born_in_chaos_v1:fallen_chaos_knight": 80,
             "born_in_chaos_v1:zombie_bruiser": 80,
@@ -458,6 +469,7 @@
             "irons_spellbooks:cryomancer": 150,
             "irons_spellbooks:pyromancer": 150,
             "irons_spellbooks:apothecarist": 150,
+            "irons_spellbooks:priest": 150,
             "quark:forgotten": 90,
             "alexscaves:brainiac": 100,
             "caverns_and_chasms:mime": 100,
@@ -468,7 +480,12 @@
             "goety:necromancer": 85,
             "goety:wildfire": 130,
             "goety:black_beast": 130,
-            "goety:brood_mother": 130
+            "goety:brood_mother": 130,
+            "illageandspillage:absorber": 160,
+            "undead_unleashed:dreadknight": 100,
+            "undead_unleashed:flamebreather": 110,
+            "species:quake": 80,
+            "nethers_exorcism_reborn:strampler": 95
           }
         },
         "minibosses": {
@@ -495,6 +512,113 @@
             "galosphere:berserker": 210,
             "eeeabsmobs:guling_sentinel_heavy": 250,
             "eeeabsmobs:corpse_warlock": 270,
+            "goety:crone": 200,
+            "goety:minister": 200,
+            "goety:grave_golem": 280,
+            "goety:hostile_redstone_golem": 300,
+            "goety:skull_lord": 320,
+            "goety:drowned_necromancer_servant": 300,
+            "goety:wither_necromancer_servant": 350,
+            "illagerinvasion:invoker": 300
+          }
+        },
+        "bosses": {
+          "squadSpawnChance": 0.0,
+          "squadSpawnSize": 1,
+          "additionalStatMultiplier": -0.80,
+          "mobSpawnChance": 0.5,
+          "mobValues": {
+            "minecraft:warden": 1000,
+            "minecraft:wither": 500,
+            "cataclysm:ender_guardian": 900,
+            "cataclysm:netherite_monstrosity": 750,
+            "cataclysm:ignis": 900,
+            "cataclysm:the_harbinger": 600,
+            "cataclysm:ancient_remnant": 700,
+            "cataclysm:maledictus": 900,
+            "cataclysm:scylla": 900,
+            "irons_spellbooks:dead_king": 600,
+            "goety:vizier": 550,
+            "goety:hostile_redstone_monstrosity": 650
+          }
+        }
+      }
+    },
+    "additional_mobs": {
+      "mobSpawnRadius": 36,
+      "spawnDistanceFromPlayer": 18,
+      "battleLossDistance": 60,
+      "mobTeleportDistance": 50,
+      "mobGriefingProtectionRadius": 60,
+      "bossBarHideRadius": 60,
+      "mobCostRatio": 20,
+      "allowDifficultyReset": true,
+      "allowWaterAndAirSpawn": false,
+      "individualPlayerStats": true,
+      "setNight": true,
+      "setRain": false,
+      "disableMobItemDrop": true,
+      "startingPoints": 500,
+      "startingStatMultiplier": 1.0,
+      "difficultyLevelRanges": [
+        {
+          "range": [1, 10],
+          "pointsIncrease": 100,
+          "statMultiplierIncrease": 0.0,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 1,
+          "mobGroupsUsed": ["common"]
+        },
+        {
+          "range": [11, 20],
+          "pointsIncrease": 100,
+          "statMultiplierIncrease": 0.0,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 2,
+          "mobGroupsUsed": ["common", "elite"]
+        },
+        {
+          "range": [21, 40],
+          "pointsIncrease": 0,
+          "statMultiplierIncrease": 0.05,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 3,
+          "mobGroupsUsed": ["common", "elite", "minibosses"]
+        },
+        {
+          "range": [41, 9999],
+          "pointsIncrease": 0,
+          "statMultiplierIncrease": 0.05,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 4,
+          "mobGroupsUsed": ["common", "elite", "minibosses", "bosses"]
+        }
+      ],
+      "mobGroups": {
+        "common": {
+          "squadSpawnChance": 0.5,
+          "squadSpawnSize": 5,
+          "additionalStatMultiplier": 0.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
+
+          }
+        },
+        "elite": {
+          "squadSpawnChance": 0.35,
+          "squadSpawnSize": 3,
+          "additionalStatMultiplier": 0.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
+
+          }
+        },
+        "minibosses": {
+          "squadSpawnChance": 0.35,
+          "squadSpawnSize": 2,
+          "additionalStatMultiplier": 0.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
             "luminous_beasts:tree_ent": 200,
             "luminous_beasts:hermit_king": 210,
             "luminous_beasts:mummy": 210,
@@ -511,13 +635,24 @@
             "luminousworld:witch_doctor": 230,
             "luminousworld:bone_stalker": 240,
             "luminousworld:pheonix": 300,
-            "goety:crone": 200,
-            "goety:minister": 200,
-            "goety:grave_golem": 280,
-            "goety:hostile_redstone_golem": 300,
-            "goety:skull_lord": 320,
-            "goety:drowned_necromancer_servant": 300,
-            "goety:wither_necromancer_servant": 350
+            "legendary_monsters:ambusher": 70,
+            "legendary_monsters:chorusling": 60,
+            "legendary_monsters:dune_sentinel": 250,
+            "legendary_monsters:endersent": 270,
+            "legendary_monsters:frostbitten_golem": 250,
+            "legendary_monsters:guard": 90,
+            "legendary_monsters:haunted_guard": 50,
+            "legendary_monsters:haunted_knight": 60,
+            "legendary_monsters:hovering_hurricane": 70,
+            "legendary_monsters:knights_armor": 90,
+            "legendary_monsters:lava_eater": 250,
+            "legendary_monsters:mossy_golem": 100,
+            "legendary_monsters:posessed_paladin": 260,
+            "legendary_monsters:shulker_mimic": 260,
+            "legendary_monsters:skeletosaurus": 270,
+            "legendary_monsters:warped_fungussus": 130,
+            "legendary_monsters:overgrown_colossus": 300,
+            "legendary_monsters:withered_abomination": 270
           }
         },
         "bosses": {
@@ -526,8 +661,7 @@
           "additionalStatMultiplier": -0.80,
           "mobSpawnChance": 0.5,
           "mobValues": {
-            "minecraft:warden": 1000,
-            "minecraft:wither": 500
+
           }
         }
       }

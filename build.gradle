@@ -156,6 +156,11 @@ dependencies {
     compileOnly fg.deobf("curse.maven:eeeabs-mobs-921600:6095880")
     compileOnly fg.deobf("curse.maven:born-in-chaos-686437:6193155")
     compileOnly fg.deobf("curse.maven:geckolib-388172:6333474")
+    compileOnly fg.deobf("curse.maven:lendercataclysm-551586:6681690")
+    compileOnly fg.deobf("curse.maven:lionfish-api-1001614:5922047")
+    compileOnly fg.deobf("curse.maven:majruszs-progressive-difficulty-430642:5293465")
+    compileOnly fg.deobf("curse.maven:majrusz-library-437409:5302100")
+    compileOnly fg.deobf("curse.maven:goety-586095:6706891")
 }
 
 mixin {

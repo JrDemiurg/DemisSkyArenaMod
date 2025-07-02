@@ -8,15 +8,26 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "MixinBonescallerEntity",
-    "MixinDireHoundLeaderEntity",
-    "MixinEntityCorpseWarlock",
-    "MixinEntityGulingSentinelHeavy",
-    "MixinSiameseSkeletonsEntity",
-    "MixinSiameseSkeletonsleftEntity",
-    "MixinSiameseSkeletonsrightEntity",
-    "MixinSpiritGuideEntity",
-    "MixinSupremeBonescallerEntity",
-    "ServerBossEventMixin"
+    "AncientRemnantEntityMixin",
+    "BonescallerEntityMixin",
+    "DireHoundLeaderEntityMixin",
+    "EnderGuardianEntityMixin",
+    "EntityCorpseWarlockMixin",
+    "EntityGulingSentinelHeavyMixin",
+    "EyeOfEnderAccessor",
+    "KillRewarderMixin",
+    "MaledictusEntityMixin",
+    "MotherSpiderEntityMixin",
+    "NetheriteMonstrosityEntityMixin",
+    "ScyllaEntityMixin",
+    "ServerBossEventMixin",
+    "SiameseSkeletonsEntityMixin",
+    "SiameseSkeletonsleftEntityMixin",
+    "SiameseSkeletonsrightEntityMixin",
+    "SpiritGuideEntityMixin",
+    "SupremeBonescallerEntityMixin",
+    "TheHarbingerEntityMixin",
+    "VizierMixin",
+    "WitherBossMixin"
   ]
 }

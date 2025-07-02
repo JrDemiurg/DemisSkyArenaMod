@@ -24,9 +24,9 @@ import org.spongepowered.asm.mixin.Pseudo;
 
 @Pseudo
 @Mixin(SiameseSkeletonsEntity.class)
-public class MixinSiameseSkeletonsEntity extends Monster {
+public class SiameseSkeletonsEntityMixin extends Monster {
 
-    public MixinSiameseSkeletonsEntity(EntityType<? extends Monster> type, Level level) {
+    public SiameseSkeletonsEntityMixin(EntityType<? extends Monster> type, Level level) {
         super(type, level);
     }
     /**

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.EntityMobGriefingEvent;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,6 +36,16 @@ public class MobGriefingHandler {
 
         if (!level.isClientSide && AltarBlockEntity.isNearProtectedAltar(entity.blockPosition())) {
             event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDestroyBlock(LivingDestroyBlockEvent event) {
+        Entity entity = event.getEntity();
+        Level level = entity.level();
+
+        if (!level.isClientSide && AltarBlockEntity.isNearProtectedAltar(event.getPos())) {
+            event.setCanceled(true);
         }
     }
 }

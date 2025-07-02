@@ -1,6 +1,6 @@
 package net.jrdemiurge.skyarena.mixin;
 
-import net.mcreator.borninchaosv.entity.SiameseSkeletonsrightEntity;
+import net.mcreator.borninchaosv.entity.SiameseSkeletonsleftEntity;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Pseudo
-@Mixin(SiameseSkeletonsrightEntity.class)
-public class MixinSiameseSkeletonsrightEntity extends Monster {
+@Mixin(SiameseSkeletonsleftEntity.class)
+public class SiameseSkeletonsleftEntityMixin extends Monster {
 
-    public MixinSiameseSkeletonsrightEntity(EntityType<? extends Monster> type, Level level) {
+    public SiameseSkeletonsleftEntityMixin(EntityType<? extends Monster> type, Level level) {
         super(type, level);
     }
 
