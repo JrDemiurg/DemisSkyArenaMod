@@ -146,7 +146,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 pLevel.playSound(null, pPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
 
-                setEnvironment(pLevel, altarBlockEntity.isSetNight(), altarBlockEntity.isSetRain());
+                setEnvironment(pLevel, pPlayer, altarBlockEntity.isSetNight(), altarBlockEntity.isSetRain());
 
                 altarBlockEntity.setGlowingCounter(0);
 
@@ -301,6 +301,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         altarBlockEntity.addSummonedMob(mob);
         return true;
     }
+    
     public void showArenaInfo(Player pPlayer, AltarBlockEntity altarBlockEntity) {
         MutableComponent message = Component.literal("§4=== Arena Info ===\n");
         StringBuilder logMessage = new StringBuilder("=== Arena Info ===\n");
@@ -353,9 +354,10 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 logMessage.append("  Reward Loot Table: ").append(range.rewardLootTable).append("\n");
                 logMessage.append("  Reward Count: ").append(range.rewardCount).append("\n");
 
-                for (String groupId : range.mobGroupsUsed) {
-                    message = message.append(Component.literal("§7    - Mob Group: §e" + groupId + "\n"));
-                    logMessage.append("    - Mob Group: ").append(groupId).append("\n");
+                if (!range.mobGroupsUsed.isEmpty()) {
+                    String joinedGroups = String.join(", ", range.mobGroupsUsed);
+                    message = message.append(Component.literal("§7  Mob Groups: §e" + joinedGroups + "\n"));
+                    logMessage.append("  Mob Groups: ").append(joinedGroups).append("\n");
                 }
             }
         }
@@ -377,6 +379,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 message = message.append(Component.literal("§7  Squad Size: §a" + group.squadSpawnSize + "\n"));
                 message = message.append(Component.literal("§7  Stat Bonus: §a" + group.additionalStatMultiplier + "\n"));
                 message = message.append(Component.literal("§7  Mob Spawn Chance: §a" + group.mobSpawnChance + "\n"));
+                message = message.append(Component.literal("§7  Mobs: §8[list printed to console]\n"));
 
                 logMessage.append("  Squad Chance: ").append(group.squadSpawnChance).append("\n");
                 logMessage.append("  Squad Size: ").append(group.squadSpawnSize).append("\n");
@@ -388,8 +391,6 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     Integer mobValue = mobEntry.getValue();
 
                     logMessage.append("    - ").append(mobId).append(": ").append(mobValue).append("\n");
-                    if (!ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(mobId))) continue;
-                    message = message.append(Component.literal("§7    - §6" + mobId + "§7: §a" + mobValue + "\n"));
                 }
             }
         }
@@ -635,9 +636,9 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
     }
 
-    private void setEnvironment(Level pLevel,boolean isNight, boolean isRain) {
+    private void setEnvironment(Level pLevel, Player pPlayer,boolean isNight, boolean isRain) {
         if (isNight) {
-            setNightTime(pLevel);
+            setNightTime(pLevel, pPlayer);
         }
 
         if (isRain) {
@@ -645,7 +646,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
     }
 
-    private void setNightTime(Level pLevel) {
+    private void setNightTime(Level pLevel, Player pPlayer) {
         if (!(pLevel instanceof ServerLevel serverLevel)) return;
 
         long currentTime = serverLevel.getDayTime();
@@ -656,7 +657,9 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             newTime -= 24000; // Если уже ночь, переносим на предыдущую
         }
 
-        serverLevel.setDayTime(newTime);
+        for(ServerLevel serverlevel : pPlayer.getServer().getAllLevels()) {
+            serverlevel.setDayTime(newTime);
+        }
     }
 
     private void setRain(Level pLevel) {

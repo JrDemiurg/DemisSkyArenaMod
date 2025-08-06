@@ -13,25 +13,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
-
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(SkyArena.MOD_ID)
 public class SkyArena {
     public static final String MOD_ID = "skyarena";
@@ -48,8 +42,6 @@ public class SkyArena {
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
-
-        modEventBus.addListener(this::addCreative);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -68,21 +60,14 @@ public class SkyArena {
         CriteriaTriggers.register(DifficultyLevel100.INSTANCE);
     }
 
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-
-    }
-
     @SubscribeEvent
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof Player player) {
-            // Если тотем не использовался, продолжаем
-            BlockPos altarPos = AltarBlockEntity.getAltarPosForPlayer(player); // Получаем позицию алтаря
+            BlockPos altarPos = AltarBlockEntity.getAltarPosForPlayer(player);
 
             if (altarPos != null) {
                 Level level = player.level();
 
-                // Получаем блок-сущность алтаря, если он существует
                 BlockEntity blockEntity = level.getBlockEntity(altarPos);
                 if (blockEntity instanceof AltarBlockEntity altarEntity) {
                     altarEntity.setPlayerDeath(true);
@@ -99,20 +84,6 @@ public class SkyArena {
         if (RewardKeyItem.keyedChests.contains(pos)) {
             event.setCanceled(true);
             RewardKeyItem.keyedChests.remove(pos);
-        }
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-
-    }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
         }
     }
 }

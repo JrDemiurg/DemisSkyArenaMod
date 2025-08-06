@@ -166,7 +166,8 @@
             "illageandspillage:engineer": 60,
             "illageandspillage:crocofang": 60,
             "species:bewereager": 50,
-            "species:wicked": 30
+            "species:wicked": 30,
+            "traveloptics:void_tome": 65
           }
         },
         "elite": {
@@ -198,6 +199,8 @@
             "irons_spellbooks:pyromancer": 150,
             "irons_spellbooks:apothecarist": 150,
             "irons_spellbooks:priest": 150,
+            "traveloptics:aquamancer": 150,
+            "traveloptics:voidshelf_golem": 80,
             "quark:forgotten": 90,
             "alexscaves:brainiac": 100,
             "caverns_and_chasms:mime": 100,
@@ -240,14 +243,14 @@
             "galosphere:berserker": 210,
             "eeeabsmobs:guling_sentinel_heavy": 250,
             "eeeabsmobs:corpse_warlock": 270,
-            "goety:crone": 200,
             "goety:minister": 200,
             "goety:grave_golem": 280,
             "goety:hostile_redstone_golem": 300,
             "goety:skull_lord": 320,
             "goety:drowned_necromancer_servant": 300,
             "goety:wither_necromancer_servant": 350,
-            "illagerinvasion:invoker": 300
+            "illagerinvasion:invoker": 300,
+            "traveloptics:aqua_grandmaster": 220
           }
         },
         "bosses": {
@@ -314,12 +317,28 @@
           "mobGroupsUsed": ["common", "elite", "minibosses"]
         },
         {
-          "range": [41, 9999],
+          "range": [41, 99],
           "pointsIncrease": 0,
           "statMultiplierIncrease": 0.05,
           "rewardLootTable": "skyarena:battle_rewards/ice_key",
           "rewardCount": 4,
           "mobGroupsUsed": ["common", "elite", "minibosses", "bosses"]
+        },
+        {
+          "range": [100, 100],
+          "pointsIncrease": 1500,
+          "statMultiplierIncrease": 0.05,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 4,
+          "mobGroupsUsed": ["common", "elite", "minibosses", "bosses"]
+        },
+        {
+          "range": [101, 99999],
+          "pointsIncrease": 0,
+          "statMultiplierIncrease": 0.20,
+          "rewardLootTable": "skyarena:battle_rewards/ice_key",
+          "rewardCount": 5,
+          "mobGroupsUsed": ["common", "elite", "minibosses", "bosses_after_difficulty_100"]
         }
       ],
       "mobGroups": {
@@ -438,7 +457,8 @@
             "illageandspillage:engineer": 60,
             "illageandspillage:crocofang": 60,
             "species:bewereager": 50,
-            "species:wicked": 30
+            "species:wicked": 30,
+            "traveloptics:void_tome": 65
           }
         },
         "elite": {
@@ -470,6 +490,8 @@
             "irons_spellbooks:pyromancer": 150,
             "irons_spellbooks:apothecarist": 150,
             "irons_spellbooks:priest": 150,
+            "traveloptics:aquamancer": 150,
+            "traveloptics:voidshelf_golem": 80,
             "quark:forgotten": 90,
             "alexscaves:brainiac": 100,
             "caverns_and_chasms:mime": 100,
@@ -512,14 +534,14 @@
             "galosphere:berserker": 210,
             "eeeabsmobs:guling_sentinel_heavy": 250,
             "eeeabsmobs:corpse_warlock": 270,
-            "goety:crone": 200,
             "goety:minister": 200,
             "goety:grave_golem": 280,
             "goety:hostile_redstone_golem": 300,
             "goety:skull_lord": 320,
             "goety:drowned_necromancer_servant": 300,
             "goety:wither_necromancer_servant": 350,
-            "illagerinvasion:invoker": 300
+            "illagerinvasion:invoker": 300,
+            "traveloptics:aqua_grandmaster": 220
           }
         },
         "bosses": {
@@ -527,6 +549,26 @@
           "squadSpawnSize": 1,
           "additionalStatMultiplier": -0.80,
           "mobSpawnChance": 0.5,
+          "mobValues": {
+            "minecraft:warden": 1000,
+            "minecraft:wither": 500,
+            "cataclysm:ender_guardian": 900,
+            "cataclysm:netherite_monstrosity": 750,
+            "cataclysm:ignis": 900,
+            "cataclysm:the_harbinger": 600,
+            "cataclysm:ancient_remnant": 700,
+            "cataclysm:maledictus": 900,
+            "cataclysm:scylla": 900,
+            "irons_spellbooks:dead_king": 600,
+            "goety:vizier": 550,
+            "goety:hostile_redstone_monstrosity": 650
+          }
+        },
+        "bosses_after_difficulty_100": {
+          "squadSpawnChance": 0.0,
+          "squadSpawnSize": 1,
+          "additionalStatMultiplier": 0.0,
+          "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:warden": 1000,
             "minecraft:wither": 500,
