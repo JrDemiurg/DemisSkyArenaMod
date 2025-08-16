@@ -22,6 +22,13 @@ public class ArenaConfig {
     public int startingPoints;
     public double startingStatMultiplier;
 
+    public boolean resetDifficultyOnDefeat;
+    public boolean autoWaveRun;
+
+    public double pointsCoefficientPer1000BlocksFromWorldCenter;
+    public double statMultiplierCoefficientPer1000BlocksFromWorldCenter;
+    public double lootTableCountCoefficientPer1000BlocksFromWorldCenter;
+
     public List<DifficultyLevelRange> difficultyLevelRanges;
     public LinkedHashMap<String, MobGroup> mobGroups;
 

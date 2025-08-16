@@ -14,8 +14,13 @@
       "setNight": true,
       "setRain": false,
       "disableMobItemDrop": true,
+      "resetDifficultyOnDefeat": false,
+      "autoWaveRun": false,
       "startingPoints": 500,
       "startingStatMultiplier": 1.0,
+      "pointsCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "statMultiplierCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "lootTableCountCoefficientPer1000BlocksFromWorldCenter": 0.00,
       "difficultyLevelRanges": [
         {
           "range": [1, 10],
@@ -54,7 +59,7 @@
         "common": {
           "squadSpawnChance": 0.5,
           "squadSpawnSize": 5,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:zombie": 20,
@@ -173,7 +178,7 @@
         "elite": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 3,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:evoker": 80,
@@ -222,7 +227,7 @@
         "minibosses": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 2,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "born_in_chaos_v1:mother_spider": 170,
@@ -256,7 +261,7 @@
         "bosses": {
           "squadSpawnChance": 0.0,
           "squadSpawnSize": 1,
-          "additionalStatMultiplier": -0.80,
+          "statMultiplierCoefficient": 0.75,
           "mobSpawnChance": 0.5,
           "mobValues": {
             "minecraft:warden": 1000,
@@ -289,8 +294,13 @@
       "setNight": true,
       "setRain": false,
       "disableMobItemDrop": true,
+      "resetDifficultyOnDefeat": false,
+      "autoWaveRun": false,
       "startingPoints": 500,
       "startingStatMultiplier": 1.0,
+      "pointsCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "statMultiplierCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "lootTableCountCoefficientPer1000BlocksFromWorldCenter": 0.00,
       "difficultyLevelRanges": [
         {
           "range": [1, 10],
@@ -345,7 +355,7 @@
         "common": {
           "squadSpawnChance": 0.5,
           "squadSpawnSize": 5,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:zombie": 20,
@@ -464,7 +474,7 @@
         "elite": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 3,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:evoker": 80,
@@ -513,7 +523,7 @@
         "minibosses": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 2,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "born_in_chaos_v1:mother_spider": 170,
@@ -547,7 +557,7 @@
         "bosses": {
           "squadSpawnChance": 0.0,
           "squadSpawnSize": 1,
-          "additionalStatMultiplier": -0.80,
+          "statMultiplierCoefficient": 0.75,
           "mobSpawnChance": 0.5,
           "mobValues": {
             "minecraft:warden": 1000,
@@ -567,7 +577,7 @@
         "bosses_after_difficulty_100": {
           "squadSpawnChance": 0.0,
           "squadSpawnSize": 1,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "minecraft:warden": 1000,
@@ -640,7 +650,7 @@
         "common": {
           "squadSpawnChance": 0.5,
           "squadSpawnSize": 5,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
 
@@ -649,7 +659,7 @@
         "elite": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 3,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
 
@@ -658,7 +668,7 @@
         "minibosses": {
           "squadSpawnChance": 0.35,
           "squadSpawnSize": 2,
-          "additionalStatMultiplier": 0.0,
+          "statMultiplierCoefficient": 1.0,
           "mobSpawnChance": 1,
           "mobValues": {
             "luminous_beasts:tree_ent": 200,
@@ -700,7 +710,7 @@
         "bosses": {
           "squadSpawnChance": 0.0,
           "squadSpawnSize": 1,
-          "additionalStatMultiplier": -0.80,
+          "statMultiplierCoefficient": 0.75,
           "mobSpawnChance": 0.5,
           "mobValues": {
 

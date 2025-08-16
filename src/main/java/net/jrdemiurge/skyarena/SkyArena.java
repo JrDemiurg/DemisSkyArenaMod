@@ -59,31 +59,4 @@ public class SkyArena {
         CriteriaTriggers.register(DifficultyLevel50.INSTANCE);
         CriteriaTriggers.register(DifficultyLevel100.INSTANCE);
     }
-
-    @SubscribeEvent
-    public void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            BlockPos altarPos = AltarBlockEntity.getAltarPosForPlayer(player);
-
-            if (altarPos != null) {
-                Level level = player.level();
-
-                BlockEntity blockEntity = level.getBlockEntity(altarPos);
-                if (blockEntity instanceof AltarBlockEntity altarEntity) {
-                    altarEntity.setPlayerDeath(true);
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel().isClientSide()) return;
-
-        BlockPos pos = event.getPos();
-        if (RewardKeyItem.keyedChests.contains(pos)) {
-            event.setCanceled(true);
-            RewardKeyItem.keyedChests.remove(pos);
-        }
-    }
 }

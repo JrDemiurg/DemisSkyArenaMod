@@ -5,16 +5,16 @@ public class ExpandedMobInfo {
     public int cost;
     public double squadSpawnChance;
     public int squadSpawnSize;
-    public double additionalStatMultiplier;
+    public double statMultiplierCoefficient;
     public double mobSpawnChance;
 
     public ExpandedMobInfo(String mobId, int cost, double squadSpawnChance, int squadSpawnSize,
-                           double additionalStatMultiplier, double mobSpawnChance) {
+                           double statMultiplierCoefficient, double mobSpawnChance) {
         this.mobId = mobId;
         this.cost = cost;
         this.squadSpawnChance = squadSpawnChance;
         this.squadSpawnSize = squadSpawnSize;
-        this.additionalStatMultiplier = additionalStatMultiplier;
+        this.statMultiplierCoefficient = statMultiplierCoefficient;
         this.mobSpawnChance = mobSpawnChance;
     }
 }

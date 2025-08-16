@@ -1,9 +1,12 @@
 package net.jrdemiurge.skyarena.block.entity;
 
 import net.jrdemiurge.skyarena.Config;
+import net.jrdemiurge.skyarena.block.custom.AltarBlock;
 import net.jrdemiurge.skyarena.config.*;
+import net.jrdemiurge.skyarena.scheduler.Scheduler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -11,10 +14,10 @@ import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +28,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
@@ -69,6 +74,13 @@ public class AltarBlockEntity extends BlockEntity {
     private int startingPoints;
     private double startingStatMultiplier;
 
+    private boolean resetDifficultyOnDefeat;
+    private boolean autoWaveRun;
+
+    private double pointsCoefficientPerBlocks;
+    private double statMultiplierCoefficientPerBlocks;
+    private double lootTableCountCoefficientPerBlocks;
+
     private List<DifficultyLevelRange> difficultyLevelRanges = new ArrayList<>();
     private LinkedHashMap<String, MobGroup> mobGroups = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
@@ -81,7 +93,6 @@ public class AltarBlockEntity extends BlockEntity {
         super(ModBlockEntity.ALTAR_BLOCK_ENTITY.get(), pPos, pBlockState);
     }
 
-    // сделать чтобы destroyBlock работало от Entity игрока
     public void loadArenaConfig(String arenaType) {
 
         if (level != null && level.isClientSide) {
@@ -115,6 +126,13 @@ public class AltarBlockEntity extends BlockEntity {
 
             this.startingPoints = arenaConfig.startingPoints != 0 ? arenaConfig.startingPoints : 500;
             this.startingStatMultiplier = arenaConfig.startingStatMultiplier != 0.0 ? arenaConfig.startingStatMultiplier : 1.0;
+
+            this.resetDifficultyOnDefeat = arenaConfig.resetDifficultyOnDefeat;
+            this.autoWaveRun = arenaConfig.autoWaveRun;
+
+            this.pointsCoefficientPerBlocks = arenaConfig.pointsCoefficientPer1000BlocksFromWorldCenter;
+            this.statMultiplierCoefficientPerBlocks = arenaConfig.statMultiplierCoefficientPer1000BlocksFromWorldCenter;
+            this.lootTableCountCoefficientPerBlocks = arenaConfig.lootTableCountCoefficientPer1000BlocksFromWorldCenter;
 
             if (arenaConfig.difficultyLevelRanges != null) {
                 this.difficultyLevelRanges = new ArrayList<>(arenaConfig.difficultyLevelRanges);
@@ -314,6 +332,7 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void setDifficultyLevel(Player player, int level) {
+        if (player == null) return;
         if (individualPlayerStats) {
             String key = player.getGameProfile().getName() + "_" + this.arenaType;
             playerDifficulty.put(key, level);
@@ -356,6 +375,11 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putBoolean("EnableMobItemDrop", this.disableMobItemDrop);
         pTag.putInt("MobGriefingProtectionRadius", this.mobGriefingProtectionRadius);
         pTag.putInt("BossBarHideRadius", this.bossBarHideRadius);
+        pTag.putBoolean("ResetDifficultyOnDefeat", this.resetDifficultyOnDefeat);
+        pTag.putBoolean("AutoWaveRun", this.autoWaveRun);
+        pTag.putDouble("PointsCoefficientPerBlocks", this.pointsCoefficientPerBlocks);
+        pTag.putDouble("StatMultiplierCoefficientPerBlocks", this.statMultiplierCoefficientPerBlocks);
+        pTag.putDouble("LootTableCountCoefficientPerBlocks", this.lootTableCountCoefficientPerBlocks);
 
         if (!this.recordItem.isEmpty()) {
             pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
@@ -402,7 +426,7 @@ public class AltarBlockEntity extends BlockEntity {
                 MobGroup group = entry.getValue();
                 groupTag.putDouble("SquadSpawnChance", group.squadSpawnChance);
                 groupTag.putInt("SquadSpawnSize", group.squadSpawnSize);
-                groupTag.putDouble("AdditionalStatMultiplier", group.additionalStatMultiplier);
+                groupTag.putDouble("StatMultiplierCoefficient", group.statMultiplierCoefficient);
                 groupTag.putDouble("MobSpawnChance", group.mobSpawnChance);
 
                 CompoundTag mobValuesTag = new CompoundTag();
@@ -462,6 +486,11 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("EnableMobItemDrop")) this.disableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
         if (pTag.contains("MobGriefingProtectionRadius")) this.mobGriefingProtectionRadius = pTag.getInt("MobGriefingProtectionRadius");
         if (pTag.contains("BossBarHideRadius")) this.bossBarHideRadius = pTag.getInt("BossBarHideRadius");
+        if (pTag.contains("ResetDifficultyOnDefeat")) this.resetDifficultyOnDefeat = pTag.getBoolean("ResetDifficultyOnDefeat");
+        if (pTag.contains("AutoWaveRun")) this.autoWaveRun = pTag.getBoolean("AutoWaveRun");
+        if (pTag.contains("PointsCoefficientPerBlocks")) this.pointsCoefficientPerBlocks = pTag.getDouble("PointsCoefficientPerBlocks");
+        if (pTag.contains("StatMultiplierCoefficientPerBlocks")) this.statMultiplierCoefficientPerBlocks = pTag.getDouble("StatMultiplierCoefficientPerBlocks");
+        if (pTag.contains("LootTableCountCoefficientPerBlocks")) this.lootTableCountCoefficientPerBlocks = pTag.getDouble("LootTableCountCoefficientPerBlocks");
 
         if (pTag.contains("RecordItem")) {
             this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
@@ -513,7 +542,7 @@ public class AltarBlockEntity extends BlockEntity {
 
                 group.squadSpawnChance = groupTag.getDouble("SquadSpawnChance");
                 group.squadSpawnSize = groupTag.getInt("SquadSpawnSize");
-                group.additionalStatMultiplier = groupTag.getDouble("AdditionalStatMultiplier");
+                group.statMultiplierCoefficient = groupTag.getDouble("StatMultiplierCoefficient");
                 group.mobSpawnChance = groupTag.getDouble("MobSpawnChance");
 
                 CompoundTag mobValuesTag = groupTag.getCompound("MobValues");
@@ -586,111 +615,174 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if (battlePhaseActive) {
+            handleMusic();
+            checkPlayerLeftArena();
+            handlePlayerDeath();
+            updateSummonedMobs();
+            if (autoWaveRun) runAutoWave();
+        } else {
+            updateDifficultyMessages();
+        }
+    }
+
+    private void updateDifficultyMessages() {
         long gameTime = level.getGameTime();
-        if (gameTime % 10 == 0) {
-            AABB area = new AABB(worldPosition).inflate(2);
-            List<Player> players = level.getEntitiesOfClass(Player.class, area);
+        if (gameTime % 10 != 0) return;
 
-            for (Player player : players) {
-                long lastShownTick = playerMessageTimestamps.getOrDefault(player, -40L);
-                if (!this.isBattlePhaseActive() && gameTime - lastShownTick >= 60) {
-                    int diff = this.getDifficultyLevel(player);
-                    player.displayClientMessage(
-                            Component.translatable("message.skyarena.difficult_level")
-                            .append(Component.literal(String.valueOf(diff))), true);
-                    playerMessageTimestamps.put(player, level.getGameTime() - 20);
-                }
+        AABB area = new AABB(worldPosition).inflate(2);
+        List<Player> players = level.getEntitiesOfClass(Player.class, area);
+
+        for (Player player : players) {
+            if (!isBattleOngoing(getDifficultyLevel(player))) return;
+            
+            long lastShownTick = playerMessageTimestamps.getOrDefault(player, -40L);
+
+            if (gameTime - lastShownTick >= 60) {
+                int diff = getDifficultyLevel(player);
+                player.displayClientMessage(
+                        Component.translatable("message.skyarena.difficult_level")
+                                .append(Component.literal(String.valueOf(diff))), true);
+                playerMessageTimestamps.put(player, level.getGameTime() - 20);
             }
         }
+    }
 
-        if (this.isPlayingMusic && this.level != null && !recordItem.isEmpty()) {
+    private void handleMusic() {
+        if (!isPlayingMusic || level == null || recordItem.isEmpty()) return;
 
-            if (this.musicTickCount >= this.musicEndTick) {
-                stopMusic();
-                startMusic();
-            }
-            ++this.musicTickCount;
+        if (musicTickCount >= musicEndTick) {
+            stopMusic();
+            startMusic();
         }
+        musicTickCount++;
+    }
 
-        if (activatingPlayer != null && battlePhaseActive) {
-            double distance = activatingPlayer.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
+    private void checkPlayerLeftArena() {
+        if (activatingPlayer == null) return;
+        double distance = activatingPlayer.distanceToSqr(worldPosition.getCenter());
 
-            if (distance > battleLossDistance * battleLossDistance) {
-                removeSummonedMobs();
-                toggleBattlePhase();
-                this.stopMusic();
-                removeAltarActivationForPlayer(/*player*/);
+        if (distance > battleLossDistance * battleLossDistance) {
+            onDefeat();
+
+            if (activatingPlayer instanceof ServerPlayer serverPlayer && Config.enableLossMessageLeave) {
+                sendTitle(serverPlayer,
+                        "message.skyarena.battle_failed", ChatFormatting.DARK_RED,
+                        "message.skyarena.left_arena", ChatFormatting.WHITE);
+            }
+        }
+    }
+
+    private void handlePlayerDeath() {
+        if (!PlayerDeath) return;
+        DeathDelay++;
+
+        if (activatingPlayer != null && DeathDelay > 10) {
+            if (activatingPlayer.getHealth() > 0) {
                 PlayerDeath = false;
                 DeathDelay = 0;
+                return;
+            }
 
-                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
-                    if (Config.enableLossMessageLeave) {
-                        Component title = Component.translatable("message.skyarena.battle_failed").withStyle(ChatFormatting.DARK_RED);
-                        Component subtitle = Component.translatable("message.skyarena.left_arena").withStyle(ChatFormatting.WHITE);
-                        serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
-                        serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
-                        serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10)); // Время появления и исчезновения
-                    }
-                }
+            onDefeat();
+            if (activatingPlayer instanceof ServerPlayer serverPlayer && Config.enableLossMessageDeath) {
+                sendTitle(serverPlayer,
+                        "message.skyarena.wasted", ChatFormatting.WHITE,
+                        "message.skyarena.battle_failed", ChatFormatting.DARK_RED);
             }
         }
+    }
 
-        if (PlayerDeath){
-            DeathDelay++;
+    public void onDefeat() {
+        removeSummonedMobs();
+        setBattlePhaseActive(false);
+        this.stopMusic();
+        if (resetDifficultyOnDefeat) setDifficultyLevel(activatingPlayer, 1);
+        removeAltarActivationForPlayer(/*player*/);
+        PlayerDeath = false;
+        DeathDelay = 0;
+    }
 
-            if (activatingPlayer != null && DeathDelay > 10) {
-                // Проверяем, использовался ли тотем бессмертия
-                if (activatingPlayer.getHealth() > 0) {
-                    PlayerDeath = false;
-                    DeathDelay = 0;
-                    return;
-                }
-                removeSummonedMobs();
-                toggleBattlePhase();
-                this.stopMusic();
-                removeAltarActivationForPlayer(/*player*/);
-                PlayerDeath = false;
-                DeathDelay = 0;
+    private void sendTitle(ServerPlayer player, String titleKey, ChatFormatting titleColor, String subtitleKey, ChatFormatting subtitleColor) {
+        Component title = Component.translatable(titleKey).withStyle(titleColor);
+        Component subtitle = Component.translatable(subtitleKey).withStyle(subtitleColor);
+        player.connection.send(new ClientboundSetTitleTextPacket(title));
+        player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
+        player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10));
+    }
 
-                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
-                    if (Config.enableLossMessageDeath) {
-                        Component title = Component.translatable("message.skyarena.wasted").withStyle(ChatFormatting.WHITE);
-                        Component subtitle = Component.translatable("message.skyarena.battle_failed").withStyle(ChatFormatting.DARK_RED);
-                        serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title)); // Верхняя строка
-                        serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle)); // Нижняя строка
-                        serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10)); // Время появления и исчезновения
-                    }
-                }
-            }
-        }
+    private void updateSummonedMobs() {
+        if (activatingPlayer == null) return;
+        summonedMobs.removeIf(Entity::isRemoved);
 
-        if (activatingPlayer != null && battlePhaseActive) {
-            summonedMobs.removeIf(Entity::isRemoved);
-            for (Entity entity : summonedMobs) {
-
-                if (entity instanceof Mob mob) {
-                    if (mob.getTarget() == null || !mob.getTarget().isAlive()) {
-                        if (!(activatingPlayer.isCreative() || activatingPlayer.isSpectator())) {
-                            double mobDistance = activatingPlayer.distanceToSqr(entity.getX(), entity.getY(), entity.getZ());
-                            if (mobDistance <= 16 * 16) {
-                                mob.setTarget(activatingPlayer);
-                            }
+        for (Entity entity : summonedMobs) {
+            if (entity instanceof Mob mob) {
+                if (mob.getTarget() == null || !mob.getTarget().isAlive()) {
+                    if (!(activatingPlayer.isCreative() || activatingPlayer.isSpectator())) {
+                        double mobDistance = activatingPlayer.distanceToSqr(entity);
+                        if (mobDistance <= 16 * 16) {
+                            mob.setTarget(activatingPlayer);
                         }
                     }
                 }
+            }
 
-                double mobDistanceToAltar = entity.distanceToSqr(pPos.getX(), pPos.getY(), pPos.getZ());
-                if (mobDistanceToAltar > mobTeleportDistance * mobTeleportDistance) {
-                    List<BlockPos> spawnPositions = findValidSpawnPositions(pLevel, pPos, activatingPlayer);
-
-                    if (!spawnPositions.isEmpty()) {
-                        BlockPos teleportPos = spawnPositions.get(pLevel.random.nextInt(spawnPositions.size()));
-                        entity.teleportTo(teleportPos.getX() + 0.5, teleportPos.getY(), teleportPos.getZ() + 0.5);
-                    }
-                    continue;
+            double mobDistanceToAltar = entity.distanceToSqr(worldPosition.getCenter());
+            if (mobDistanceToAltar > mobTeleportDistance * mobTeleportDistance) {
+                List<BlockPos> spawnPositions = findValidSpawnPositions(level, worldPosition, activatingPlayer);
+                if (!spawnPositions.isEmpty()) {
+                    BlockPos teleportPos = spawnPositions.get(level.random.nextInt(spawnPositions.size()));
+                    entity.teleportTo(teleportPos.getX() + 0.5, teleportPos.getY(), teleportPos.getZ() + 0.5);
                 }
             }
         }
+    }
+
+    private void runAutoWave() {
+        if (!battlePhaseActive || !canSummonMobs()) return;
+        long gameTime = level.getGameTime();
+        if (gameTime % 5 != 0) return;
+        BlockState state = level.getBlockState(worldPosition);
+
+        if (!(state.getBlock() instanceof AltarBlock customBlock)) {
+            return;
+        }
+
+        customBlock.use(
+                state,
+                level,
+                worldPosition,
+                activatingPlayer,
+                InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
+        );
+
+        if (!isBattleOngoing(getDifficultyLevel(activatingPlayer))) {
+            removeAltarActivationForPlayer();
+            return;
+        }
+
+        for (int i = 0; i < 5; i++) {
+            int finalI = i;
+            Scheduler.schedule(() -> {
+                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
+                    Component title = Component.translatable(String.valueOf(5 - finalI));
+                    serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+                    serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(5, 15, 0));
+                }
+            }, 20 * i);
+        }
+
+        Scheduler.schedule(() -> {
+            customBlock.use(
+                    state,
+                    level,
+                    worldPosition,
+                    activatingPlayer,
+                    InteractionHand.MAIN_HAND,
+                    new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
+            );
+        }, 100);
     }
 
     public List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, Player player) {
@@ -807,6 +899,46 @@ public class AltarBlockEntity extends BlockEntity {
         return presetWaves.containsKey(difficultyLevel);
     }
 
+    public boolean isResetDifficultyOnDefeat() {
+        return resetDifficultyOnDefeat;
+    }
+
+    public void setResetDifficultyOnDefeat(boolean resetDifficultyOnDefeat) {
+        this.resetDifficultyOnDefeat = resetDifficultyOnDefeat;
+    }
+
+    public boolean isAutoWaveRun() {
+        return autoWaveRun;
+    }
+
+    public void setAutoWaveRun(boolean autoWaveRun) {
+        this.autoWaveRun = autoWaveRun;
+    }
+
+    public double getPointsCoefficientPerBlocks() {
+        return pointsCoefficientPerBlocks;
+    }
+
+    public void setPointsCoefficientPerBlocks(double pointsCoefficientPerBlocks) {
+        this.pointsCoefficientPerBlocks = pointsCoefficientPerBlocks;
+    }
+
+    public double getStatMultiplierCoefficientPerBlocks() {
+        return statMultiplierCoefficientPerBlocks;
+    }
+
+    public void setStatMultiplierCoefficientPerBlocks(double statMultiplierCoefficientPerBlocks) {
+        this.statMultiplierCoefficientPerBlocks = statMultiplierCoefficientPerBlocks;
+    }
+
+    public double getLootTableCountCoefficientPerBlocks() {
+        return lootTableCountCoefficientPerBlocks;
+    }
+
+    public void setLootTableCountCoefficientPerBlocks(double lootTableCountCoefficientPerBlocks) {
+        this.lootTableCountCoefficientPerBlocks = lootTableCountCoefficientPerBlocks;
+    }
+
     public record LootReward(String rewardLootTable, int rewardCount) {}
 
     public LootReward getRewardFromDifficultyRanges(int difficultyLevel) {
@@ -844,7 +976,7 @@ public class AltarBlockEntity extends BlockEntity {
                                 cost,
                                 group.squadSpawnChance,
                                 group.squadSpawnSize,
-                                group.additionalStatMultiplier,
+                                group.statMultiplierCoefficient,
                                 group.mobSpawnChance
                         );
                         result.add(info);
@@ -935,5 +1067,13 @@ public class AltarBlockEntity extends BlockEntity {
 
     public LinkedHashMap<String, MobGroup> getMobGroups() {
         return mobGroups;
+    }
+
+    public void setBattlePhaseActive(boolean battlePhaseActive) {
+        this.battlePhaseActive = battlePhaseActive;
+    }
+
+    public Player getActivatingPlayer() {
+        return activatingPlayer;
     }
 }

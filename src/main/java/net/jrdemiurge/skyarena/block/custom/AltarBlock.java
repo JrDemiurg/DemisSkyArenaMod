@@ -12,6 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,8 +56,6 @@ import net.minecraft.world.scores.Team;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -144,7 +144,11 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 altarBlockEntity.startMusic();
 
-                pLevel.playSound(null, pPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
+                if (!altarBlockEntity.isAutoWaveRun()) {
+                    pLevel.playSound(null, pPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
+                } else {
+                    pLevel.playSound(null, pPlayer, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
+                }
 
                 setEnvironment(pLevel, pPlayer, altarBlockEntity.isSetNight(), altarBlockEntity.isSetRain());
 
@@ -166,11 +170,18 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 }
 
                 double statMultiplier = altarBlockEntity.getStatMultiplier(pPlayer);
+                double statCoefPerBlocks = altarBlockEntity.getStatMultiplierCoefficientPerBlocks();
 
                 // Preset Wave
                 Map<Integer, PresetWave> presetWaves = altarBlockEntity.getPresetWaves();
                 if (presetWaves.containsKey(difficultyLevel) && presetWaves.get(difficultyLevel).mobStatMultiplier != 0) {
                     statMultiplier = presetWaves.get(difficultyLevel).mobStatMultiplier;
+                }
+
+                if (statCoefPerBlocks != 0) {
+                    double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+                    double thousands = Math.floor(distance / 1000.0);
+                    statMultiplier *= (1 + statCoefPerBlocks * thousands);
                 }
 
                 if (presetWaves.containsKey(difficultyLevel) && presetWaves.get(difficultyLevel).mobs != null) {
@@ -186,7 +197,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     }
 
                     if (!(altarBlockEntity.canSummonMobs())) {
-                        altarBlockEntity.toggleBattlePhase();
+                        altarBlockEntity.setBattlePhaseActive(true);
                     }
 
                     return InteractionResult.SUCCESS;
@@ -194,6 +205,13 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 // Random Wave
                 int remainingPoints = altarBlockEntity.getPoints(pPlayer);
+
+                double pointsCoefPerBlocks = altarBlockEntity.getPointsCoefficientPerBlocks();
+                if (pointsCoefPerBlocks != 0) {
+                    double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+                    double thousands = Math.floor(distance / 1000.0);
+                    remainingPoints = (int) (remainingPoints * (1 + pointsCoefPerBlocks * thousands));
+                }
 
                 int mobCostRatio = altarBlockEntity.getMobCostRatio();
 
@@ -232,7 +250,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                         boolean spawnSquad = ThreadLocalRandom.current().nextDouble() < mobInfo.squadSpawnChance;
                         int mobsToSpawn = spawnSquad ? mobInfo.squadSpawnSize : 1;
 
-                        double actualMultiplier = statMultiplier + mobInfo.additionalStatMultiplier;
+                        double actualMultiplier = statMultiplier * mobInfo.statMultiplierCoefficient;
 
                         for (int i = 0; i < mobsToSpawn; i++) {
                             if (remainingPoints < mobValue) break;
@@ -244,7 +262,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 }
 
                 if (!(altarBlockEntity.canSummonMobs())) {
-                    altarBlockEntity.toggleBattlePhase(); // переключаем фазу в фазу лута
+                    altarBlockEntity.setBattlePhaseActive(true);
                 }
 
                 return InteractionResult.SUCCESS;
@@ -306,11 +324,29 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         MutableComponent message = Component.literal("§4=== Arena Info ===\n");
         StringBuilder logMessage = new StringBuilder("=== Arena Info ===\n");
 
+        int points = altarBlockEntity.getPoints(pPlayer);
+        double pointsCoefPerBlocks = altarBlockEntity.getPointsCoefficientPerBlocks();
+        if (pointsCoefPerBlocks != 0) {
+            BlockPos pPos = altarBlockEntity.getBlockPos();
+            double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+            double thousands = Math.floor(distance / 1000.0);
+            points = (int) (points * (1 + pointsCoefPerBlocks * thousands));
+        }
+
+        double statMultiplier = altarBlockEntity.getStatMultiplier(pPlayer);
+        double statCoefPerBlocks = altarBlockEntity.getStatMultiplierCoefficientPerBlocks();
+        if (statCoefPerBlocks != 0) {
+            BlockPos pPos = altarBlockEntity.getBlockPos();
+            double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+            double thousands = Math.floor(distance / 1000.0);
+            statMultiplier *= (1 + statCoefPerBlocks * thousands);
+        }
+
         String[] lines = {
                 "Arena Type: " + altarBlockEntity.getArenaType(),
                 "Difficulty Level: " + altarBlockEntity.getDifficultyLevel(pPlayer),
-                "Points: " + altarBlockEntity.getPoints(pPlayer),
-                "Stat Multiplier: " + altarBlockEntity.getStatMultiplier(pPlayer),
+                "Points: " + points,
+                "Stat Multiplier: " + statMultiplier,
                 "Starting Points: " + altarBlockEntity.getStartingPoints(),
                 "Starting Stat Multiplier: " + altarBlockEntity.getStartingStatMultiplier(),
                 "Mob Spawn Radius: " + altarBlockEntity.getMobSpawnRadius(),
@@ -325,7 +361,12 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 "Individual Player Stats: " + altarBlockEntity.isIndividualPlayerStats(),
                 "Set Night: " + altarBlockEntity.isSetNight(),
                 "Set Rain: " + altarBlockEntity.isSetRain(),
-                "Disable Mob Item Drop: " + altarBlockEntity.isDisableMobItemDrop()
+                "Disable Mob Item Drop: " + altarBlockEntity.isDisableMobItemDrop(),
+                "Reset Difficulty On Defeat: " + altarBlockEntity.isResetDifficultyOnDefeat(),
+                "Auto Wave Run: " + altarBlockEntity.isAutoWaveRun(),
+                "Points Coefficient Per 1000 Blocks: " + altarBlockEntity.getPointsCoefficientPerBlocks(),
+                "Stat Multiplier Coefficient Per 1000 Blocks: " + altarBlockEntity.getStatMultiplierCoefficientPerBlocks(),
+                "Loot Table Count Coefficient Per 1000 Blocks: " + altarBlockEntity.getLootTableCountCoefficientPerBlocks()
         };
 
         for (String line : lines) {
@@ -377,13 +418,13 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 message = message.append(Component.literal("§7  Squad Chance: §a" + group.squadSpawnChance + "\n"));
                 message = message.append(Component.literal("§7  Squad Size: §a" + group.squadSpawnSize + "\n"));
-                message = message.append(Component.literal("§7  Stat Bonus: §a" + group.additionalStatMultiplier + "\n"));
+                message = message.append(Component.literal("§7  Stat Multiplier Coefficient: §a" + group.statMultiplierCoefficient + "\n"));
                 message = message.append(Component.literal("§7  Mob Spawn Chance: §a" + group.mobSpawnChance + "\n"));
                 message = message.append(Component.literal("§7  Mobs: §8[list printed to console]\n"));
 
                 logMessage.append("  Squad Chance: ").append(group.squadSpawnChance).append("\n");
                 logMessage.append("  Squad Size: ").append(group.squadSpawnSize).append("\n");
-                logMessage.append("  Stat Bonus: ").append(group.additionalStatMultiplier).append("\n");
+                logMessage.append("  Stat Multiplier Coefficient: ").append(group.statMultiplierCoefficient).append("\n");
                 logMessage.append("  Mob Spawn Chance: ").append(group.mobSpawnChance).append("\n");
 
                 for (Map.Entry<String, Integer> mobEntry : group.mobValues.entrySet()) {
@@ -431,21 +472,6 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
         pPlayer.displayClientMessage(message, false);
         SkyArena.LOGGER.info(logMessage.toString());
-    }
-
-    public double calculateCostCoefficient(int remainingPoints, int mobCostRatio, int baseScalingThreshold) {
-        double costCoefficient = 1.0;
-
-        while (true) {
-            double cost = (double) baseScalingThreshold * costCoefficient;
-            if (cost < (double) remainingPoints / mobCostRatio) {
-                costCoefficient += 0.1;
-                continue;
-            }
-            break;
-        }
-
-        return Math.round(costCoefficient * 10) / 10.0; // Возвращаем новый коэффициент
     }
 
     private void handleBedrockUse(Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, AltarBlockEntity altarBlockEntity) {
@@ -541,12 +567,21 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private void handleGiveReward(AltarBlockEntity altarBlockEntity, Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
-        altarBlockEntity.removeAltarActivationForPlayer();
+        if (!altarBlockEntity.isAutoWaveRun())
+            altarBlockEntity.removeAltarActivationForPlayer();
 
         handleVictoryTriggers(altarBlockEntity, pPlayer);
 
-        pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
-        altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+        if (altarBlockEntity.isBattleOngoing(altarBlockEntity.getDifficultyLevel(pPlayer) + 1)) {
+            pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
+            altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+        } else {
+            if (pPlayer instanceof ServerPlayer serverPlayer) {
+                Component title = Component.translatable("message.skyarena.victory");
+                serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+                serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10));
+            }
+        }
 
         int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
         int keyCount = 1;
@@ -567,6 +602,22 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 rewardLootTableId = "minecraft:empty";
             }
         }
+
+        double lootCountCoefPerBlocks = altarBlockEntity.getLootTableCountCoefficientPerBlocks();
+        if (lootCountCoefPerBlocks != 0) {
+            double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+            double thousands = Math.floor(distance / 1000.0);
+
+            double newKeyCount = keyCount * (1 + lootCountCoefPerBlocks * thousands);
+            int guaranteed = (int) Math.floor(newKeyCount);
+            double fraction = newKeyCount - guaranteed;
+            if (pLevel.random.nextDouble() < fraction) {
+                guaranteed++;
+            }
+
+            keyCount = guaranteed;
+        }
+
 
         if (pLevel instanceof ServerLevel serverLevel) {
             LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(new ResourceLocation(rewardLootTableId));
@@ -602,10 +653,13 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             altarBlockEntity.increaseDifficultyLevel(pPlayer);
         }
         // Воспроизведение звука
-        pLevel.playSound(null, pPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
-
+        if (!altarBlockEntity.isAutoWaveRun()) {
+            pLevel.playSound(null, pPos, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        } else {
+            pLevel.playSound(null, pPlayer, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
         // Переключаем фазу боя
-        altarBlockEntity.toggleBattlePhase();
+        altarBlockEntity.setBattlePhaseActive(false);
         altarBlockEntity.stopMusic();
         altarBlockEntity.setBattleEndTime(pLevel.getGameTime());
     }
