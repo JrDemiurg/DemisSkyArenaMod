@@ -114,7 +114,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 handleGiveReward(altarBlockEntity, pLevel, pPos, pState, pPlayer);
                 return InteractionResult.SUCCESS;
             }
-            // начало боя
+            // начало бояLFLFL
             if (!(altarBlockEntity.isBattlePhaseActive())) {
 
                 int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
