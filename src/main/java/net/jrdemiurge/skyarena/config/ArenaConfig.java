@@ -29,6 +29,11 @@ public class ArenaConfig {
     public double statMultiplierCoefficientPer1000BlocksFromWorldCenter;
     public double lootTableCountCoefficientPer1000BlocksFromWorldCenter;
 
+    public boolean givingOutRewardOnAltar;
+    public double maxWavesPer100BlocksFromCenter;
+    public String maxWaveRewardLootTable;
+    public boolean arenaExplodesAfterMaxWave;
+
     public List<DifficultyLevelRange> difficultyLevelRanges;
     public LinkedHashMap<String, MobGroup> mobGroups;
 

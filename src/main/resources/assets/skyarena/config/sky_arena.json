@@ -295,12 +295,16 @@
       "setRain": false,
       "disableMobItemDrop": true,
       "resetDifficultyOnDefeat": false,
-      "autoWaveRun": false,
+      "autoWaveRun": true,
       "startingPoints": 500,
       "startingStatMultiplier": 1.0,
       "pointsCoefficientPer1000BlocksFromWorldCenter": 0.00,
       "statMultiplierCoefficientPer1000BlocksFromWorldCenter": 0.00,
       "lootTableCountCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "givingOutRewardOnAltar" : true,
+      "maxWavesPer100BlocksFromCenter": 0.1,
+      "maxWaveRewardLootTable": "skyarena:battle_rewards/ender_key",
+      "arenaExplodesAfterMaxWave": true,
       "difficultyLevelRanges": [
         {
           "range": [1, 10],
@@ -732,8 +736,17 @@
       "setNight": true,
       "setRain": false,
       "disableMobItemDrop": true,
+      "resetDifficultyOnDefeat": true,
+      "autoWaveRun": true,
       "startingPoints": 500,
       "startingStatMultiplier": 1.0,
+      "pointsCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "statMultiplierCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "lootTableCountCoefficientPer1000BlocksFromWorldCenter": 0.00,
+      "givingOutRewardOnAltar" : true,
+      "maxWavesPer100BlocksFromCenter": 0.1,
+      "maxWaveRewardLootTable": "skyarena:battle_rewards/ender_key",
+      "arenaExplodesAfterMaxWave": true,
       "difficultyLevelRanges": [
 
       ],
@@ -765,6 +778,147 @@
           "mobs": [
             { "type": "minecraft:warden", "count": 1 }
           ]
+        }
+      }
+    },
+    "arena_for_gabuly": {
+      "mobSpawnRadius": 36,
+      "spawnDistanceFromPlayer": 18,
+      "battleLossDistance": 60,
+      "mobTeleportDistance": 50,
+      "mobGriefingProtectionRadius": 60,
+      "bossBarHideRadius": 60,
+      "mobCostRatio": 20,
+      "allowDifficultyReset": true,
+      "allowWaterAndAirSpawn": false,
+      "individualPlayerStats": true,
+      "setNight": true,
+      "setRain": false,
+      "disableMobItemDrop": true,
+      "resetDifficultyOnDefeat": true,
+      "autoWaveRun": true,
+      "givingOutRewardOnAltar" : true,
+      "arenaExplodesAfterMaxWave": true,
+      "maxWavesPer100BlocksFromCenter": 0.0,
+      "maxWaveRewardLootTable": "minecraft:empty",
+      "startingPoints": 1000,
+      "startingStatMultiplier": 1.0,
+      "pointsCoefficientPer1000BlocksFromWorldCenter": 0.02,
+      "statMultiplierCoefficientPer1000BlocksFromWorldCenter": 0.02,
+      "lootTableCountCoefficientPer1000BlocksFromWorldCenter": 0.02,
+      "difficultyLevelRanges": [
+        {
+          "range": [1, 2],
+          "pointsIncrease": 100,
+          "statMultiplierIncrease": 0.1,
+          "rewardLootTable": "minecraft:empty",
+          "rewardCount": 1,
+          "mobGroupsUsed": ["common"]
+        },
+        {
+          "range": [3, 4],
+          "pointsIncrease": 100,
+          "statMultiplierIncrease": 0.1,
+          "rewardLootTable": "minecraft:empty",
+          "rewardCount": 1,
+          "mobGroupsUsed": ["common", "elite"]
+        },
+        {
+          "range": [5, 9],
+          "pointsIncrease": 100,
+          "statMultiplierIncrease": 0.1,
+          "rewardLootTable": "minecraft:empty",
+          "rewardCount": 1,
+          "mobGroupsUsed": ["common", "elite", "minibosses"]
+        },
+        {
+          "range": [10, 10],
+          "pointsIncrease": 0,
+          "statMultiplierIncrease": 0.00,
+          "rewardLootTable": "skyarena:battle_rewards/ender_key",
+          "rewardCount": 1,
+          "mobGroupsUsed": ["bosses"]
+        }
+      ],
+      "mobGroups": {
+        "common": {
+          "squadSpawnChance": 0.5,
+          "squadSpawnSize": 5,
+          "statMultiplierCoefficient": 1.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
+            "minecraft:zombie": 20,
+            "minecraft:slime": 20,
+            "minecraft:magma_cube": 25,
+            "minecraft:husk": 25,
+            "minecraft:skeleton": 30,
+            "minecraft:witch": 30,
+            "minecraft:pillager": 35,
+            "minecraft:stray": 35,
+            "minecraft:zombified_piglin": 35,
+            "minecraft:blaze": 40,
+            "minecraft:illusioner": 45,
+            "minecraft:wither_skeleton": 45,
+            "minecraft:vindicator": 50,
+            "minecraft:zoglin": 55,
+            "cataclysm:urchinkin": 25,
+            "cataclysm:draugr": 30,
+            "cataclysm:elite_draugr": 40,
+            "cataclysm:royal_draugr": 40,
+            "cataclysm:the_watcher": 40,
+            "cataclysm:deepling_angler": 45,
+            "cataclysm:koboleton": 45,
+            "cataclysm:deepling": 50,
+            "cataclysm:deepling_priest": 70,
+            "cataclysm:deepling_warlock": 70,
+            "cataclysm:cindaria": 75
+          }
+        },
+        "elite": {
+          "squadSpawnChance": 0.35,
+          "squadSpawnSize": 3,
+          "statMultiplierCoefficient": 1.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
+            "minecraft:evoker": 80,
+            "minecraft:ravager": 130,
+            "cataclysm:deepling_brute": 100,
+            "cataclysm:hippocamtus": 130,
+            "cataclysm:ignited_berserker": 130,
+            "cataclysm:coral_golem": 160,
+            "cataclysm:ignited_revenant": 170
+          }
+        },
+        "minibosses": {
+          "squadSpawnChance": 0.35,
+          "squadSpawnSize": 2,
+          "statMultiplierCoefficient": 1.0,
+          "mobSpawnChance": 1,
+          "mobValues": {
+            "cataclysm:coralssus": 180,
+            "cataclysm:amethyst_crab": 250,
+            "cataclysm:wadjet": 250,
+            "cataclysm:the_prowler": 250,
+            "cataclysm:ender_golem": 250,
+            "cataclysm:aptrgangr": 250,
+            "cataclysm:kobolediator": 250,
+            "cataclysm:clawdian": 300
+          }
+        },
+        "bosses": {
+          "squadSpawnChance": 0.0,
+          "squadSpawnSize": 1,
+          "statMultiplierCoefficient": 1,
+          "mobSpawnChance": 1,
+          "mobValues": {
+            "cataclysm:ender_guardian": 1900,
+            "cataclysm:netherite_monstrosity": 1900,
+            "cataclysm:ignis": 1900,
+            "cataclysm:the_harbinger": 1900,
+            "cataclysm:ancient_remnant": 1900,
+            "cataclysm:maledictus": 1900,
+            "cataclysm:scylla": 1900
+          }
         }
       }
     }

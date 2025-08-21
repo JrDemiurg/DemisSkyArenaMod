@@ -6,6 +6,7 @@ import net.jrdemiurge.skyarena.block.entity.AltarBlockEntity;
 import net.jrdemiurge.skyarena.block.entity.ModBlockEntity;
 import net.jrdemiurge.skyarena.config.*;
 import net.jrdemiurge.skyarena.item.ModItems;
+import net.jrdemiurge.skyarena.scheduler.Scheduler;
 import net.jrdemiurge.skyarena.triggers.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -114,7 +116,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 handleGiveReward(altarBlockEntity, pLevel, pPos, pState, pPlayer);
                 return InteractionResult.SUCCESS;
             }
-            // начало бояLFLFL
+            // начало боя
             if (!(altarBlockEntity.isBattlePhaseActive())) {
 
                 int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
@@ -342,10 +344,16 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             statMultiplier *= (1 + statCoefPerBlocks * thousands);
         }
 
+        BlockPos pPos = altarBlockEntity.getBlockPos();
+        double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+        double hundreds = Math.floor(distance / 100.0);
+        double maxWaves = hundreds * altarBlockEntity.getMaxWavesPer100BlocksFromCenter();
+
         String[] lines = {
                 "Arena Type: " + altarBlockEntity.getArenaType(),
                 "Difficulty Level: " + altarBlockEntity.getDifficultyLevel(pPlayer),
                 "Points: " + points,
+                "maxWaves: " + maxWaves,
                 "Stat Multiplier: " + statMultiplier,
                 "Starting Points: " + altarBlockEntity.getStartingPoints(),
                 "Starting Stat Multiplier: " + altarBlockEntity.getStartingStatMultiplier(),
@@ -366,7 +374,11 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 "Auto Wave Run: " + altarBlockEntity.isAutoWaveRun(),
                 "Points Coefficient Per 1000 Blocks: " + altarBlockEntity.getPointsCoefficientPerBlocks(),
                 "Stat Multiplier Coefficient Per 1000 Blocks: " + altarBlockEntity.getStatMultiplierCoefficientPerBlocks(),
-                "Loot Table Count Coefficient Per 1000 Blocks: " + altarBlockEntity.getLootTableCountCoefficientPerBlocks()
+                "Loot Table Count Coefficient Per 1000 Blocks: " + altarBlockEntity.getLootTableCountCoefficientPerBlocks(),
+                "Giving Out Reward On Altar: " + altarBlockEntity.isGivingOutRewardOnAltar(),
+                "Max Wave sPer 100 Blocks From Center: " + altarBlockEntity.getMaxWavesPer100BlocksFromCenter(),
+                "Max Wave Reward Loot Table: " + altarBlockEntity.getMaxWaveRewardLootTable(),
+                "Arena Explodes After Max Wave: " + altarBlockEntity.isArenaExplodesAfterMaxWave()
         };
 
         for (String line : lines) {
@@ -603,6 +615,13 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             }
         }
 
+        if (!altarBlockEntity.isBattleOngoing(altarBlockEntity.getDifficultyLevel(pPlayer) + 1) &&
+                altarBlockEntity.getMaxWaveRewardLootTable() != null &&
+                !altarBlockEntity.getMaxWaveRewardLootTable().equals("minecraft:empty")) {
+            keyCount = 1;
+            rewardLootTableId = altarBlockEntity.getMaxWaveRewardLootTable();
+        }
+
         double lootCountCoefPerBlocks = altarBlockEntity.getLootTableCountCoefficientPerBlocks();
         if (lootCountCoefPerBlocks != 0) {
             double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
@@ -622,7 +641,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         if (pLevel instanceof ServerLevel serverLevel) {
             LootTable lootTable = serverLevel.getServer().getLootData().getLootTable(new ResourceLocation(rewardLootTableId));
 
-            if (lootTable == LootTable.EMPTY && !rewardLootTableId.equals("minecraft:empty")) {
+            if (lootTable == LootTable.EMPTY && !rewardLootTableId.equals("minecraft:empty")) { // эту штуку возможно надо убрать
                 rewardLootTableId = "skyarena:battle_rewards/crimson_key";
                 lootTable = serverLevel.getServer().getLootData().getLootTable(new ResourceLocation(rewardLootTableId));
             }
@@ -636,13 +655,25 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 for (int i = 0; i < keyCount; i++) {
                     List<ItemStack> lootItems = lootTable.getRandomItems(lootParams);
                     for (ItemStack stack : lootItems) {
-                        ItemEntity rewardEntity = new ItemEntity(
-                                pLevel,
-                                pPlayer.getX(),
-                                pPlayer.getY(),
-                                pPlayer.getZ(),
-                                stack
-                        );
+
+                        ItemEntity rewardEntity;
+                        if (altarBlockEntity.isGivingOutRewardOnAltar()) {
+                            rewardEntity = new ItemEntity(
+                                    pLevel,
+                                    pPos.getX(),
+                                    pPos.getY() + 2,
+                                    pPos.getZ(),
+                                    stack
+                            );
+                        } else {
+                            rewardEntity = new ItemEntity(
+                                    pLevel,
+                                    pPlayer.getX(),
+                                    pPlayer.getY(),
+                                    pPlayer.getZ(),
+                                    stack
+                            );
+                        }
                         pLevel.addFreshEntity(rewardEntity);
                     }
                 }
@@ -658,14 +689,53 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         } else {
             pLevel.playSound(null, pPlayer, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
+
+        if (!altarBlockEntity.isBattleOngoing(altarBlockEntity.getDifficultyLevel(pPlayer)) &&
+                altarBlockEntity.isArenaExplodesAfterMaxWave()) {
+            explodeArenaGradually(pLevel, pPos, altarBlockEntity.getMobSpawnRadius(), 10);
+        }
         // Переключаем фазу боя
         altarBlockEntity.setBattlePhaseActive(false);
         altarBlockEntity.stopMusic();
         altarBlockEntity.setBattleEndTime(pLevel.getGameTime());
     }
 
+    public static void explodeArenaGradually(Level level, BlockPos center, int radius, int delayPerLayer) {
+        radius = radius * 2;
+        level.destroyBlock(center, false);
+        int topY = center.getY() + radius;
+        int bottomY = center.getY() - radius;
+        int height = topY - bottomY + 1;
+        RandomSource random = level.getRandom();
+
+        for (int i = 0; i < height; i++) {
+            int y = topY - i;
+            int delay = i * delayPerLayer;
+
+            int finalRadius = radius;
+            Scheduler.schedule(() -> {
+                for (int e = 0; e < finalRadius * finalRadius / 30; e++) {
+
+                    double angle = random.nextDouble() * 2 * Math.PI;
+                    double r = Math.sqrt(random.nextDouble()) * finalRadius;
+                    int x = center.getX() + (int) Math.round(Math.cos(angle) * r);
+                    int z = center.getZ() + (int) Math.round(Math.sin(angle) * r);
+
+                    level.explode(
+                            null,
+                            x + 0.5,
+                            y + 0.5,
+                            z + 0.5,
+                            5.0f,
+                            Level.ExplosionInteraction.BLOCK
+                    );
+                }
+            }, delay);
+        }
+    }
+
     private void handleVictoryTriggers(AltarBlockEntity altarBlockEntity, Player pPlayer) {
-        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer); // Получаем текущий уровень сложности
+        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
 
         if (pPlayer instanceof ServerPlayer serverPlayer) {
             DifficultyLevel1.INSTANCE.trigger(serverPlayer);

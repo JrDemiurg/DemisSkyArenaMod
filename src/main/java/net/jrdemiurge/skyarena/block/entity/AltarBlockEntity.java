@@ -81,6 +81,11 @@ public class AltarBlockEntity extends BlockEntity {
     private double statMultiplierCoefficientPerBlocks;
     private double lootTableCountCoefficientPerBlocks;
 
+    private boolean givingOutRewardOnAltar;
+    private double maxWavesPer100BlocksFromCenter;
+    private String maxWaveRewardLootTable;
+    private boolean arenaExplodesAfterMaxWave;
+
     private List<DifficultyLevelRange> difficultyLevelRanges = new ArrayList<>();
     private LinkedHashMap<String, MobGroup> mobGroups = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
@@ -133,6 +138,11 @@ public class AltarBlockEntity extends BlockEntity {
             this.pointsCoefficientPerBlocks = arenaConfig.pointsCoefficientPer1000BlocksFromWorldCenter;
             this.statMultiplierCoefficientPerBlocks = arenaConfig.statMultiplierCoefficientPer1000BlocksFromWorldCenter;
             this.lootTableCountCoefficientPerBlocks = arenaConfig.lootTableCountCoefficientPer1000BlocksFromWorldCenter;
+
+            this.givingOutRewardOnAltar = arenaConfig.givingOutRewardOnAltar;
+            this.maxWavesPer100BlocksFromCenter = arenaConfig.maxWavesPer100BlocksFromCenter;
+            this.maxWaveRewardLootTable = arenaConfig.maxWaveRewardLootTable;
+            this.arenaExplodesAfterMaxWave = arenaConfig.arenaExplodesAfterMaxWave;
 
             if (arenaConfig.difficultyLevelRanges != null) {
                 this.difficultyLevelRanges = new ArrayList<>(arenaConfig.difficultyLevelRanges);
@@ -380,6 +390,13 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putDouble("PointsCoefficientPerBlocks", this.pointsCoefficientPerBlocks);
         pTag.putDouble("StatMultiplierCoefficientPerBlocks", this.statMultiplierCoefficientPerBlocks);
         pTag.putDouble("LootTableCountCoefficientPerBlocks", this.lootTableCountCoefficientPerBlocks);
+        pTag.putBoolean("GivingOutRewardOnAltar", this.givingOutRewardOnAltar);
+        pTag.putDouble("MaxWavesPer100BlocksFromCenter", this.maxWavesPer100BlocksFromCenter);
+        pTag.putBoolean("ArenaExplodesAfterMaxWave", this.arenaExplodesAfterMaxWave);
+
+        if (this.maxWaveRewardLootTable != null) {
+            pTag.putString("MaxWaveRewardLootTable", this.maxWaveRewardLootTable);
+        }
 
         if (!this.recordItem.isEmpty()) {
             pTag.put("RecordItem", this.recordItem.save(new CompoundTag()));
@@ -491,6 +508,10 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("PointsCoefficientPerBlocks")) this.pointsCoefficientPerBlocks = pTag.getDouble("PointsCoefficientPerBlocks");
         if (pTag.contains("StatMultiplierCoefficientPerBlocks")) this.statMultiplierCoefficientPerBlocks = pTag.getDouble("StatMultiplierCoefficientPerBlocks");
         if (pTag.contains("LootTableCountCoefficientPerBlocks")) this.lootTableCountCoefficientPerBlocks = pTag.getDouble("LootTableCountCoefficientPerBlocks");
+        if (pTag.contains("GivingOutRewardOnAltar")) this.givingOutRewardOnAltar = pTag.getBoolean("GivingOutRewardOnAltar");
+        if (pTag.contains("MaxWavesPer100BlocksFromCenter")) this.maxWavesPer100BlocksFromCenter = pTag.getDouble("MaxWavesPer100BlocksFromCenter");
+        if (pTag.contains("MaxWaveRewardLootTable")) this.maxWaveRewardLootTable = pTag.getString("MaxWaveRewardLootTable");
+        if (pTag.contains("ArenaExplodesAfterMaxWave")) this.arenaExplodesAfterMaxWave = pTag.getBoolean("ArenaExplodesAfterMaxWave");
 
         if (pTag.contains("RecordItem")) {
             this.recordItem = ItemStack.of(pTag.getCompound("RecordItem"));
@@ -740,8 +761,6 @@ public class AltarBlockEntity extends BlockEntity {
 
     private void runAutoWave() {
         if (!battlePhaseActive || !canSummonMobs()) return;
-        long gameTime = level.getGameTime();
-        if (gameTime % 5 != 0) return;
         BlockState state = level.getBlockState(worldPosition);
 
         if (!(state.getBlock() instanceof AltarBlock customBlock)) {
@@ -889,6 +908,13 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public boolean isBattleOngoing(int difficultyLevel) {
+        if (maxWavesPer100BlocksFromCenter != 0) {
+            double distance = Math.sqrt(worldPosition.distSqr(BlockPos.ZERO));
+            double hundreds = Math.floor(distance / 100.0);
+            double maxWaves = hundreds * maxWavesPer100BlocksFromCenter;
+            return difficultyLevel < maxWaves;
+        }
+
         for (DifficultyLevelRange range : difficultyLevelRanges) {
             int start = range.range.get(0);
             int end = range.range.get(1);
@@ -937,6 +963,30 @@ public class AltarBlockEntity extends BlockEntity {
 
     public void setLootTableCountCoefficientPerBlocks(double lootTableCountCoefficientPerBlocks) {
         this.lootTableCountCoefficientPerBlocks = lootTableCountCoefficientPerBlocks;
+    }
+
+    public boolean isGivingOutRewardOnAltar() {
+        return givingOutRewardOnAltar;
+    }
+
+    public void setGivingOutRewardOnAltar(boolean givingOutRewardOnAltar) {
+        this.givingOutRewardOnAltar = givingOutRewardOnAltar;
+    }
+
+    public double getMaxWavesPer100BlocksFromCenter() {
+        return maxWavesPer100BlocksFromCenter;
+    }
+
+    public void setMaxWavesPer100BlocksFromCenter(double maxWavesPer100BlocksFromCenter) {
+        this.maxWavesPer100BlocksFromCenter = maxWavesPer100BlocksFromCenter;
+    }
+
+    public boolean isArenaExplodesAfterMaxWave() {
+        return arenaExplodesAfterMaxWave;
+    }
+
+    public void setArenaExplodesAfterMaxWave(boolean arenaExplodesAfterMaxWave) {
+        this.arenaExplodesAfterMaxWave = arenaExplodesAfterMaxWave;
     }
 
     public record LootReward(String rewardLootTable, int rewardCount) {}
@@ -1075,5 +1125,9 @@ public class AltarBlockEntity extends BlockEntity {
 
     public Player getActivatingPlayer() {
         return activatingPlayer;
+    }
+
+    public String getMaxWaveRewardLootTable() {
+        return maxWaveRewardLootTable;
     }
 }
