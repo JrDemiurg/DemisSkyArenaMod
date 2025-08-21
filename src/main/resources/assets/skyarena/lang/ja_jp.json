@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "モブをスポーンする適切な場所がありません",
   "message.skyarena.cannot_do_during_battle": "戦闘中はこれを行うことはできません",
   "message.skyarena.unclaimed_reward": "§4報酬を受け取れない場合、全てのMobを倒していない可能性があります。生存しているMobには発光のエフェクトがかかっているるのでそれらを倒してください。",
+  "message.skyarena.final_wave": "最後の波！",
+  "message.skyarena.remaining_waves": "残りの波: ",
 
   "advancement.skyarena.root.description": "終わりのない戦い",
   "advancement.skyarena.common_arena.title": "栄光の頂へ",

@@ -799,7 +799,7 @@
       "autoWaveRun": true,
       "givingOutRewardOnAltar" : true,
       "arenaExplodesAfterMaxWave": true,
-      "maxWavesPer100BlocksFromCenter": 0.0,
+      "maxWavesPer100BlocksFromCenter": 0.05,
       "maxWaveRewardLootTable": "minecraft:empty",
       "startingPoints": 1000,
       "startingStatMultiplier": 1.0,
@@ -917,7 +917,8 @@
             "cataclysm:the_harbinger": 1900,
             "cataclysm:ancient_remnant": 1900,
             "cataclysm:maledictus": 1900,
-            "cataclysm:scylla": 1900
+            "cataclysm:scylla": 1900,
+            "minecraft:warden": 1900
           }
         }
       }

@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "No suitable place for mob spawning",
   "message.skyarena.cannot_do_during_battle": "You cannot do this during battle",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
+  "message.skyarena.final_wave": "Final Wave!",
+  "message.skyarena.remaining_waves": "Remaining Waves: ",
 
   "advancement.skyarena.root.description": "Endless battles await you",
   "advancement.skyarena.common_arena.title": "To the Heights of Glory",

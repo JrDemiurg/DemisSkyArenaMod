@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "No hay un lugar adecuado para la aparición de mobs",
   "message.skyarena.cannot_do_during_battle": "No puedes hacer esto durante la batalla",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
+  "message.skyarena.final_wave": "¡Última ola!",
+  "message.skyarena.remaining_waves": "Olas restantes: ",
 
   "advancement.skyarena.root.description": "Batallas interminables te esperan",
   "advancement.skyarena.common_arena.title": "A las Alturas de la Gloria",

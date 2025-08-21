@@ -144,8 +144,6 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 altarBlockEntity.recordAltarActivation(pPlayer, pPos);
 
-                altarBlockEntity.startMusic();
-
                 if (!altarBlockEntity.isAutoWaveRun()) {
                     pLevel.playSound(null, pPos, SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 1.0F, 1.0F);
                 } else {
@@ -158,10 +156,42 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 altarBlockEntity.setBattleDifficultyLevel(difficultyLevel);
 
-                Component message = Component.translatable("message.skyarena.difficult_level")
-                        .append(Component.literal(String.valueOf(difficultyLevel)));
-                pPlayer.displayClientMessage(message, true);
-                altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+                boolean isFinalWave = false;
+
+                if(!altarBlockEntity.isAutoWaveRun()) {
+                    Component message = Component.translatable("message.skyarena.difficult_level")
+                            .append(Component.literal(String.valueOf(difficultyLevel)));
+                    pPlayer.displayClientMessage(message, true);
+                    altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+                } else {
+                    int probe = 1;
+
+                    for (; probe <= 100; probe++) {
+                        if (!altarBlockEntity.isBattleOngoing(probe)) {
+                            break;
+                        }
+                    }
+                    int maxWaves = probe - 1;
+
+                    int remainingWaves = Math.max(0, maxWaves - difficultyLevel + 1);
+
+                    Component message;
+                    if (difficultyLevel >= maxWaves) {
+                        message = Component.translatable("message.skyarena.final_wave");
+
+                        isFinalWave = true;
+                    } else {
+                        message = Component.translatable("message.skyarena.remaining_waves")
+                                .append(Component.literal(String.valueOf(remainingWaves)));
+                    }
+
+                    pPlayer.displayClientMessage(message, true);
+                    altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+                }
+
+                if (!altarBlockEntity.isAutoWaveRun() || !isFinalWave) {
+                    altarBlockEntity.startMusic();
+                }
 
                 String teamName = !altarBlockEntity.isDisableMobItemDrop() ? "summonedByArena" : "summonedByArenaWithoutLoot";
                 PlayerTeam summonedMobsTeam = (PlayerTeam) pLevel.getScoreboard().getPlayerTeam(teamName);
@@ -174,16 +204,42 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 double statMultiplier = altarBlockEntity.getStatMultiplier(pPlayer);
                 double statCoefPerBlocks = altarBlockEntity.getStatMultiplierCoefficientPerBlocks();
 
-                // Preset Wave
-                Map<Integer, PresetWave> presetWaves = altarBlockEntity.getPresetWaves();
-                if (presetWaves.containsKey(difficultyLevel) && presetWaves.get(difficultyLevel).mobStatMultiplier != 0) {
-                    statMultiplier = presetWaves.get(difficultyLevel).mobStatMultiplier;
-                }
-
                 if (statCoefPerBlocks != 0) {
                     double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
                     double thousands = Math.floor(distance / 1000.0);
                     statMultiplier *= (1 + statCoefPerBlocks * thousands);
+                }
+
+                if (isFinalWave) {
+                    ExpandedMobInfo boss = altarBlockEntity.getRandomMobFromGroup("bosses");
+                    if (boss != null) {
+                        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(boss.mobId));
+                        if (entityType != null) {
+                            double actualMultiplier = statMultiplier * boss.statMultiplierCoefficient;
+
+                            boolean success = spawnArenaMob(
+                                    pLevel, altarBlockEntity, entityType, validPositions,
+                                    actualMultiplier, boss.mobId, summonedMobsTeam
+                            );
+
+                            if (!(altarBlockEntity.canSummonMobs())) {
+                                altarBlockEntity.setBattlePhaseActive(true);
+                            }
+                        }
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+
+                // Preset Wave
+                Map<Integer, PresetWave> presetWaves = altarBlockEntity.getPresetWaves();
+                if (presetWaves.containsKey(difficultyLevel) && presetWaves.get(difficultyLevel).mobStatMultiplier != 0) {
+                    statMultiplier = presetWaves.get(difficultyLevel).mobStatMultiplier;
+
+                    if (statCoefPerBlocks != 0) {
+                        double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
+                        double thousands = Math.floor(distance / 1000.0);
+                        statMultiplier *= (1 + statCoefPerBlocks * thousands);
+                    }
                 }
 
                 if (presetWaves.containsKey(difficultyLevel) && presetWaves.get(difficultyLevel).mobs != null) {
@@ -321,7 +377,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         altarBlockEntity.addSummonedMob(mob);
         return true;
     }
-    
+
     public void showArenaInfo(Player pPlayer, AltarBlockEntity altarBlockEntity) {
         MutableComponent message = Component.literal("§4=== Arena Info ===\n");
         StringBuilder logMessage = new StringBuilder("=== Arena Info ===\n");
@@ -348,6 +404,8 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         double distance = Math.sqrt(pPos.distSqr(BlockPos.ZERO));
         double hundreds = Math.floor(distance / 100.0);
         double maxWaves = hundreds * altarBlockEntity.getMaxWavesPer100BlocksFromCenter();
+
+        maxWaves = Math.min(maxWaves, 10);
 
         String[] lines = {
                 "Arena Type: " + altarBlockEntity.getArenaType(),
@@ -585,8 +643,10 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         handleVictoryTriggers(altarBlockEntity, pPlayer);
 
         if (altarBlockEntity.isBattleOngoing(altarBlockEntity.getDifficultyLevel(pPlayer) + 1)) {
-            pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
-            altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+            if (!altarBlockEntity.isAutoWaveRun()) {
+                pPlayer.displayClientMessage(Component.translatable("message.skyarena.victory"), true);
+                altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+            }
         } else {
             if (pPlayer instanceof ServerPlayer serverPlayer) {
                 Component title = Component.translatable("message.skyarena.victory");

@@ -32,7 +32,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AltarBlockEntity extends BlockEntity {
 
@@ -661,10 +663,12 @@ public class AltarBlockEntity extends BlockEntity {
 
             if (gameTime - lastShownTick >= 60) {
                 int diff = getDifficultyLevel(player);
-                player.displayClientMessage(
-                        Component.translatable("message.skyarena.difficult_level")
-                                .append(Component.literal(String.valueOf(diff))), true);
-                playerMessageTimestamps.put(player, level.getGameTime() - 20);
+                if (!resetDifficultyOnDefeat || diff == 1) {
+                    player.displayClientMessage(
+                            Component.translatable("message.skyarena.difficult_level")
+                                    .append(Component.literal(String.valueOf(diff))), true);
+                    playerMessageTimestamps.put(player, level.getGameTime() - 20);
+                }
             }
         }
     }
@@ -772,7 +776,7 @@ public class AltarBlockEntity extends BlockEntity {
                 level,
                 worldPosition,
                 activatingPlayer,
-                InteractionHand.MAIN_HAND,
+                InteractionHand.OFF_HAND,
                 new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
         );
 
@@ -781,27 +785,16 @@ public class AltarBlockEntity extends BlockEntity {
             return;
         }
 
-        for (int i = 0; i < 5; i++) {
-            int finalI = i;
-            Scheduler.schedule(() -> {
-                if (activatingPlayer instanceof ServerPlayer serverPlayer) {
-                    Component title = Component.translatable(String.valueOf(5 - finalI));
-                    serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
-                    serverPlayer.connection.send(new ClientboundSetTitlesAnimationPacket(5, 15, 0));
-                }
-            }, 20 * i);
-        }
-
         Scheduler.schedule(() -> {
             customBlock.use(
                     state,
                     level,
                     worldPosition,
                     activatingPlayer,
-                    InteractionHand.MAIN_HAND,
+                    InteractionHand.OFF_HAND,
                     new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
             );
-        }, 100);
+        }, 40);
     }
 
     public List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, Player player) {
@@ -912,7 +905,10 @@ public class AltarBlockEntity extends BlockEntity {
             double distance = Math.sqrt(worldPosition.distSqr(BlockPos.ZERO));
             double hundreds = Math.floor(distance / 100.0);
             double maxWaves = hundreds * maxWavesPer100BlocksFromCenter;
-            return difficultyLevel < maxWaves;
+
+            maxWaves = Math.min(maxWaves, 10);
+
+            return difficultyLevel <= maxWaves;
         }
 
         for (DifficultyLevelRange range : difficultyLevelRanges) {
@@ -1129,5 +1125,31 @@ public class AltarBlockEntity extends BlockEntity {
 
     public String getMaxWaveRewardLootTable() {
         return maxWaveRewardLootTable;
+    }
+
+    @Nullable
+    public ExpandedMobInfo getRandomMobFromGroup(String groupId) {
+        MobGroup group = mobGroups.get(groupId);
+        if (group == null) return null;
+
+        List<String> ids = new ArrayList<>();
+        for (String id : group.mobValues.keySet()) {
+            if (ForgeRegistries.ENTITY_TYPES.containsKey(new ResourceLocation(id))) {
+                ids.add(id);
+            }
+        }
+        if (ids.isEmpty()) return null;
+
+        String mobId = ids.get(ThreadLocalRandom.current().nextInt(ids.size()));
+        int cost = group.mobValues.getOrDefault(mobId, 0);
+
+        return new ExpandedMobInfo(
+                mobId,
+                cost,
+                /* squadSpawnChance = */ 0.0,
+                /* squadSpawnSize   = */ 1,
+                /* statMultiplierCoefficient */ group.statMultiplierCoefficient,
+                /* mobSpawnChance   = */ 1.0
+        );
     }
 }

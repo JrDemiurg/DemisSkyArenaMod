@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "Нет подходящего места для спавна мобов",
   "message.skyarena.cannot_do_during_battle": "Вы не можете сделать это во время боя",
   "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, покиньте арену, чтобы начать битву заново.",
+  "message.skyarena.final_wave": "Последняя волна!",
+  "message.skyarena.remaining_waves": "Оставшиеся волны: ",
 
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",
   "advancement.skyarena.common_arena.title": "К вершинам славы",

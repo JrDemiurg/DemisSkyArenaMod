@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "Aucun endroit adapté pour l’apparition des mobs",
   "message.skyarena.cannot_do_during_battle": "Vous ne pouvez pas faire cela pendant le combat",
   "message.skyarena.unclaimed_reward": "§4Si vous ne pouvez pas récupérer la récompense, cela signifie que vous n'avez pas vaincu tous les monstres. Les monstres restants ont reçu l'effet Luminance. Si vous ne pouvez pas les trouver, quittez l'arène pour recommencer le combat.",
+  "message.skyarena.final_wave": "Vague finale !",
+  "message.skyarena.remaining_waves": "Vagues restantes : ",
 
   "advancement.skyarena.root.description": "Des batailles sans fin vous attendent",
   "advancement.skyarena.common_arena.title": "Vers les Sommets de la Gloire",

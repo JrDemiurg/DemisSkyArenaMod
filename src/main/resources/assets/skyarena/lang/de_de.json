@@ -39,6 +39,8 @@
   "message.skyarena.no_spawn_position": "Kein geeigneter Ort für das Spawnen von Mobs",
   "message.skyarena.cannot_do_during_battle": "Du kannst das während des Kampfes nicht tun",
   "message.skyarena.unclaimed_reward": "§4Wenn du die Belohnung nicht erhalten kannst, bedeutet das, dass du nicht alle Monster besiegt hast. Die verbleibenden Monster haben den Leuchteffekt erhalten. Wenn du sie nicht finden kannst, verlasse die Arena, um den Kampf neu zu starten.",
+  "message.skyarena.final_wave": "Letzte Welle!",
+  "message.skyarena.remaining_waves": "Verbleibende Wellen: ",
 
   "advancement.skyarena.root.description": "Endlose Kämpfe erwarten dich",
   "advancement.skyarena.common_arena.title": "Zu den Höhen des Ruhms",
