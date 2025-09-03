@@ -211,7 +211,12 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 }
 
                 if (isFinalWave) {
-                    ExpandedMobInfo boss = altarBlockEntity.getRandomMobFromGroup("bosses");
+                    ExpandedMobInfo boss;
+                    if (difficultyLevel < 6) {
+                        boss = altarBlockEntity.getRandomMobFromGroup("minibosses");
+                    } else {
+                        boss = altarBlockEntity.getRandomMobFromGroup("bosses");
+                    }
                     if (boss != null) {
                         EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(boss.mobId));
                         if (entityType != null) {
