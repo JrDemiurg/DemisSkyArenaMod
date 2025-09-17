@@ -585,22 +585,20 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
         int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
         int keyCount = 1;
-        String rewardLootTableId;
+        String rewardLootTableId = "minecraft:empty";
 
         Map<Integer, PresetWave> presetWaves = altarBlockEntity.getPresetWaves();
+
+        AltarBlockEntity.LootReward reward = altarBlockEntity.getRewardFromDifficultyRanges(difficultyLevel);
+        if (reward != null) {
+            rewardLootTableId = reward.rewardLootTable();
+            keyCount = reward.rewardCount();
+        }
 
         if (presetWaves.containsKey(difficultyLevel)) {
             PresetWave wave = presetWaves.get(difficultyLevel);
             rewardLootTableId = wave.rewardLootTable;
             keyCount = wave.rewardCount;
-        } else {
-            AltarBlockEntity.LootReward reward = altarBlockEntity.getRewardFromDifficultyRanges(difficultyLevel);
-            if (reward != null) {
-                rewardLootTableId = reward.rewardLootTable();
-                keyCount = reward.rewardCount();
-            } else {
-                rewardLootTableId = "minecraft:empty";
-            }
         }
 
         double lootCountCoefPerBlocks = altarBlockEntity.getLootTableCountCoefficientPerBlocks();

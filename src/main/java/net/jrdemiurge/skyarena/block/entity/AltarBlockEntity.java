@@ -753,7 +753,7 @@ public class AltarBlockEntity extends BlockEntity {
                 level,
                 worldPosition,
                 activatingPlayer,
-                InteractionHand.MAIN_HAND,
+                InteractionHand.OFF_HAND,
                 new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
         );
 
@@ -779,12 +779,12 @@ public class AltarBlockEntity extends BlockEntity {
                     level,
                     worldPosition,
                     activatingPlayer,
-                    InteractionHand.MAIN_HAND,
+                    InteractionHand.OFF_HAND,
                     new BlockHitResult(Vec3.atCenterOf(worldPosition), Direction.UP, worldPosition, false)
             );
         }, 100);
     }
-
+    // TODO если каким то образом выпадет снег то мобы не смогу заспавниться, поэтому центральный блок надо возможно проверять на коллизию
     public List<BlockPos> findValidSpawnPositions(Level level, BlockPos center, Player player) {
         List<BlockPos> validPositions = new ArrayList<>();
 
