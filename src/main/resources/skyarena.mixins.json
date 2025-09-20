@@ -16,6 +16,7 @@
     "EntityGulingSentinelHeavyMixin",
     "EyeOfEnderAccessor",
     "KillRewarderMixin",
+    "LevelMixin",
     "MaledictusEntityMixin",
     "MotherSpiderEntityMixin",
     "NetheriteMonstrosityEntityMixin",

@@ -1,6 +1,6 @@
 package net.jrdemiurge.skyarena.mixin;
 
-import net.jrdemiurge.skyarena.block.entity.AltarBlockEntity;
+import net.jrdemiurge.skyarena.util.BossBarHideZones;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +15,7 @@ public class ServerBossEventMixin {
     @Inject(method = "addPlayer", at = @At("HEAD"), cancellable = true)
     private void cancelIfNearAltar(ServerPlayer pPlayer, CallbackInfo ci) {
         BlockPos playerPos = pPlayer.blockPosition();
-        if (AltarBlockEntity.isNearBossBarHideAltar(playerPos)) {
+        if (BossBarHideZones.isInZone(pPlayer.level() ,playerPos)) {
             ci.cancel();
         }
     }

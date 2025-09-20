@@ -354,6 +354,7 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 "Battle Loss Distance: " + altarBlockEntity.getBattleLossDistance(),
                 "Mob Teleport Distance: " + altarBlockEntity.getMobTeleportDistance(),
                 "Mob Griefing Protection Radius: " + altarBlockEntity.getMobGriefingProtectionRadius(),
+                "Full Protection Radius: " + altarBlockEntity.getFullProtectionRadius(),
                 "Boss Bar Hide Radius: " + altarBlockEntity.getBossBarHideRadius(),
                 "Mob Cost Ratio: " + altarBlockEntity.getMobCostRatio(),
                 "Allow Difficulty Reset: " + altarBlockEntity.isAllowDifficultyReset(),

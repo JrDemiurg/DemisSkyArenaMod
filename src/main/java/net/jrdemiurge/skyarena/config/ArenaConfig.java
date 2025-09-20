@@ -9,6 +9,7 @@ public class ArenaConfig {
     public int battleLossDistance;
     public int mobTeleportDistance;
     public int mobGriefingProtectionRadius;
+    public int fullProtectionRadius;
     public int bossBarHideRadius;
     public int mobCostRatio;
 

@@ -4,6 +4,9 @@ import net.jrdemiurge.skyarena.Config;
 import net.jrdemiurge.skyarena.block.custom.AltarBlock;
 import net.jrdemiurge.skyarena.config.*;
 import net.jrdemiurge.skyarena.scheduler.Scheduler;
+import net.jrdemiurge.skyarena.util.BossBarHideZones;
+import net.jrdemiurge.skyarena.util.FullProtectionZones;
+import net.jrdemiurge.skyarena.util.MobGriefingProtectionZones;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -61,6 +65,7 @@ public class AltarBlockEntity extends BlockEntity {
     private int battleLossDistance;
     private int mobTeleportDistance;
     private int mobGriefingProtectionRadius = 0;
+    private int fullProtectionRadius = 0;
     private int bossBarHideRadius = 0;
     private int mobCostRatio;
 
@@ -85,8 +90,8 @@ public class AltarBlockEntity extends BlockEntity {
     private LinkedHashMap<String, MobGroup> mobGroups = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
     //
-    private static final Map<BlockPos, Integer> protectedAltarZones = new HashMap<>();
-    private static final Map<BlockPos, Integer> bossBarHideAltarZones = new HashMap<>();
+    // private static final Map<ResourceKey<Level>, Map<BlockPos, Integer>> protectedAltarZones = new HashMap<>();
+    // private static final Map<BlockPos, Integer> bossBarHideAltarZones = new HashMap<>();
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -114,6 +119,7 @@ public class AltarBlockEntity extends BlockEntity {
             this.battleLossDistance = arenaConfig.battleLossDistance != 0 ? arenaConfig.battleLossDistance : 60;
             this.mobTeleportDistance = arenaConfig.mobTeleportDistance != 0 ? arenaConfig.mobTeleportDistance : 50;
             this.mobGriefingProtectionRadius = arenaConfig.mobGriefingProtectionRadius;
+            this.fullProtectionRadius = arenaConfig.fullProtectionRadius;
             this.bossBarHideRadius = arenaConfig.bossBarHideRadius;
             this.mobCostRatio = arenaConfig.mobCostRatio != 0 ? arenaConfig.mobCostRatio : 20;
 
@@ -134,6 +140,10 @@ public class AltarBlockEntity extends BlockEntity {
             this.statMultiplierCoefficientPerBlocks = arenaConfig.statMultiplierCoefficientPer1000BlocksFromWorldCenter;
             this.lootTableCountCoefficientPerBlocks = arenaConfig.lootTableCountCoefficientPer1000BlocksFromWorldCenter;
 
+            if (fullProtectionRadius != 0 && fullProtectionRadius > mobGriefingProtectionRadius) {
+                mobGriefingProtectionRadius = fullProtectionRadius;
+            }
+
             if (arenaConfig.difficultyLevelRanges != null) {
                 this.difficultyLevelRanges = new ArrayList<>(arenaConfig.difficultyLevelRanges);
             } else {
@@ -152,13 +162,37 @@ public class AltarBlockEntity extends BlockEntity {
                 this.presetWaves = new LinkedHashMap<>();
             }
 
-            if (mobGriefingProtectionRadius != 0) {
-                protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
+            if(level != null) {
+                MobGriefingProtectionZones.remove(level, this.getBlockPos());
+                if (mobGriefingProtectionRadius != 0) {
+                    MobGriefingProtectionZones.add(level, this.getBlockPos(), mobGriefingProtectionRadius);
+                }
+
+                FullProtectionZones.remove(level, this.getBlockPos());
+                if (fullProtectionRadius != 0) {
+                    FullProtectionZones.add(level, this.getBlockPos(), fullProtectionRadius);
+                }
+
+                /*var perDim = protectedAltarZones.get(level.dimension());
+                if (perDim != null) {
+                    perDim.remove(this.getBlockPos());
+                }
+
+                if (mobGriefingProtectionRadius != 0) {
+                    protectedAltarZones
+                            .computeIfAbsent(level.dimension(), k -> new HashMap<>())
+                            .put(this.getBlockPos(), mobGriefingProtectionRadius);
+                }*/
+                BossBarHideZones.remove(level, this.getBlockPos());
+                if (bossBarHideRadius != 0){
+                    BossBarHideZones.add(level, this.getBlockPos(), bossBarHideRadius);
+                }
             }
 
+            /*bossBarHideAltarZones.remove(this.getBlockPos());
             if (bossBarHideRadius != 0){
                 bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
-            }
+            }*/
 
             if (this.level != null) {
                 this.level.blockEntityChanged(this.getBlockPos());
@@ -202,10 +236,6 @@ public class AltarBlockEntity extends BlockEntity {
         return summonedMobs.isEmpty();
     }
 
-    public void toggleBattlePhase() {
-        battlePhaseActive = !battlePhaseActive;
-    }
-
     public boolean isBattlePhaseActive() {
         return battlePhaseActive;
     }
@@ -228,10 +258,20 @@ public class AltarBlockEntity extends BlockEntity {
         super.clearRemoved();
         if (!this.level.isClientSide()) {
             if (mobGriefingProtectionRadius != 0) {
-                protectedAltarZones.put(this.getBlockPos(), mobGriefingProtectionRadius);
+                MobGriefingProtectionZones.add(level, this.getBlockPos(), mobGriefingProtectionRadius);
             }
+
+            if (fullProtectionRadius != 0) {
+                FullProtectionZones.add(level, this.getBlockPos(), fullProtectionRadius);
+            }
+/*            if (mobGriefingProtectionRadius != 0) {
+                protectedAltarZones
+                        .computeIfAbsent(level.dimension(), k -> new HashMap<>())
+                        .put(this.getBlockPos(), mobGriefingProtectionRadius);
+            }*/
             if (bossBarHideRadius != 0) {
-                bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
+                BossBarHideZones.add(level, this.getBlockPos(), bossBarHideRadius);
+                //bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
             }
         }
     }
@@ -241,8 +281,15 @@ public class AltarBlockEntity extends BlockEntity {
         super.setRemoved();
         removeSummonedMobs();
         if (!this.level.isClientSide()) {
-            protectedAltarZones.remove(this.getBlockPos());
-            bossBarHideAltarZones.remove(this.getBlockPos());
+            MobGriefingProtectionZones.remove(level, this.getBlockPos());
+/*            var perDim = protectedAltarZones.get(level.dimension());
+            if (perDim != null) {
+                perDim.remove(this.getBlockPos());
+            }*/
+            FullProtectionZones.remove(level, this.getBlockPos());
+
+            BossBarHideZones.remove(level, this.getBlockPos());
+            // bossBarHideAltarZones.remove(this.getBlockPos());
         }
         stopMusic();
     }
@@ -374,6 +421,7 @@ public class AltarBlockEntity extends BlockEntity {
         pTag.putBoolean("SetRain", this.setRain);
         pTag.putBoolean("EnableMobItemDrop", this.disableMobItemDrop);
         pTag.putInt("MobGriefingProtectionRadius", this.mobGriefingProtectionRadius);
+        pTag.putInt("FullProtectionRadius", this.fullProtectionRadius);
         pTag.putInt("BossBarHideRadius", this.bossBarHideRadius);
         pTag.putBoolean("ResetDifficultyOnDefeat", this.resetDifficultyOnDefeat);
         pTag.putBoolean("AutoWaveRun", this.autoWaveRun);
@@ -485,6 +533,7 @@ public class AltarBlockEntity extends BlockEntity {
         if (pTag.contains("SetRain")) this.setRain = pTag.getBoolean("SetRain");
         if (pTag.contains("EnableMobItemDrop")) this.disableMobItemDrop = pTag.getBoolean("EnableMobItemDrop");
         if (pTag.contains("MobGriefingProtectionRadius")) this.mobGriefingProtectionRadius = pTag.getInt("MobGriefingProtectionRadius");
+        if (pTag.contains("FullProtectionRadius")) this.fullProtectionRadius = pTag.getInt("FullProtectionRadius");
         if (pTag.contains("BossBarHideRadius")) this.bossBarHideRadius = pTag.getInt("BossBarHideRadius");
         if (pTag.contains("ResetDifficultyOnDefeat")) this.resetDifficultyOnDefeat = pTag.getBoolean("ResetDifficultyOnDefeat");
         if (pTag.contains("AutoWaveRun")) this.autoWaveRun = pTag.getBoolean("AutoWaveRun");
@@ -860,19 +909,16 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public static boolean isNearProtectedAltar(BlockPos pos) {
-        for (Map.Entry<BlockPos, Integer> entry : protectedAltarZones.entrySet()) {
-            BlockPos altarPos = entry.getKey();
-            int protectionRadius = entry.getValue();
-
-            if (altarPos.closerThan(pos, protectionRadius)) {
-                return true;
-            }
+/*    public static boolean isNearProtectedAltar(Level level, BlockPos pos) {
+        var perDim = protectedAltarZones.get(level.dimension());
+        if (perDim == null || perDim.isEmpty()) return false;
+        for (var e : perDim.entrySet()) {
+            if (e.getKey().closerThan(pos, e.getValue())) return true;
         }
         return false;
-    }
+    }*/
 
-    public static boolean isNearBossBarHideAltar(BlockPos pos) {
+/*    public static boolean isNearBossBarHideAltar(BlockPos pos) {
         for (Map.Entry<BlockPos, Integer> entry : bossBarHideAltarZones.entrySet()) {
             BlockPos altarPos = entry.getKey();
             int protectionRadius = entry.getValue();
@@ -882,7 +928,7 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
         return false;
-    }
+    }*/
 
     public int getStartingPoints() {
         return startingPoints;
@@ -903,40 +949,25 @@ public class AltarBlockEntity extends BlockEntity {
         return resetDifficultyOnDefeat;
     }
 
-    public void setResetDifficultyOnDefeat(boolean resetDifficultyOnDefeat) {
-        this.resetDifficultyOnDefeat = resetDifficultyOnDefeat;
-    }
-
     public boolean isAutoWaveRun() {
         return autoWaveRun;
-    }
-
-    public void setAutoWaveRun(boolean autoWaveRun) {
-        this.autoWaveRun = autoWaveRun;
     }
 
     public double getPointsCoefficientPerBlocks() {
         return pointsCoefficientPerBlocks;
     }
 
-    public void setPointsCoefficientPerBlocks(double pointsCoefficientPerBlocks) {
-        this.pointsCoefficientPerBlocks = pointsCoefficientPerBlocks;
-    }
 
     public double getStatMultiplierCoefficientPerBlocks() {
         return statMultiplierCoefficientPerBlocks;
-    }
-
-    public void setStatMultiplierCoefficientPerBlocks(double statMultiplierCoefficientPerBlocks) {
-        this.statMultiplierCoefficientPerBlocks = statMultiplierCoefficientPerBlocks;
     }
 
     public double getLootTableCountCoefficientPerBlocks() {
         return lootTableCountCoefficientPerBlocks;
     }
 
-    public void setLootTableCountCoefficientPerBlocks(double lootTableCountCoefficientPerBlocks) {
-        this.lootTableCountCoefficientPerBlocks = lootTableCountCoefficientPerBlocks;
+    public int getFullProtectionRadius() {
+        return fullProtectionRadius;
     }
 
     public record LootReward(String rewardLootTable, int rewardCount) {}

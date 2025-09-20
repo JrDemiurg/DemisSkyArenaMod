@@ -1,7 +1,7 @@
 package net.jrdemiurge.skyarena.event;
 
 import net.jrdemiurge.skyarena.SkyArena;
-import net.jrdemiurge.skyarena.block.entity.AltarBlockEntity;
+import net.jrdemiurge.skyarena.util.MobGriefingProtectionZones;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -24,7 +24,7 @@ public class MobGriefingHandler {
         Vec3 explosionPos = event.getExplosion().getPosition();
         BlockPos center = BlockPos.containing(explosionPos);
 
-        if (AltarBlockEntity.isNearProtectedAltar(center)) {
+        if (MobGriefingProtectionZones.isInZone(level, center)) {
             event.getAffectedBlocks().clear();
         }
     }
@@ -34,7 +34,7 @@ public class MobGriefingHandler {
         Entity entity = event.getEntity();
         Level level = entity.level();
 
-        if (!level.isClientSide && AltarBlockEntity.isNearProtectedAltar(entity.blockPosition())) {
+        if (!level.isClientSide && MobGriefingProtectionZones.isInZone(level, entity.blockPosition())) {
             event.setResult(Event.Result.DENY);
         }
     }
@@ -44,7 +44,7 @@ public class MobGriefingHandler {
         Entity entity = event.getEntity();
         Level level = entity.level();
 
-        if (!level.isClientSide && AltarBlockEntity.isNearProtectedAltar(event.getPos())) {
+        if (!level.isClientSide && MobGriefingProtectionZones.isInZone(level, event.getPos())) {
             event.setCanceled(true);
         }
     }
