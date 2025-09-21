@@ -15,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -89,9 +88,7 @@ public class AltarBlockEntity extends BlockEntity {
     private List<DifficultyLevelRange> difficultyLevelRanges = new ArrayList<>();
     private LinkedHashMap<String, MobGroup> mobGroups = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PresetWave> presetWaves = new LinkedHashMap<>();
-    //
-    // private static final Map<ResourceKey<Level>, Map<BlockPos, Integer>> protectedAltarZones = new HashMap<>();
-    // private static final Map<BlockPos, Integer> bossBarHideAltarZones = new HashMap<>();
+
     private final Map<String, Integer> playerDifficulty = new HashMap<>();
 
     public AltarBlockEntity(BlockPos pPos, BlockState pBlockState) {
@@ -99,7 +96,6 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void loadArenaConfig(String arenaType) {
-
         if (level != null && level.isClientSide) {
             return;
         }
@@ -173,26 +169,11 @@ public class AltarBlockEntity extends BlockEntity {
                     FullProtectionZones.add(level, this.getBlockPos(), fullProtectionRadius);
                 }
 
-                /*var perDim = protectedAltarZones.get(level.dimension());
-                if (perDim != null) {
-                    perDim.remove(this.getBlockPos());
-                }
-
-                if (mobGriefingProtectionRadius != 0) {
-                    protectedAltarZones
-                            .computeIfAbsent(level.dimension(), k -> new HashMap<>())
-                            .put(this.getBlockPos(), mobGriefingProtectionRadius);
-                }*/
                 BossBarHideZones.remove(level, this.getBlockPos());
                 if (bossBarHideRadius != 0){
                     BossBarHideZones.add(level, this.getBlockPos(), bossBarHideRadius);
                 }
             }
-
-            /*bossBarHideAltarZones.remove(this.getBlockPos());
-            if (bossBarHideRadius != 0){
-                bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
-            }*/
 
             if (this.level != null) {
                 this.level.blockEntityChanged(this.getBlockPos());
@@ -201,7 +182,6 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void switchToNextArena() {
-
         if (SkyArenaConfig.configData == null) {
             return;
         }
@@ -241,16 +221,16 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public void recordAltarActivation(Player player, BlockPos pos) {
-        activeAltarBlocks.put(player, pos); // Сохраняем активированный блок для игрока
+        activeAltarBlocks.put(player, pos);
         activatingPlayer = player;
     }
 
     public static BlockPos getAltarPosForPlayer(Player player) {
-        return activeAltarBlocks.get(player); // Получаем позицию блока для игрока
+        return activeAltarBlocks.get(player);
     }
 
     public void removeAltarActivationForPlayer() {
-        activeAltarBlocks.remove(activatingPlayer); // Удаляем игрока из активных блоков
+        activeAltarBlocks.remove(activatingPlayer);
     }
 
     @Override
@@ -264,14 +244,9 @@ public class AltarBlockEntity extends BlockEntity {
             if (fullProtectionRadius != 0) {
                 FullProtectionZones.add(level, this.getBlockPos(), fullProtectionRadius);
             }
-/*            if (mobGriefingProtectionRadius != 0) {
-                protectedAltarZones
-                        .computeIfAbsent(level.dimension(), k -> new HashMap<>())
-                        .put(this.getBlockPos(), mobGriefingProtectionRadius);
-            }*/
+
             if (bossBarHideRadius != 0) {
                 BossBarHideZones.add(level, this.getBlockPos(), bossBarHideRadius);
-                //bossBarHideAltarZones.put(this.getBlockPos(), bossBarHideRadius);
             }
         }
     }
@@ -282,14 +257,10 @@ public class AltarBlockEntity extends BlockEntity {
         removeSummonedMobs();
         if (!this.level.isClientSide()) {
             MobGriefingProtectionZones.remove(level, this.getBlockPos());
-/*            var perDim = protectedAltarZones.get(level.dimension());
-            if (perDim != null) {
-                perDim.remove(this.getBlockPos());
-            }*/
+
             FullProtectionZones.remove(level, this.getBlockPos());
 
             BossBarHideZones.remove(level, this.getBlockPos());
-            // bossBarHideAltarZones.remove(this.getBlockPos());
         }
         stopMusic();
     }
@@ -359,7 +330,7 @@ public class AltarBlockEntity extends BlockEntity {
 
     public int getDifficultyLevel(Player player) {
         if (individualPlayerStats) {
-            String key = player.getGameProfile().getName() + "_" + this.arenaType; // Уникальный ключ
+            String key = player.getGameProfile().getName() + "_" + this.arenaType;
             return playerDifficulty.getOrDefault(key, 1);
         }
         return difficultyLevel;
@@ -650,7 +621,7 @@ public class AltarBlockEntity extends BlockEntity {
             RecordItem record = (RecordItem) recordItem.getItem();
             this.musicEndTick = this.musicTickCount + record.getLengthInTicks() + 20L;
             this.isPlayingMusic = true;
-            this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(recordItem.getItem())); // Используем предмет пластинки
+            this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(recordItem.getItem()));
             this.setChanged();
         }
     }
@@ -658,7 +629,7 @@ public class AltarBlockEntity extends BlockEntity {
     public void stopMusic() {
         if (this.level != null && isPlayingMusic) {
             this.isPlayingMusic = false;
-            this.level.levelEvent(1011, this.getBlockPos(), 0); // Останавливаем музыку
+            this.level.levelEvent(1011, this.getBlockPos(), 0);
             this.setChanged();
         }
     }
@@ -842,7 +813,7 @@ public class AltarBlockEntity extends BlockEntity {
                 for (int z = -mobSpawnRadius; z <= mobSpawnRadius; z++) {
                     BlockPos currentPos = center.offset(x, 0, z);
 
-                    if (x * x + z * z <= mobSpawnRadius * mobSpawnRadius && //делаем область кругом, чтобы обрезать углы за ареной
+                    if (x * x + z * z <= mobSpawnRadius * mobSpawnRadius &&
                             level.isEmptyBlock(currentPos) &&
                             level.isEmptyBlock(currentPos.above()) &&
                             level.isEmptyBlock(currentPos.above(2)) &&
@@ -860,7 +831,7 @@ public class AltarBlockEntity extends BlockEntity {
                 for (int z = -mobSpawnRadius; z <= mobSpawnRadius; z++) {
                     BlockPos currentPos = center.offset(x, 0, z);
 
-                    if (x * x + z * z <= mobSpawnRadius * mobSpawnRadius && //делаем область кругом, чтобы обрезать углы за ареной
+                    if (x * x + z * z <= mobSpawnRadius * mobSpawnRadius &&
                             level.getBlockState(currentPos).getCollisionShape(level, currentPos).isEmpty() &&
                             level.getBlockState(currentPos.above()).getCollisionShape(level, currentPos.above()).isEmpty() &&
                             level.getBlockState(currentPos.above(2)).getCollisionShape(level, currentPos.above(2)).isEmpty() &&
@@ -885,8 +856,8 @@ public class AltarBlockEntity extends BlockEntity {
         glowingCounter++;
 
         if (glowingCounter > 4) {
-            int duration = 12000; // Длительность эффекта в тиках (10 минут)
-            int amplifier = 0; // Усиление эффекта (0 — базовый уровень)
+            int duration = 12000;
+            int amplifier = 0;
             glowingCounter = 0;
 
             int affectedMobs = 0;
@@ -908,27 +879,6 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
     }
-
-/*    public static boolean isNearProtectedAltar(Level level, BlockPos pos) {
-        var perDim = protectedAltarZones.get(level.dimension());
-        if (perDim == null || perDim.isEmpty()) return false;
-        for (var e : perDim.entrySet()) {
-            if (e.getKey().closerThan(pos, e.getValue())) return true;
-        }
-        return false;
-    }*/
-
-/*    public static boolean isNearBossBarHideAltar(BlockPos pos) {
-        for (Map.Entry<BlockPos, Integer> entry : bossBarHideAltarZones.entrySet()) {
-            BlockPos altarPos = entry.getKey();
-            int protectionRadius = entry.getValue();
-
-            if (altarPos.closerThan(pos, protectionRadius)) {
-                return true;
-            }
-        }
-        return false;
-    }*/
 
     public int getStartingPoints() {
         return startingPoints;
