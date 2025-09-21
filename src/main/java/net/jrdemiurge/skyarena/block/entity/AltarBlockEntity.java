@@ -43,8 +43,8 @@ public class AltarBlockEntity extends BlockEntity {
     private Player activatingPlayer;
     public final List<Entity> summonedMobs = new ArrayList<>();
     private boolean battlePhaseActive = false;
-    private boolean PlayerDeath = false;
-    private int DeathDelay = 0;
+    private boolean playerDeath = false;
+    private int deathDelay = 0;
     private long battleEndTime = 0;
     private int glowingCounter = 0;
     private boolean firstMessageSent = false;
@@ -203,36 +203,6 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public String getArenaType() {
-        return arenaType;
-    }
-
-    public void addSummonedMob(Entity mob) {
-        summonedMobs.add(mob);
-    }
-
-    public boolean canSummonMobs() {
-        summonedMobs.removeIf(Entity::isRemoved);
-        return summonedMobs.isEmpty();
-    }
-
-    public boolean isBattlePhaseActive() {
-        return battlePhaseActive;
-    }
-
-    public void recordAltarActivation(Player player, BlockPos pos) {
-        activeAltarBlocks.put(player, pos);
-        activatingPlayer = player;
-    }
-
-    public static BlockPos getAltarPosForPlayer(Player player) {
-        return activeAltarBlocks.get(player);
-    }
-
-    public void removeAltarActivationForPlayer() {
-        activeAltarBlocks.remove(activatingPlayer);
-    }
-
     @Override
     public void clearRemoved() {
         super.clearRemoved();
@@ -263,113 +233,6 @@ public class AltarBlockEntity extends BlockEntity {
             BossBarHideZones.remove(level, this.getBlockPos());
         }
         stopMusic();
-    }
-
-    public void removeSummonedMobs() {
-        for (Entity mob : summonedMobs) {
-            if (mob != null && mob.isAlive()) {
-                mob.remove(Entity.RemovalReason.DISCARDED);
-            }
-        }
-        summonedMobs.clear();
-    }
-
-    public void setRecordItem(ItemStack stack) {
-        if (stack.getItem() instanceof RecordItem) {
-            this.recordItem = stack.copy();
-
-            if (this.level != null) {
-                this.level.blockEntityChanged(this.getBlockPos());
-            }
-        }
-    }
-
-    public void clearRecordItem() {
-        this.recordItem = ItemStack.EMPTY;
-
-        if (this.level != null) {
-            this.level.blockEntityChanged(this.getBlockPos());
-        }
-    }
-
-    public int getPoints(Player player) {
-        int difficulty = getDifficultyLevel(player);
-        int completedLevels = difficulty - 1;
-        int totalPoints = startingPoints;
-
-        for (DifficultyLevelRange range : difficultyLevelRanges) {
-            int start = range.range.get(0);
-            int end = range.range.get(1);
-
-            if (completedLevels >= start) {
-                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
-                totalPoints += levelsPassedInRange * range.pointsIncrease;
-            }
-        }
-
-        return totalPoints;
-    }
-
-    public double getStatMultiplier(Player player) {
-        int difficulty = getDifficultyLevel(player);
-        int completedLevels = difficulty - 1;
-        double totalStatMultiplier = startingStatMultiplier;
-
-        for (DifficultyLevelRange range : difficultyLevelRanges) {
-            int start = range.range.get(0);
-            int end = range.range.get(1);
-
-            if (completedLevels >= start) {
-                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
-                totalStatMultiplier += levelsPassedInRange * range.statMultiplierIncrease;
-            }
-        }
-
-        return totalStatMultiplier;
-    }
-
-    public int getDifficultyLevel(Player player) {
-        if (individualPlayerStats) {
-            String key = player.getGameProfile().getName() + "_" + this.arenaType;
-            return playerDifficulty.getOrDefault(key, 1);
-        }
-        return difficultyLevel;
-    }
-
-    public void increaseDifficultyLevel(Player player) {
-        if (individualPlayerStats) {
-            String key = player.getGameProfile().getName() + "_" + this.arenaType;
-            playerDifficulty.put(key, getDifficultyLevel(player) + 1);
-        } else {
-            this.difficultyLevel++;
-        }
-
-        if (this.level != null) {
-            this.level.blockEntityChanged(this.getBlockPos());
-        }
-    }
-
-    public void setDifficultyLevel(Player player, int level) {
-        if (player == null) return;
-        if (individualPlayerStats) {
-            String key = player.getGameProfile().getName() + "_" + this.arenaType;
-            playerDifficulty.put(key, level);
-        } else {
-            this.difficultyLevel = level;
-        }
-
-        if (this.level != null) {
-            this.level.blockEntityChanged(this.getBlockPos());
-        }
-    }
-
-
-    public int getBattleDifficultyLevel() {
-        return battleDifficultyLevel;
-    }
-
-    public void setBattleDifficultyLevel(int battleDifficultyLevel) {
-        this.battleDifficultyLevel = battleDifficultyLevel;
     }
 
     @Override
@@ -611,29 +474,6 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public void setPlayerDeath(boolean death) {
-        PlayerDeath = death;
-    }
-
-    public void startMusic() {
-        if (this.level != null && !recordItem.isEmpty() && !isPlayingMusic) {
-            this.musicTickCount = this.level.getGameTime();
-            RecordItem record = (RecordItem) recordItem.getItem();
-            this.musicEndTick = this.musicTickCount + record.getLengthInTicks() + 20L;
-            this.isPlayingMusic = true;
-            this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(recordItem.getItem()));
-            this.setChanged();
-        }
-    }
-
-    public void stopMusic() {
-        if (this.level != null && isPlayingMusic) {
-            this.isPlayingMusic = false;
-            this.level.levelEvent(1011, this.getBlockPos(), 0);
-            this.setChanged();
-        }
-    }
-
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
         if (battlePhaseActive) {
             handleMusic();
@@ -678,6 +518,25 @@ public class AltarBlockEntity extends BlockEntity {
         musicTickCount++;
     }
 
+    public void startMusic() {
+        if (this.level != null && !recordItem.isEmpty() && !isPlayingMusic) {
+            this.musicTickCount = this.level.getGameTime();
+            RecordItem record = (RecordItem) recordItem.getItem();
+            this.musicEndTick = this.musicTickCount + record.getLengthInTicks() + 20L;
+            this.isPlayingMusic = true;
+            this.level.levelEvent(null, 1010, this.getBlockPos(), Item.getId(recordItem.getItem()));
+            this.setChanged();
+        }
+    }
+
+    public void stopMusic() {
+        if (this.level != null && isPlayingMusic) {
+            this.isPlayingMusic = false;
+            this.level.levelEvent(1011, this.getBlockPos(), 0);
+            this.setChanged();
+        }
+    }
+
     private void checkPlayerLeftArena() {
         if (activatingPlayer == null) return;
         double distance = activatingPlayer.distanceToSqr(worldPosition.getCenter());
@@ -694,13 +553,13 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     private void handlePlayerDeath() {
-        if (!PlayerDeath) return;
-        DeathDelay++;
+        if (!playerDeath) return;
+        deathDelay++;
 
-        if (activatingPlayer != null && DeathDelay > 10) {
+        if (activatingPlayer != null && deathDelay > 10) {
             if (activatingPlayer.getHealth() > 0) {
-                PlayerDeath = false;
-                DeathDelay = 0;
+                playerDeath = false;
+                deathDelay = 0;
                 return;
             }
 
@@ -713,22 +572,22 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public void onDefeat() {
-        removeSummonedMobs();
-        setBattlePhaseActive(false);
-        this.stopMusic();
-        if (resetDifficultyOnDefeat) setDifficultyLevel(activatingPlayer, 1);
-        removeAltarActivationForPlayer(/*player*/);
-        PlayerDeath = false;
-        DeathDelay = 0;
-    }
-
     private void sendTitle(ServerPlayer player, String titleKey, ChatFormatting titleColor, String subtitleKey, ChatFormatting subtitleColor) {
         Component title = Component.translatable(titleKey).withStyle(titleColor);
         Component subtitle = Component.translatable(subtitleKey).withStyle(subtitleColor);
         player.connection.send(new ClientboundSetTitleTextPacket(title));
         player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
         player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 10));
+    }
+
+    public void onDefeat() {
+        removeSummonedMobs();
+        setBattlePhaseActive(false);
+        this.stopMusic();
+        if (resetDifficultyOnDefeat) setDifficultyLevel(activatingPlayer, 1);
+        removeAltarActivationForPlayer(/*player*/);
+        playerDeath = false;
+        deathDelay = 0;
     }
 
     private void updateSummonedMobs() {
@@ -848,10 +707,6 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public void setGlowingCounter(int glowingCounter) {
-        this.glowingCounter = glowingCounter;
-    }
-
     public void applyGlowEffectToSummonedMobs(Player pPlayer) {
         glowingCounter++;
 
@@ -880,10 +735,6 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    public int getStartingPoints() {
-        return startingPoints;
-    }
-
     public boolean isBattleOngoing(int difficultyLevel) {
         for (DifficultyLevelRange range : difficultyLevelRanges) {
             int start = range.range.get(0);
@@ -893,31 +744,6 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
         return presetWaves.containsKey(difficultyLevel);
-    }
-
-    public boolean isResetDifficultyOnDefeat() {
-        return resetDifficultyOnDefeat;
-    }
-
-    public boolean isAutoWaveRun() {
-        return autoWaveRun;
-    }
-
-    public double getPointsCoefficientPerBlocks() {
-        return pointsCoefficientPerBlocks;
-    }
-
-
-    public double getStatMultiplierCoefficientPerBlocks() {
-        return statMultiplierCoefficientPerBlocks;
-    }
-
-    public double getLootTableCountCoefficientPerBlocks() {
-        return lootTableCountCoefficientPerBlocks;
-    }
-
-    public int getFullProtectionRadius() {
-        return fullProtectionRadius;
     }
 
     public record LootReward(String rewardLootTable, int rewardCount) {}
@@ -968,6 +794,182 @@ public class AltarBlockEntity extends BlockEntity {
         }
 
         return result;
+    }
+
+    public void removeSummonedMobs() {
+        for (Entity mob : summonedMobs) {
+            if (mob != null && mob.isAlive()) {
+                mob.remove(Entity.RemovalReason.DISCARDED);
+            }
+        }
+        summonedMobs.clear();
+    }
+
+    public int getPoints(Player player) {
+        int difficulty = getDifficultyLevel(player);
+        int completedLevels = difficulty - 1;
+        int totalPoints = startingPoints;
+
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+
+            if (completedLevels >= start) {
+                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
+                totalPoints += levelsPassedInRange * range.pointsIncrease;
+            }
+        }
+
+        return totalPoints;
+    }
+
+    public double getStatMultiplier(Player player) {
+        int difficulty = getDifficultyLevel(player);
+        int completedLevels = difficulty - 1;
+        double totalStatMultiplier = startingStatMultiplier;
+
+        for (DifficultyLevelRange range : difficultyLevelRanges) {
+            int start = range.range.get(0);
+            int end = range.range.get(1);
+
+            if (completedLevels >= start) {
+                int levelsPassedInRange = Math.min(completedLevels, end) - start + 1;
+                totalStatMultiplier += levelsPassedInRange * range.statMultiplierIncrease;
+            }
+        }
+
+        return totalStatMultiplier;
+    }
+
+    public int getDifficultyLevel(Player player) {
+        if (individualPlayerStats) {
+            String key = player.getGameProfile().getName() + "_" + this.arenaType;
+            return playerDifficulty.getOrDefault(key, 1);
+        }
+        return difficultyLevel;
+    }
+
+    public void increaseDifficultyLevel(Player player) {
+        if (individualPlayerStats) {
+            String key = player.getGameProfile().getName() + "_" + this.arenaType;
+            playerDifficulty.put(key, getDifficultyLevel(player) + 1);
+        } else {
+            this.difficultyLevel++;
+        }
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void setDifficultyLevel(Player player, int level) {
+        if (player == null) return;
+        if (individualPlayerStats) {
+            String key = player.getGameProfile().getName() + "_" + this.arenaType;
+            playerDifficulty.put(key, level);
+        } else {
+            this.difficultyLevel = level;
+        }
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void setRecordItem(ItemStack stack) {
+        if (stack.getItem() instanceof RecordItem) {
+            this.recordItem = stack.copy();
+
+            if (this.level != null) {
+                this.level.blockEntityChanged(this.getBlockPos());
+            }
+        }
+    }
+
+    public void clearRecordItem() {
+        this.recordItem = ItemStack.EMPTY;
+
+        if (this.level != null) {
+            this.level.blockEntityChanged(this.getBlockPos());
+        }
+    }
+
+    public void addSummonedMob(Entity mob) {
+        summonedMobs.add(mob);
+    }
+
+    public boolean canSummonMobs() {
+        summonedMobs.removeIf(Entity::isRemoved);
+        return summonedMobs.isEmpty();
+    }
+
+    public void recordAltarActivation(Player player, BlockPos pos) {
+        activeAltarBlocks.put(player, pos);
+        activatingPlayer = player;
+    }
+
+    public static BlockPos getAltarPosForPlayer(Player player) {
+        return activeAltarBlocks.get(player);
+    }
+
+    public void removeAltarActivationForPlayer() {
+        activeAltarBlocks.remove(activatingPlayer);
+    }
+
+    public void putPlayerMessageTimestamps(Player player){
+        playerMessageTimestamps.put(player, level.getGameTime());
+    }
+
+    public boolean isResetDifficultyOnDefeat() {
+        return resetDifficultyOnDefeat;
+    }
+
+    public boolean isAutoWaveRun() {
+        return autoWaveRun;
+    }
+
+    public double getPointsCoefficientPerBlocks() {
+        return pointsCoefficientPerBlocks;
+    }
+
+    public double getStatMultiplierCoefficientPerBlocks() {
+        return statMultiplierCoefficientPerBlocks;
+    }
+
+    public double getLootTableCountCoefficientPerBlocks() {
+        return lootTableCountCoefficientPerBlocks;
+    }
+
+    public int getFullProtectionRadius() {
+        return fullProtectionRadius;
+    }
+
+    public int getStartingPoints() {
+        return startingPoints;
+    }
+
+    public void setGlowingCounter(int glowingCounter) {
+        this.glowingCounter = glowingCounter;
+    }
+
+    public void setPlayerDeath(boolean death) {
+        playerDeath = death;
+    }
+
+    public int getBattleDifficultyLevel() {
+        return battleDifficultyLevel;
+    }
+
+    public void setBattleDifficultyLevel(int battleDifficultyLevel) {
+        this.battleDifficultyLevel = battleDifficultyLevel;
+    }
+
+    public String getArenaType() {
+        return arenaType;
+    }
+
+    public boolean isBattlePhaseActive() {
+        return battlePhaseActive;
     }
 
     public int getSpawnDistanceFromPlayer() {
@@ -1024,10 +1026,6 @@ public class AltarBlockEntity extends BlockEntity {
 
     public Map<Integer, PresetWave> getPresetWaves() {
         return this.presetWaves;
-    }
-
-    public void putPlayerMessageTimestamps(Player player){
-        playerMessageTimestamps.put(player, level.getGameTime());
     }
 
     public long getBattleEndTime() {
