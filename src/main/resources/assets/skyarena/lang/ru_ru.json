@@ -40,6 +40,11 @@
   "message.skyarena.cannot_do_during_battle": "Вы не можете сделать это во время боя",
   "message.skyarena.unclaimed_reward": "§4Если вы не можете получить награду, значит, вы не победили всех мобов. Оставшиеся мобы получили эффект Свечения. Если вы не можете их найти, покиньте арену, чтобы начать битву заново.",
 
+  "message.skyarena.discord.line1": "§5Поздравляю, §6герой!",
+  "message.skyarena.discord.line2": "§5Ты прошёл §650 волн §5и доказал, что достоин §6быть среди лучших.",
+  "message.skyarena.discord.line3": "§5Присоединяйся к нашему §6официальному %1$s §5серверу и §6стань частью §5§6Sky Arena!",
+  "message.skyarena.discord.hover": "§6Открыть официальный Discord сервер",
+
   "advancement.skyarena.root.description": "Бесконечное число битв ждёт тебя",
   "advancement.skyarena.common_arena.title": "К вершинам славы",
   "advancement.skyarena.common_arena.description": "Найди Небесную Арену",

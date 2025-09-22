@@ -7,11 +7,11 @@ import net.jrdemiurge.skyarena.block.entity.ModBlockEntity;
 import net.jrdemiurge.skyarena.config.*;
 import net.jrdemiurge.skyarena.item.ModItems;
 import net.jrdemiurge.skyarena.triggers.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -585,6 +585,9 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         int difficultyLevel = altarBlockEntity.getBattleDifficultyLevel(); // Получаем текущий уровень сложности
+
+        if (difficultyLevel == 50) sendDiscordInvite(pPlayer);
+
         int keyCount = 1;
         String rewardLootTableId = "minecraft:empty";
 
@@ -663,8 +666,23 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         altarBlockEntity.setBattleEndTime(pLevel.getGameTime());
     }
 
+    public void sendDiscordInvite(Player player) {
+        Style discordStyle = Style.EMPTY
+                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/ZMKnAB92GZ"))
+                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        Component.translatable("message.skyarena.discord.hover")))
+                .withColor(ChatFormatting.BLUE)
+                .withUnderlined(true);
+
+        Component discord = Component.literal("Discord").withStyle(discordStyle);
+
+        player.sendSystemMessage(Component.translatable("message.skyarena.discord.line1"));
+        player.sendSystemMessage(Component.translatable("message.skyarena.discord.line2"));
+        player.sendSystemMessage(Component.translatable("message.skyarena.discord.line3", discord));
+    }
+
     private void handleVictoryTriggers(AltarBlockEntity altarBlockEntity, Player pPlayer) {
-        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer); // Получаем текущий уровень сложности
+        int difficultyLevel = altarBlockEntity.getDifficultyLevel(pPlayer);
 
         if (pPlayer instanceof ServerPlayer serverPlayer) {
             DifficultyLevel1.INSTANCE.trigger(serverPlayer);

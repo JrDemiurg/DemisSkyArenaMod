@@ -40,6 +40,11 @@
   "message.skyarena.cannot_do_during_battle": "戦闘中はこれを行うことはできません",
   "message.skyarena.unclaimed_reward": "§4報酬を受け取れない場合、全てのMobを倒していない可能性があります。生存しているMobには発光のエフェクトがかかっているるのでそれらを倒してください。",
 
+  "message.skyarena.discord.line1": "§5おめでとう、§6勇者よ！",
+  "message.skyarena.discord.line2": "§550ウェーブを生き残り、§6最強の一人であることを証明した。",
+  "message.skyarena.discord.line3": "§5公式の %1$s §5サーバーに参加して、§6Sky Arena §5の仲間になろう！",
+  "message.skyarena.discord.hover": "§6公式Discordサーバーを開く",
+
   "advancement.skyarena.root.description": "終わりのない戦い",
   "advancement.skyarena.common_arena.title": "栄光の頂へ",
   "advancement.skyarena.common_arena.description": "スカイアリーナを見つける",

@@ -40,6 +40,11 @@
   "message.skyarena.cannot_do_during_battle": "You cannot do this during battle",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
 
+  "message.skyarena.discord.line1": "§5Congratulations, §6hero!",
+  "message.skyarena.discord.line2": "§5You survived §650 waves §5and proved yourself §6among the best.",
+  "message.skyarena.discord.line3": "§5Join our §6official %1$s §5server and §6become part §5of §6Sky Arena!",
+  "message.skyarena.discord.hover": "§6Open official Discord server",
+
   "advancement.skyarena.root.description": "Endless battles await you",
   "advancement.skyarena.common_arena.title": "To the Heights of Glory",
   "advancement.skyarena.common_arena.description": "Find a Sky Arena",

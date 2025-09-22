@@ -40,6 +40,11 @@
   "message.skyarena.cannot_do_during_battle": "No puedes hacer esto durante la batalla",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
 
+  "message.skyarena.discord.line1": "§5¡Felicidades, §6héroe!",
+  "message.skyarena.discord.line2": "§5Has sobrevivido a §650 oleadas §5y demostrado que eres §6de los mejores.",
+  "message.skyarena.discord.line3": "§5Únete a nuestro §6servidor oficial de %1$s §5y §6sé parte §5de §6Sky Arena!",
+  "message.skyarena.discord.hover": "§6Abrir servidor oficial de Discord",
+
   "advancement.skyarena.root.description": "Batallas interminables te esperan",
   "advancement.skyarena.common_arena.title": "A las Alturas de la Gloria",
   "advancement.skyarena.common_arena.description": "Encuentra una Arena Celestial",
