@@ -1,5 +1,6 @@
 package net.jrdemiurge.skyarena.item.custom;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -14,7 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +44,12 @@ public class MobAnalyzerItem extends Item {
             addAttributeIfPresent(attributes, pInteractionTarget, Attributes.FLYING_SPEED);
 
             attributes.forEach((attr, value) -> {
-                String formattedValue = String.format("%.2f", value); // Округление до тысячных
-                serverPlayer.sendSystemMessage(Component.literal("§6" + attr.getDescriptionId() + ": §a" + formattedValue));
+                String formattedValue = String.format("%.2f", value);
+                serverPlayer.sendSystemMessage(
+                        Component.translatable(attr.getDescriptionId())
+                                .withStyle(ChatFormatting.GOLD)
+                                .append(Component.literal(": §a" + formattedValue))
+                );
             });
 
             return InteractionResult.SUCCESS;

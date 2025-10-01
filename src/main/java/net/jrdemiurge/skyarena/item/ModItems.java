@@ -1,10 +1,10 @@
 package net.jrdemiurge.skyarena.item;
 
 import net.jrdemiurge.skyarena.SkyArena;
-import net.jrdemiurge.skyarena.item.custom.IceEyeItem;
+import net.jrdemiurge.skyarena.item.custom.DungeonEyeItem;
 import net.jrdemiurge.skyarena.item.custom.MobAnalyzerItem;
-import net.jrdemiurge.skyarena.item.custom.SkyEyeItem;
 import net.jrdemiurge.skyarena.item.custom.RewardKeyItem;
+import net.jrdemiurge.skyarena.util.ModTags;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -31,10 +31,10 @@ public class ModItems {
             () -> new RewardKeyItem(new Item.Properties()));
 
     public static final RegistryObject<Item> CRIMSON_EYE = ITEMS.register("crimson_eye",
-            () -> new SkyEyeItem(new Item.Properties()));
+            () -> new DungeonEyeItem(new Item.Properties(), ModTags.EYE_OF_SKY_LOCATED));
 
     public static final RegistryObject<Item> ICE_EYE = ITEMS.register("ice_eye",
-            () -> new IceEyeItem(new Item.Properties()));
+            () -> new DungeonEyeItem(new Item.Properties(), ModTags.EYE_OF_ICE_LOCATED));
 
     public static final RegistryObject<Item> MOB_ANALYZER = ITEMS.register("mob_analyzer",
             () -> new MobAnalyzerItem(new Item.Properties().stacksTo(1)));

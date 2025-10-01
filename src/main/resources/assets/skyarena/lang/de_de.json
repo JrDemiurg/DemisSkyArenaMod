@@ -39,6 +39,7 @@
   "message.skyarena.no_spawn_position": "Kein geeigneter Ort für das Spawnen von Mobs",
   "message.skyarena.cannot_do_during_battle": "Du kannst das während des Kampfes nicht tun",
   "message.skyarena.unclaimed_reward": "§4Wenn du die Belohnung nicht erhalten kannst, bedeutet das, dass du nicht alle Monster besiegt hast. Die verbleibenden Monster haben den Leuchteffekt erhalten. Wenn du sie nicht finden kannst, verlasse die Arena, um den Kampf neu zu starten.",
+  "message.skyarena.available_mobs_is_empty": "Die Liste der verfügbaren Mobs ist leer",
 
   "message.skyarena.discord.line1": "§5Glückwunsch, §6Held!",
   "message.skyarena.discord.line2": "§5Du hast §650 Wellen §5überlebt und bewiesen, dass du §6zu den Besten §5gehörst.",

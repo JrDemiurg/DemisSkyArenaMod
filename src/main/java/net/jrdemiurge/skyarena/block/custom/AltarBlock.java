@@ -217,7 +217,12 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
                 List<ExpandedMobInfo> availableMobs = altarBlockEntity.getAvailableMobs(altarBlockEntity.getBattleDifficultyLevel());
 
-                if (availableMobs.isEmpty()) return InteractionResult.SUCCESS;
+                if (availableMobs.isEmpty()) {
+                    Component message_2 = Component.translatable("message.skyarena.available_mobs_is_empty");
+                    pPlayer.displayClientMessage(message_2, true);
+                    altarBlockEntity.putPlayerMessageTimestamps(pPlayer);
+                    return InteractionResult.SUCCESS;
+                }
 
                 int minMobValue = availableMobs.stream()
                         .mapToInt(mob -> mob.cost)
@@ -302,10 +307,17 @@ public class AltarBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 attackAttribute.setBaseValue(baseDamage * statMultiplier);
             }
 
+            MobSpawnType spawnType = MobSpawnType.NATURAL;
+
+            if (mobTypeString.equals("cataclysm:scylla")
+                    || mobTypeString.equals("cataclysm:netherite_monstrosity")) {
+                spawnType = MobSpawnType.COMMAND;
+            }
+
             mobEntity.finalizeSpawn(
                     (ServerLevel) pLevel,
                     pLevel.getCurrentDifficultyAt(mobEntity.blockPosition()),
-                    MobSpawnType.NATURAL,
+                    spawnType,
                     null,
                     null
             );

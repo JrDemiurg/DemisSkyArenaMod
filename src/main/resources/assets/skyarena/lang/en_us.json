@@ -39,6 +39,7 @@
   "message.skyarena.no_spawn_position": "No suitable place for mob spawning",
   "message.skyarena.cannot_do_during_battle": "You cannot do this during battle",
   "message.skyarena.unclaimed_reward": "§4If you can't claim the reward, it means you haven't defeated all the mobs. The remaining mobs have been given the Glowing effect. If you cannot find them, leave the arena to restart the battle.",
+  "message.skyarena.available_mobs_is_empty": "The list of available mobs is empty",
 
   "message.skyarena.discord.line1": "§5Congratulations, §6hero!",
   "message.skyarena.discord.line2": "§5You survived §650 waves §5and proved yourself §6among the best.",

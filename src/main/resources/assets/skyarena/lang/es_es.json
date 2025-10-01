@@ -39,6 +39,7 @@
   "message.skyarena.no_spawn_position": "No hay un lugar adecuado para la aparición de mobs",
   "message.skyarena.cannot_do_during_battle": "No puedes hacer esto durante la batalla",
   "message.skyarena.unclaimed_reward": "§4Si no puedes reclamar la recompensa, significa que no has derrotado a todos los monstruos. Los monstruos restantes tienen el efecto de Brillo. Si no puedes encontrarlos, sal de la arena para reiniciar la batalla.",
+  "message.skyarena.available_mobs_is_empty": "La lista de mobs disponibles está vacía",
 
   "message.skyarena.discord.line1": "§5¡Felicidades, §6héroe!",
   "message.skyarena.discord.line2": "§5Has sobrevivido a §650 oleadas §5y demostrado que eres §6de los mejores.",

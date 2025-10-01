@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -17,18 +18,21 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.structure.Structure;
 
-public class SkyEyeItem extends Item {
+public class DungeonEyeItem extends Item {
+    private final TagKey<Structure> Structure;
 
-    public SkyEyeItem(Properties pProperties) {
+    public DungeonEyeItem(Properties pProperties, TagKey<Structure> structure) {
         super(pProperties);
+        Structure = structure;
     }
 
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
         ItemStack $$3 = pPlayer.getItemInHand(pHand);
         if (pLevel instanceof ServerLevel) {
             ServerLevel $$5 = (ServerLevel)pLevel;
-            BlockPos $$6 = $$5.findNearestMapStructure(ModTags.EYE_OF_SKY_LOCATED, pPlayer.blockPosition(), 100, false);
+            BlockPos $$6 = $$5.findNearestMapStructure(Structure, pPlayer.blockPosition(), 100, false);
             if ($$6 != null) {
                 EyeOfEnder $$7 = new EyeOfEnder(pLevel, pPlayer.getX(), pPlayer.getY(0.5), pPlayer.getZ());
                 $$7.setItem($$3);
@@ -53,5 +57,5 @@ public class SkyEyeItem extends Item {
         }
 
         return InteractionResultHolder.consume($$3);
-        }
+    }
 }

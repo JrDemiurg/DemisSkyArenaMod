@@ -39,6 +39,7 @@
   "message.skyarena.no_spawn_position": "Aucun endroit adapté pour l’apparition des mobs",
   "message.skyarena.cannot_do_during_battle": "Vous ne pouvez pas faire cela pendant le combat",
   "message.skyarena.unclaimed_reward": "§4Si vous ne pouvez pas récupérer la récompense, cela signifie que vous n'avez pas vaincu tous les monstres. Les monstres restants ont reçu l'effet Luminance. Si vous ne pouvez pas les trouver, quittez l'arène pour recommencer le combat.",
+  "message.skyarena.available_mobs_is_empty": "La liste des mobs disponibles est vide",
 
   "message.skyarena.discord.line1": "§5Félicitations, §6héros !",
   "message.skyarena.discord.line2": "§5Tu as survécu à §650 vagues §5et prouvé que tu fais §6partie des meilleurs.",
